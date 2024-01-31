@@ -361,8 +361,8 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
           ),
         ),
         Positioned(
-          top: MediaQuery.of(context).size.height * 0.22,
-          left: MediaQuery.of(context).size.width * 0.05,
+          top: MediaQuery.of(context).size.height * 0.17,
+          left: MediaQuery.of(context).size.width * 0.07,
           child: Row(
             children: [
 
@@ -398,8 +398,8 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
           ),
         ),
         Positioned(
-          bottom: MediaQuery.of(context).size.height * 0.35,
-          left: MediaQuery.of(context).size.width * 0.05,
+          bottom: MediaQuery.of(context).size.height * 0.45,
+          left: MediaQuery.of(context).size.width * 0.00,
           child: Row(
             children: [
 
@@ -435,8 +435,45 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
           ),
         ),
         Positioned(
-          top: MediaQuery.of(context).size.height * 0.22,
-          right: MediaQuery.of(context).size.width * 0.05,
+          bottom: MediaQuery.of(context).size.height * 0.20,
+          left: MediaQuery.of(context).size.width * 0.07,
+          child: Row(
+            children: [
+
+              Container(
+                height: 55,
+                width: 160,
+                decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
+                child: Stack(
+                  children: [
+                    Image.asset(
+                      ImageConst.icProfilePic4,
+                      height: MediaQuery.of(context).size.height * 0.15,
+                      width:  MediaQuery.of(context).size.width * 0.06,
+                    ),
+                     const Align(
+                      alignment: Alignment.topCenter,
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 20,top: 5),
+                        child: Column(
+                          children: [
+                            Text('Surdhi',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16),),
+                            Text('₹ 5.0',style: TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 14),),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+
+            ],
+          ),
+        ),
+        Positioned(
+          top: MediaQuery.of(context).size.height * 0.17,
+          right: MediaQuery.of(context).size.width * 0.08,
           child: Row(
             children: [
 
@@ -471,8 +508,44 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
           ),
         ),
         Positioned(
-          bottom: MediaQuery.of(context).size.height * 0.35,
-          right: MediaQuery.of(context).size.width * 0.05,
+          bottom: MediaQuery.of(context).size.height * 0.45,
+          right: MediaQuery.of(context).size.width * 0.01,
+          child: Row(
+            children: [
+
+              Container(
+                height: 55,
+                width: 160,
+                decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
+                child: Stack(
+                  children: [
+                     const Padding(
+                       padding: EdgeInsets.only(left: 30,top: 5),
+                       child: Column(
+                         children: [
+                           Text('Surdhi',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 16),),
+                           Text('₹ 5.0',style: TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 14),),
+                         ],
+                       ),
+                     ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Image.asset(
+                        ImageConst.icProfilePic2,
+                        height: MediaQuery.of(context).size.height * 0.15,
+                        width:  MediaQuery.of(context).size.width * 0.06,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: MediaQuery.of(context).size.height * 0.20,
+          right: MediaQuery.of(context).size.width * 0.07,
           child: Row(
             children: [
 

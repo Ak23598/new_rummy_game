@@ -274,7 +274,7 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                               if(socketProvider.newIndexData.length ==11){
                                 int finishData = socketProvider.newIndexData[int.parse(data.toString())];
                                 socketProvider.setNoDropCard(false);
-                                socketProvider.setCardListIndex(finishData -1);
+                                socketProvider.setCardListIndex(finishData);
                                 socketProvider.setOldCardRemove(int.parse(data.toString()));
                                 socketProvider.dropCard(int.parse(data.toString()));
                                 socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
