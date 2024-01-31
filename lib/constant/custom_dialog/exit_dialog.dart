@@ -10,6 +10,7 @@ class ExitDialog {
   final VoidCallback onTapRightButton;
   final String leftButton;
   final VoidCallback onTapLeftButton;
+  final String gameId;
 
   ExitDialog({
     required this.title,
@@ -18,6 +19,7 @@ class ExitDialog {
     required this.onTapRightButton,
     required this.leftButton,
     required this.onTapLeftButton,
+    required this.gameId,
   });
 
   show(BuildContext context) {
@@ -31,7 +33,9 @@ class ExitDialog {
             leftButton: leftButton,
             rightButton: rightButton,
             onTapLeftButton: onTapLeftButton,
-            onTapRightButton: onTapRightButton);
+            onTapRightButton: onTapRightButton,
+          gameId: gameId,
+        );
       },
     );
   }
@@ -44,6 +48,7 @@ class _PopupCall extends StatefulWidget {
   final VoidCallback onTapRightButton;
   final String leftButton;
   final VoidCallback onTapLeftButton;
+  final String gameId;
 
   const _PopupCall(
       {Key? key,
@@ -52,7 +57,9 @@ class _PopupCall extends StatefulWidget {
         required this.rightButton,
         required this.onTapRightButton,
         required this.leftButton,
-        required this.onTapLeftButton})
+        required this.onTapLeftButton,
+        required this.gameId,
+      })
       : super(key: key);
   @override
   _PopupCallState createState() => _PopupCallState();
@@ -62,13 +69,13 @@ class _PopupCallState extends State<_PopupCall> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(
           Radius.circular(24),
         ),
       ),
       backgroundColor: Colors.black87,
-      titlePadding: EdgeInsets.all(0),
+      titlePadding: const EdgeInsets.all(0),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
@@ -94,7 +101,7 @@ class _PopupCallState extends State<_PopupCall> {
           ),
           Center(
             child: Text(widget.title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'TTNorms',
                   fontWeight: FontWeight.bold,
                   wordSpacing: 0,
@@ -111,7 +118,7 @@ class _PopupCallState extends State<_PopupCall> {
           Text(
             widget.message,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'TTNorms',
               fontWeight: FontWeight.w400,
               wordSpacing: 0,
@@ -132,6 +139,7 @@ class _PopupCallState extends State<_PopupCall> {
                 child: Center(
                   child: GestureDetector(
                     onTap: () {
+                      Provider.of<SocketProvider>(context,listen: false).gameOver(context,widget.gameId);
                       Provider.of<SocketProvider>(context,listen: false).disconnectSocket(context);
                       Navigator.pop(context);
                     },
@@ -140,7 +148,7 @@ class _PopupCallState extends State<_PopupCall> {
                       width: 120,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.yellow, width: 2.0),
-                        borderRadius: BorderRadius.all(
+                        borderRadius: const BorderRadius.all(
                           Radius.circular(25),
                         ),
                         color: Colors.blue,
@@ -148,7 +156,7 @@ class _PopupCallState extends State<_PopupCall> {
                       child: Center(
                         child: Text(
                           'Exit Game'.toUpperCase(),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'TTNorms',
                             fontWeight: FontWeight.bold,
                             wordSpacing: 0,
@@ -163,7 +171,7 @@ class _PopupCallState extends State<_PopupCall> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   bottom: 10.0,
                   left: 10,
                 ),
@@ -175,7 +183,7 @@ class _PopupCallState extends State<_PopupCall> {
                     child: Container(
                       height: 40,
                       width: 80,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(
                           Radius.circular(15),
                         ),
@@ -183,7 +191,7 @@ class _PopupCallState extends State<_PopupCall> {
                       child: Center(
                         child: Text(
                           'Cancel'.toUpperCase(),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'TTNorms',
                             fontWeight: FontWeight.bold,
                             wordSpacing: 0,

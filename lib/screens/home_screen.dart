@@ -1,10 +1,10 @@
-
-import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rummy_game/constant/socket_constants.dart';
 import 'package:rummy_game/provider/create_game_provider.dart';
 import 'package:rummy_game/screens/rummy_game.dart';
+
+import '../poker/screen/poker_screen/poker_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   const SizedBox(
                                     width: 5,
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     height: 50,
                                     width: 120,
                                     child: Column(
@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           MainAxisAlignment.center,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
-                                      children: const [
+                                      children: [
                                         Text(
                                           "Jaydip Navapariya",
                                           style: TextStyle(
@@ -350,7 +350,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           'assets/r_image/playnowButton.png'),
                                       InkWell(
                                         onTap: () {
-                                          showCustomBottomSheet(context);
+                                          //showCustomBottomSheet(context);
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => const PokerScreen()));
                                         },
                                         child: const Padding(
                                           padding: EdgeInsets.only(bottom: 5),

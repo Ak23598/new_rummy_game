@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 import 'package:provider/provider.dart';
 import 'package:rummy_game/constant/image_constants.dart';
-import 'package:rummy_game/provider/rummy_provider.dart';
+
 import 'package:rummy_game/provider/socket_provider.dart';
 import 'package:rummy_game/utils/Sockets.dart';
 import 'package:rummy_game/widgets/main_player/new_main_set_widget.dart';
@@ -11,14 +13,10 @@ import 'package:rummy_game/widgets/main_player/new_main_set_widget.dart';
 
 class SixPlayerTableWidget extends StatefulWidget {
   final List<bool> servedPages;
-  final List<bool> jokerServedPages;
-  final List<bool> jokerFlipedPages;
   final List<bool> flipedPages;
   final List<int> cardPage;
 
-  const SixPlayerTableWidget({
-    required this.jokerFlipedPages,
-    required this.jokerServedPages,
+  const SixPlayerTableWidget({super.key,
     required this.servedPages,
     required this.flipedPages,
     required this.cardPage,
@@ -29,21 +27,17 @@ class SixPlayerTableWidget extends StatefulWidget {
 }
 
 class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
-  List<bool> _moveOldServedPages = [];
-  List<bool> _moveOldFlipedPages = [];
-  Timer? moveOldServingTimer;
-  Timer? moveOldFlipingTimer;
 
   @override
   void initState() {
     super.initState();
-    var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
-    rummyProvider.setCardUpFalse();
+    var socketProvider = Provider.of<SocketProvider>(context,listen: false);
+    socketProvider.setCardUpFalse();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<RummyProvider,SocketProvider>(builder: (context,rummyProvider,socketProvider,_){
+    return Consumer<SocketProvider>(builder: (context,socketProvider,_){
       return Stack(
         alignment: Alignment.center,
         children: [
@@ -62,7 +56,7 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                       fit: BoxFit.fill,
                     ),
                   ),
-                  child: rummyProvider.stopCountDown == 1
+                  child: socketProvider.stopCountDown == 1
                       ? Stack(
                     clipBehavior: Clip.none,
                     alignment: Alignment.center,
@@ -71,7 +65,7 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                         height: 40,
                         width: double.infinity,
                         decoration: BoxDecoration(gradient: LinearGradient(colors: [Colors.transparent,Colors.grey,Colors.transparent])),
-                        child: Center(child: Text('Start Game in ${rummyProvider.countDown} Seconds...',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 17),),),
+                        child: Center(child: Text('Start Game in ${socketProvider.countDown} Seconds...',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 17),),),
                       ),
                     ],
                   )
@@ -81,12 +75,12 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                     children: [
 
                       Positioned(
-                          top: 09.5,
-                          left: 51.0,
-                          child: Text('Down : ${rummyProvider.totalDownCard}',style: TextStyle(color: Colors.white,fontSize: 12),)),
+                          top: MediaQuery.of(context).size.height / 6.5,
+                          left: MediaQuery.of(context).size.width * 0.25,
+                          child: Text('Down : ${socketProvider.totalDownCard}',style: TextStyle(color: Colors.white,fontSize: 12),)),
                       Positioned(
-                        top: 12.0,
-                        left: 50.0,
+                        top: MediaQuery.of(context).size.height / 5,
+                        left: MediaQuery.of(context).size.width * 0.234,
                         child: Container(
                           height: 65,
                           width: 65,
@@ -94,8 +88,8 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                         ),
                       ),
                       Positioned(
-                        top: 12.0,
-                        left: 50.50,
+                        top: MediaQuery.of(context).size.height / 5,
+                        left: MediaQuery.of(context).size.width * 0.238,
                         child: Container(
                           height: 65,
                           width: 65,
@@ -103,8 +97,8 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                         ),
                       ),
                       Positioned(
-                        top: 12.0,
-                        left: 51.0,
+                        top: MediaQuery.of(context).size.height / 5,
+                        left: MediaQuery.of(context).size.width * 0.242,
                         child: Container(
                           height: 65,
                           width: 65,
@@ -112,8 +106,8 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                         ),
                       ),
                       Positioned(
-                        top: 12.0,
-                        left: 51.50,
+                        top: MediaQuery.of(context).size.height / 5,
+                        left: MediaQuery.of(context).size.width * 0.246,
                         child: Container(
                           height: 65,
                           width: 65,
@@ -121,23 +115,47 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                         ),
                       ),
                       Positioned(
-                        top: 12.0,
-                        left: 52.0,
+                        top: MediaQuery.of(context).size.height / 5,
+                        left: MediaQuery.of(context).size.width * 0.25,
                         child: InkWell(
                           onTap: (){
-                            Sockets.socket.emit("draw","down");
-                            print('draw emit down done');
+                            if(socketProvider.isMyTurn){
+                              if(socketProvider.isSortTrueFalse){
+                                socketProvider.sortTrueFalse();
+                                Sockets.socket.emit("draw","down");
+                              }else{
+                                Sockets.socket.emit("draw","down");
+                              }
+                              if (kDebugMode) {
+                                print('draw emit down done');
+                              }}else{
+                              showToast("It's not your turn,please wait for your Turn".toUpperCase(),
+                                context: context,
+                                animation: StyledToastAnimation.slideFromTop,
+                                reverseAnimation: StyledToastAnimation.fade,
+                                position: StyledToastPosition.top,
+                                animDuration: const Duration(seconds: 1),
+                                duration: const Duration(seconds: 4),
+                                curve: Curves.elasticOut,
+                                textStyle: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                backgroundColor: Colors.red.withOpacity(0.8),
+                                reverseCurve: Curves.linear,
+                              );
+                            }
+
                           },
-                          child: Container(
+                          child: SizedBox(
                             height: 65,
                             width: 65,
                             child: Image.asset('assets/cards/red_back.png'),
                           ),
                         ),
                       ),
+
+                      //Player
                       Positioned(
                         top: 20.0,
-                        right: 20.0,
+                        right: MediaQuery.of(context).size.width * 0.05,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
@@ -145,8 +163,8 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                               padding: EdgeInsets.only(bottom: 2.0),
                               child: Image.asset(
                                 ImageConst.icProfilePic2,
-                                height: 8.3,
-                                width: 8.3,
+                                height: MediaQuery.of(context).size.height * 0.13,
+                                width:  MediaQuery.of(context).size.width * 0.06,
                               ),
                             ),
                           ],
@@ -154,16 +172,16 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                       ),
                       Positioned(
                         top: 20.0,
-                        left: 20.0,
+                        left: MediaQuery.of(context).size.width * 0.05,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Container(
-                              padding: EdgeInsets.only(bottom: 2.0),
+                              padding: const EdgeInsets.only(bottom: 2.0),
                               child: Image.asset(
                                 ImageConst.icProfilePic1,
-                                height: 8.3,
-                                width: 8.3,
+                                height: MediaQuery.of(context).size.height * 0.13,
+                                width:  MediaQuery.of(context).size.width * 0.06,
                               ),
                             ),
                           ],
@@ -171,16 +189,16 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                       ),
                       Positioned(
                         bottom: 70.0,
-                        right: 0.0,
+                        right: MediaQuery.of(context).size.width * 0.05,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Container(
-                              padding: EdgeInsets.only(bottom: 2.0),
+                              padding: const EdgeInsets.only(bottom: 2.0),
                               child: Image.asset(
                                 ImageConst.icProfilePic5,
-                                height: 8.3,
-                                width: 8.3,
+                                height: MediaQuery.of(context).size.height * 0.13,
+                                width:  MediaQuery.of(context).size.width * 0.06,
                               ),
                             ),
                           ],
@@ -188,16 +206,16 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                       ),
                       Positioned(
                         bottom: 70.0,
-                        left: 0.0,
+                        left: MediaQuery.of(context).size.width * 0.05,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             Container(
-                              padding: EdgeInsets.only(bottom: 2.0),
+                              padding: const EdgeInsets.only(bottom: 2.0),
                               child: Image.asset(
                                 ImageConst.icProfilePic2,
-                                height: 8.3,
-                                width: 8.3,
+                                height: MediaQuery.of(context).size.height * 0.13,
+                                width:  MediaQuery.of(context).size.width * 0.06,
                               ),
                             ),
                           ],
@@ -205,84 +223,42 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                       ),
 
 
-                      //Joker Card
-
-                      // Positioned(
-                      //   top: 12.0,
-                      //   left: 30.0,
-                      //   child: Container(
-                      //     child: SizeAnimatedWidget.tween(
-                      //       enabled: widget.jokerServedPages[0],
-                      //       duration: const Duration(milliseconds: 200),
-                      //       sizeEnabled: Size(15.5, 20.0),
-                      //       sizeDisabled: Size(0, 0),
-                      //       curve: Curves.ease,
-                      //       child: TranslationAnimatedWidget.tween(
-                      //         enabled: widget.jokerServedPages[0],
-                      //         delay: const Duration(milliseconds: 500),
-                      //         translationEnabled: const Offset(0, 0),
-                      //         translationDisabled: Offset(0, -(50.0)),
-                      //         curve: Curves.ease,
-                      //         duration: const Duration(milliseconds: 200),
-                      //         child: RummyJokerCardWidget(
-                      //           jokerCardFliped: widget.jokerFlipedPages[0],
-                      //           opacityEnabled: 1,
-                      //           opacityDisabled: 0,
-                      //           jokerCard: widget.cardPage[12],
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      // Positioned(
-                      //   top: 12.0,
-                      //   left: 30.0,
-                      //   child: Container(
-                      //     alignment: Alignment.bottomLeft,
-                      //     child: SizeAnimatedWidget.tween(
-                      //       enabled: widget.jokerServedPages[0],
-                      //       duration: const Duration(milliseconds: 200),
-                      //       sizeEnabled: Size(15.5, 20.0),
-                      //       sizeDisabled: Size(0, 0),
-                      //       curve: Curves.ease,
-                      //       child: TranslationAnimatedWidget.tween(
-                      //         enabled: widget.jokerServedPages[0],
-                      //         delay: const Duration(milliseconds: 500),
-                      //         translationEnabled: const Offset(0, 0),
-                      //         translationDisabled: Offset(18.0, 0.0),
-                      //         curve: Curves.ease,
-                      //         duration: const Duration(milliseconds: 200),
-                      //         child: RummyJokerCardWidget(
-                      //           jokerCardFliped: widget.jokerFlipedPages[0],
-                      //           opacityEnabled: 0,
-                      //           opacityDisabled: 1,
-                      //           jokerCard: 53,
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-
                       Positioned(
-                        top: 12.0,
-                        left: 70.0,
+                        top: MediaQuery.of(context).size.height / 5,
+                        left: MediaQuery.of(context).size.width * 0.40,
                         child: DragTarget(
                           builder: (context, candidateData, rejectedData){
                             return Stack(
                               children: [
-                                ...rummyProvider.cardListIndex.map((e) => InkWell(
+                                ...socketProvider.cardListIndex.map((e) => InkWell(
                                   onTap: (){
-                                    Sockets.socket.emit("draw","up");
-                                    print('draw emit up done');
+                                    if(socketProvider.isMyTurn){
+                                      Sockets.socket.emit("draw","up");
+                                      print('draw emit up done');
+
+                                    }else{showToast("It's not your turn,please wait for your Turn".toUpperCase(),
+                                      context: context,
+                                      animation: StyledToastAnimation.slideFromTop,
+                                      reverseAnimation: StyledToastAnimation.fade,
+                                      position: StyledToastPosition.top,
+                                      animDuration: const Duration(seconds: 1),
+                                      duration: const Duration(seconds: 4),
+                                      curve: Curves.elasticOut,
+                                      textStyle: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                      backgroundColor: Colors.red.withOpacity(0.8),
+                                      reverseCurve: Curves.linear,
+                                    );
+
+                                    }
                                   },
-                                  child: Container(
-                                    height: 68,
+                                  child: SizedBox(
+                                    height: 65,
                                     width: 55,
-                                    child: Image.asset('assets/cards/red_back.png'),),
+                                    child: Image.asset(socketProvider.rummyCardList[e - 1]),),
                                 ),),
-                                if(rummyProvider.cardListIndex.isEmpty)
+                                if(socketProvider.cardListIndex.isEmpty)
                                   Container(
-                                    height: 68,
+                                    height: 65,
                                     width: 55,
                                     decoration: BoxDecoration(
                                         color: Colors.black.withOpacity(0.5),
@@ -293,59 +269,176 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
                             );
                           },
                           onAccept: (data){
-                            rummyProvider.setCardListIndex(int.parse(data.toString()));
-                            for(int i = 0; i < rummyProvider.cardList.length; i++){
-                              Map<String,dynamic> singleData = rummyProvider.cardList[i];
-                              if((i+1) == int.parse(data.toString())){
-                                rummyProvider.dropCard(int.parse(data.toString()));
+                            print('dta     :-    ${data}');
+                            if(socketProvider.isMyTurn){
+                              if(socketProvider.newIndexData.length ==11){
+                                int finishData = socketProvider.newIndexData[int.parse(data.toString())];
+                                socketProvider.setNoDropCard(false);
+                                socketProvider.setCardListIndex(finishData -1);
+                                socketProvider.setOldCardRemove(int.parse(data.toString()));
+                                socketProvider.dropCard(int.parse(data.toString()));
+                                socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                                // socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
+                                /*for(int i = 0; i < socketProvider.cardList.length; i++){
+                                  Map<String,dynamic> singleData = socketProvider.cardList[i];
+                                  if((i+1) == int.parse(data.toString())){
+                                    socketProvider.dropCard(int.parse(data.toString()));
+                                  }
+                                }
+                                for(int j = 0; j < socketProvider.newIndexData.length;j++){
+                                  if(socketProvider.newIndexData[j] == data){
+                                    socketProvider.setNewRemoveIndex(j);
+                                    socketProvider.setOneAcceptCardList(2,j);
+                                  }
+                                }*/
+                              }else{
+                                showToast("Pick Up a Card".toUpperCase(),
+                                  context: context,
+                                  animation: StyledToastAnimation.slideFromTop,
+                                  reverseAnimation: StyledToastAnimation.fade,
+                                  position: StyledToastPosition.top,
+                                  animDuration: Duration(seconds: 1),
+                                  duration: Duration(seconds: 4),
+                                  curve: Curves.elasticOut,
+                                  textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                  backgroundColor: Colors.red.withOpacity(0.8),
+                                  reverseCurve: Curves.linear,
+                                );
+                                socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
                               }
-                            }
-                            for(int j = 0; j < rummyProvider.newIndexData.length;j++){
-                              print('New ******  :-  $data  :-   ${rummyProvider.newIndexData}');
-                              if(rummyProvider.newIndexData[j] == data){
-                                rummyProvider.setNewRemoveIndex(j);
-                                rummyProvider.setOneAcceptCardList(2,j);
-                              }
+                            }else{
+                              showToast("It's not your turn,please wait for your Turn".toUpperCase(),
+                                context: context,
+                                animation: StyledToastAnimation.slideFromTop,
+                                reverseAnimation: StyledToastAnimation.fade,
+                                position: StyledToastPosition.top,
+                                animDuration: Duration(seconds: 1),
+                                duration: Duration(seconds: 4),
+                                curve: Curves.elasticOut,
+                                textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                backgroundColor: Colors.red.withOpacity(0.8),
+                                reverseCurve: Curves.linear,
+                              );
+                              socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
                             }
                           },
                         ),
                       ),
-                      /*Positioned(
-                          top: 12.0,
-                          left: 90.0,
-                          child: Container(
-                            height: 68,
-                            width: 55,
-                            decoration: BoxDecoration(
-                                color: Colors.blackithOpacity(0.5),
-                                borderRadius: BorderRadius.circular(5)
-                            ),
-                            child: Center(child: Text('Finish',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey),)),
-                          )),
 
                       Positioned(
-                          top: 13.5,
-                          left: 110.0,
-                          child: InkWell(
-                            onTap: (){
-                              // rummyProvider.setSortAllCard();
-                              rummyProvider.checkSetSequenceData(rummyProvider.reArrangeData);
-                            },
-                            child: Card(
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              color: Colors.blackithOpacity(0.5),
-                              elevation: 10,
-                              child: Container(
-                                height: 30,
-                                width: 60,
-                                decoration: BoxDecoration(
-                                    color: Colors.blackithOpacity(0.5),
-                                    borderRadius: BorderRadius.circular(10)
-                                ),
-                                child: Center(child: Text('Sort',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.grey),)),
+                        top: MediaQuery.of(context).size.height / 5,
+                        left: MediaQuery.of(context).size.width * 0.50,
+                        child: DragTarget(
+                          builder: (context, candidateData, rejectedData){
+                            return Stack(
+                              children: [
+                                socketProvider.finishCardIndex == null?
+                                Container(
+                                  height: 70,
+                                  width: 55,
+                                  decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.5),
+                                      borderRadius: BorderRadius.circular(5)
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.arrow_drop_down_outlined,color: Colors.grey.withOpacity(0.5),size: 30,),
+                                      Text('FINISH',style: TextStyle(color: Colors.grey.withOpacity(0.5),fontWeight: FontWeight.bold),)
+                                    ],
+                                  ),
+                                ):SizedBox(
+                                  height: 65,
+                                  width: 55,
+                                  child: Image.asset(socketProvider.rummyCardList[socketProvider.finishCardIndex!]),),
+                              ],
+                            );
+                          },
+                          onAccept: (data){
+                            print('dta     :-    ${data}');
+                            int finishData = socketProvider.newIndexData[int.parse(data.toString())];
+                            socketProvider.setFinishCardIndex(finishData -1);
+                            socketProvider.setOldCardRemove(int.parse(data.toString()));
+                            //socketProvider.setNewRemoveIndex(int.parse(data.toString()));
+                            socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                            socketProvider.finishCard(int.parse(data.toString()));
+                          },
+                        ),
+                      ),
+
+                      Positioned(
+                        top: MediaQuery.of(context).size.height / 4,
+                        left: MediaQuery.of(context).size.width * 0.60,
+                        child:  socketProvider.sortList.length == 1
+                            ? InkWell(
+                          onTap: (){
+                            if(socketProvider.isMyTurn){
+                              if(socketProvider.newIndexData.length == 11){
+                                socketProvider.setOldCardRemove(socketProvider.setCardUpIndex);
+                                socketProvider.dropCard(socketProvider.setCardUpIndex);
+                                socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
+                              }
+                              else{
+                                showToast("Pick Up a Card".toUpperCase(),
+                                  context: context,
+                                  animation: StyledToastAnimation.slideFromTop,
+                                  reverseAnimation: StyledToastAnimation.fade,
+                                  position: StyledToastPosition.top,
+                                  animDuration: Duration(seconds: 1),
+                                  duration: Duration(seconds: 4),
+                                  curve: Curves.elasticOut,
+                                  textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                  backgroundColor: Colors.red.withOpacity(0.8),
+                                  reverseCurve: Curves.linear,
+                                );
+                              }
+                            }
+                            else{
+                              showToast("It's not your turn,please wait for your Turn".toUpperCase(),
+                                context: context,
+                                animation: StyledToastAnimation.slideFromTop,
+                                reverseAnimation: StyledToastAnimation.fade,
+                                position: StyledToastPosition.top,
+                                animDuration: const Duration(seconds: 1),
+                                duration: const Duration(seconds: 4),
+                                curve: Curves.elasticOut,
+                                textStyle: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                backgroundColor: Colors.red.withOpacity(0.8),
+                                reverseCurve: Curves.linear,
+                              );
+                            }
+
+                          },
+                          child: Container(
+                            height: 30,
+                            decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
+                            child: const Padding(
+                              padding: EdgeInsets.only(left: 20,right: 20),
+                              child: Center(
+                                child: Text('Drop',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
                               ),
                             ),
-                          )),*/
+                          ),
+                        )
+                            : InkWell(
+                          onTap: (){
+                            socketProvider.newSetData();
+                            socketProvider.sortDataEvent(socketProvider.listOfMap);
+                            socketProvider.checkSetSequenceData(socketProvider.listOfMap);
+                            socketProvider.sortTrueFalse();
+                            socketProvider.isSortGroup(socketProvider.newIndexData);
+                          },
+                          child: Container(
+                            height: 30,
+                            decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
+                            child: const Padding(
+                              padding: EdgeInsets.only(left: 20,right: 20),
+                              child: Center(
+                                child: Text('Sort',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                              ),
+                            ),
+                          ),
+                        ),),
 
                       NewPlayer3SeatWidget(
                         userProfileImage: ImageConst.icProfilePic3,
@@ -392,19 +485,19 @@ class _SixPlayerTableWidgetState extends State<SixPlayerTableWidget> {
               ],
             ),
           ),
-          Positioned(
-            top: 15.0,
-
+          socketProvider.stopCountDown == 1
+              ?Container():Positioned(
+            top: MediaQuery.of(context).size.height * 0.04,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
-                  padding: EdgeInsets.only(bottom: 2.0),
+                  padding: const EdgeInsets.only(bottom: 2.0),
                   child: Image.asset(
                     ImageConst.icProfilePic1,
-                    height: 8.3,
-                    width: 8.3,
+                    height: MediaQuery.of(context).size.height * 0.13,
+                    width:  MediaQuery.of(context).size.width * 0.06,
                   ),
                 ),
               ],

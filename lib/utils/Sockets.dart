@@ -35,8 +35,8 @@ print("socket connect and listen ");
         socketProvider.turnTime(context);
         socketProvider.turnMessage(context,userId);
         socketProvider.roomMessage(context);
-        socketProvider.gameOver(context,controller,gameId);
-        socketProvider.countDown(context);
+        socketProvider.gameOver(context,gameId);
+        socketProvider.countDownEvent(context);
 
       });
     });

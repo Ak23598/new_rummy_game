@@ -4,7 +4,8 @@ import 'package:animated_widgets/animated_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:provider/provider.dart';
-import 'package:rummy_game/provider/rummy_provider.dart';
+
+import 'package:rummy_game/provider/socket_provider.dart';
 
 class NewPlayer3SeatWidget extends StatefulWidget {
   const NewPlayer3SeatWidget({
@@ -109,15 +110,10 @@ class NewPlayer3SeatWidget extends StatefulWidget {
 
 class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
 
-  bool sizeChange = false;
   List<bool> _servedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false];
-  List<bool> _jokerServedPages = [false];
-  List<bool> _jokerFlipedPages = [false];
   List<bool> _flipedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false];
   Timer? servingTimer;
   Timer? flipingTimer;
-  Timer? jokerServingTimer;
-  Timer? jokerFlipingTimer;
   bool isPlaying = false;
 
   @override
@@ -128,16 +124,12 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
   void dispose() {
     servingTimer?.cancel();
     flipingTimer?.cancel();
-    jokerServingTimer?.cancel();
-    jokerFlipingTimer?.cancel();
     super.dispose();
   }
 
   sizeChangeAnimation() {
     int serveCounter = 0;
-    int jokerServeCounter = 0;
     int flipCounter = 0;
-    int jokerFlipCounter = 0;
 
     servingTimer = Timer.periodic(const Duration(milliseconds: 200), (serveTimer) {
       if (!mounted) return;
@@ -149,7 +141,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
         serveTimer.cancel();
         servingTimer?.cancel();
         Future.delayed(Duration(seconds: 1),(){
-          Provider.of<RummyProvider>(context,listen: false).setFilpCard(false);
+          Provider.of<SocketProvider>(context,listen: false).setFilpCard(false);
           flipingTimer = Timer.periodic(Duration(milliseconds: 200), (flipTimer) {
             if (!mounted) return;
             setState(() {
@@ -164,37 +156,11 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
         });
       }
     });
-    Future.delayed(const Duration(seconds: 6),(){
-      jokerServingTimer = Timer.periodic(Duration(milliseconds: 500), (jokerServeTimer) {
-        if (!mounted) return;
-        setState(() {
-          _jokerServedPages[jokerServeCounter] = true;
-        });
-        jokerServeCounter++;
-        if (jokerServeCounter == 1) {
-          jokerServeTimer.cancel();
-          jokerServingTimer?.cancel();
-          Future.delayed(Duration(seconds: 1),(){
-            jokerFlipingTimer = Timer.periodic(Duration(milliseconds: 200), (jokerFlipTimer) {
-              if (!mounted) return;
-              setState(() {
-                _jokerFlipedPages[jokerFlipCounter] = true;
-              });
-              jokerFlipCounter++;
-              if (jokerFlipCounter == 1) {
-                jokerFlipTimer.cancel();
-                jokerFlipingTimer?.cancel();
-              }
-            });
-          });
-        }
-      });
-    });
     Future.delayed(const Duration(seconds: 5),(){
       setState(() {
         isPlaying = true;
       });
-      Provider.of<RummyProvider>(context,listen: false).newSetData();
+      Provider.of<SocketProvider>(context,listen: false).newSetData();
     });
   }
 
@@ -206,39 +172,39 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
       left: 0.0,
       bottom: isPlaying?MediaQuery.of(context).size.height * -0.10:MediaQuery.of(context).size.height * 0.05,
       child: isPlaying
-          ?Consumer<RummyProvider>(
-        builder: (context,rummyProvider,_){
+          ?Consumer<SocketProvider>(
+        builder: (context,socketProvider,_){
           return Column(
             children: [
-              rummyProvider.isSortTrueFalse
-                  ? Container(
+              socketProvider.isSortTrueFalse
+                  ? SizedBox(
                 width: MediaQuery.of(context).size.width * 0.90,
                 height: 90,
                 child: Center(
                   child: ReorderableListView.builder(
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
-                    itemCount: rummyProvider.isSortData.length,
+                    itemCount: socketProvider.isSortData.length,
                     itemBuilder: (context,i){
                       return Padding(
                         key: ValueKey(i),
                         padding: const EdgeInsets.only(right: 10),
                         child: SizedBox(
-                          width: 45 * rummyProvider.isSortData[i].length.toDouble(),
+                          width: 45 * socketProvider.isSortData[i].length.toDouble(),
                           height: 100,
                           child: Stack(
 
                             children: [
-                              rummyProvider.setSequencesResponse.isNotEmpty?SizedBox(
-                                width: 35 * rummyProvider.isSortData[i].length.toDouble(),
+                              socketProvider.setSequencesResponse.isNotEmpty?SizedBox(
+                                width: 35 * socketProvider.isSortData[i].length.toDouble(),
                                 height: 20,
                                 child:  Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    rummyProvider.setSequencesResponse[i] == 'd'?Container():rummyProvider.setSequencesResponse[i] == 'invalid'?const Icon(Icons.close,color: Colors.red,size: 16,):const Icon(Icons.check,color: Colors.green,size: 16,),
+                                    socketProvider.setSequencesResponse[i] == 'd'?Container():socketProvider.setSequencesResponse[i] == 'invalid'?const Icon(Icons.close,color: Colors.red,size: 16,):const Icon(Icons.check,color: Colors.green,size: 16,),
                                     const SizedBox(width: 05,),
-                                    rummyProvider.setSequencesResponse[i] == 'd'?Container():rummyProvider.setSequencesResponse[i] == 'invalid'?Center(child: Text(rummyProvider.setSequencesResponse[i].toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red),)):Center(child: Text('valid'.toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.green),)),
+                                    socketProvider.setSequencesResponse[i] == 'd'?Container():socketProvider.setSequencesResponse[i] == 'invalid'?Center(child: Text(socketProvider.setSequencesResponse[i].toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red),)):Center(child: Text('valid'.toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.green),)),
                                   ],
                                 ),
                               ):Container(),
@@ -246,13 +212,13 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                               ReorderableListView.builder(
                                 shrinkWrap: true,
                                 scrollDirection: Axis.horizontal,
-                                itemCount: rummyProvider.isSortData[i].length,
+                                itemCount: socketProvider.isSortData[i].length,
                                 itemBuilder: (context,index){
                                   return Align(
                                     key: ValueKey(index),
                                     alignment: Alignment.bottomLeft,
                                     child: Container(
-                                      margin: EdgeInsets.only(top: rummyProvider.cardUp[index]?5:15),
+                                      margin: EdgeInsets.only(top: socketProvider.cardUp[index]?5:15),
                                       child: SizeAnimatedWidget.tween(
                                         enabled: true,
                                         duration: const Duration(milliseconds: 200),
@@ -268,18 +234,21 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                           duration: const Duration(milliseconds: 500),
                                           child: InkWell(
                                             onTap: () {
-                                              rummyProvider.setCardUpTrue(index,context);
+                                              socketProvider.setCardUpTrue(index,context);
                                             },
                                             child: Draggable<int>(
                                               onDragCompleted: (){
+                                                socketProvider.sortTrueFalse();
 
                                               },
                                               onDragStarted: () {
-                                                if(rummyProvider.isMyTurn){
-                                                  if(rummyProvider.newIndexData.length == 11){
-                                                    rummyProvider.setOneAcceptCardList(1,index);
+                                                if(socketProvider.isMyTurn){
+                                                  socketProvider.sortTrueFalse();
+                                                  if(socketProvider.newIndexData.length == 11){
+                                                    socketProvider.setOneAcceptCardList(1,index);
                                                   }
                                                   else{
+                                                    socketProvider.sortTrueFalse();
                                                     showToast("Pick Up a Card".toUpperCase(),
                                                       context: context,
                                                       animation: StyledToastAnimation.slideFromTop,
@@ -310,20 +279,21 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                                 }
                                               },
                                               onDraggableCanceled: (velocity, offset) {
-                                                rummyProvider.setOneAcceptCardList(2,index);
+                                                socketProvider.sortTrueFalse();
+                                                socketProvider.setOneAcceptCardList(2,index);
                                               },
                                               feedback: Container(
                                                 height: 70,
                                                 width: 40,
-                                                child: Image.asset(rummyProvider.rummyCardList[rummyProvider.isSortData[i][index] - 1]),
+                                                child: Image.asset(socketProvider.rummyCardList[socketProvider.isSortData[i][index] - 1]),
                                               ),
-                                              data: rummyProvider.newIndexData[index],
+                                              data: index,
 
-                                              child: rummyProvider.isAcceptCardList[index] == 1
+                                              child: socketProvider.isAcceptCardList[index] == 1
                                                   ? SizedBox()
-                                                  : rummyProvider.isAcceptCardList[index] == 2
+                                                  : socketProvider.isAcceptCardList[index] == 2
                                                   ? Container(
-                                                child: Image.asset(rummyProvider.rummyCardList[rummyProvider.isSortData[i][index] - 1]),
+                                                child: Image.asset(socketProvider.rummyCardList[socketProvider.isSortData[i][index] - 1]),
                                               )
                                                   : OpacityAnimatedWidget.tween(
                                                 opacityEnabled: 1,
@@ -333,7 +303,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                                   enabled: widget.Fliped[index],
                                                   rotationDisabled: Rotation.deg(y: 10),
                                                   rotationEnabled: Rotation.deg(y: 10),
-                                                  child: Image.asset(rummyProvider.rummyCardList[rummyProvider.isSortData[i][index] - 1]),
+                                                  child: Image.asset(socketProvider.rummyCardList[socketProvider.isSortData[i][index] - 1]),
                                                 ),
                                               ),
                                             ),
@@ -342,12 +312,12 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                       ),
                                     ),
                                   );
-                                }, onReorder: (int oldIndex, int newIndex) {  },),
+                                }, onReorder: (int oldIndex, int newIndex) { socketProvider.sortTrueFalse();},),
                             ],
                           ),
                         ),
                       );
-                    }, onReorder: (int oldIndex, int newIndex) { },),
+                    }, onReorder: (int oldIndex, int newIndex) { socketProvider.sortTrueFalse();},),
                 ),
               )
                   : Container(
@@ -358,13 +328,13 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.all(0),
                     children: [
-                      for(int index = 0;index < rummyProvider.newIndexData.length;index++)
+                      for(int index = 0;index < socketProvider.newIndexData.length;index++)
 
                         Align(
                           key: ValueKey(index),
                           alignment: Alignment.bottomLeft,
                           child: Container(
-                            margin: EdgeInsets.only(top: rummyProvider.cardUp[index]?5:15),
+                            margin: EdgeInsets.only(top: socketProvider.cardUp[index]?5:15),
                             child: SizeAnimatedWidget.tween(
                               enabled: true,
                               duration: const Duration(milliseconds: 200),
@@ -380,25 +350,25 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                 duration: const Duration(milliseconds: 500),
                                 child: InkWell(
                                   onTap: () {
-                                    rummyProvider.setCardUpTrue(index,context);
+                                    socketProvider.setCardUpTrue(index,context);
                                   },
                                   child: Draggable<int>(
                                     onDragStarted: () {
-                                      rummyProvider.setOneAcceptCardList(1,index);
+                                      socketProvider.setOneAcceptCardList(1,index);
                                     },
                                     onDraggableCanceled: (velocity, offset) {
-                                      rummyProvider.setOneAcceptCardList(2,index);
+                                      socketProvider.setOneAcceptCardList(2,index);
                                     },
                                     feedback: SizedBox(
                                       height: 70,
                                       width: 40,
-                                      child: Image.asset(rummyProvider.rummyCardList[rummyProvider.newIndexData[index] - 1]),
+                                      child: Image.asset(socketProvider.rummyCardList[socketProvider.newIndexData[index] - 1]),
                                     ),
                                     data: index,
-                                    child: rummyProvider.isAcceptCardList[index] == 1
+                                    child: socketProvider.isAcceptCardList[index] == 1
                                         ? const SizedBox()
-                                        : rummyProvider.isAcceptCardList[index] == 2
-                                        ? Image.asset(rummyProvider.rummyCardList[rummyProvider.newIndexData[index] - 1])
+                                        : socketProvider.isAcceptCardList[index] == 2
+                                        ? Image.asset(socketProvider.rummyCardList[socketProvider.newIndexData[index] - 1])
                                         : OpacityAnimatedWidget.tween(
                                       opacityEnabled: 1,
                                       opacityDisabled: 0,
@@ -407,7 +377,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                         enabled: widget.Fliped[index],
                                         rotationDisabled: Rotation.deg(y: 10),
                                         rotationEnabled: Rotation.deg(y: 10),
-                                        child: Image.asset(rummyProvider.rummyCardList[rummyProvider.newIndexData[index] - 1]),
+                                        child: Image.asset(socketProvider.rummyCardList[socketProvider.newIndexData[index] - 1]),
                                       ),
                                     ),
                                   ),
@@ -419,10 +389,10 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                     ],
                     onReorder: (oldIndex,newIndex){
                       print('OldIndex :-  $oldIndex **** NewIndex :- $newIndex');
-                      rummyProvider.setRomoveAndIndexData(newIndex, oldIndex);
+                      socketProvider.setRomoveAndIndexData(newIndex, oldIndex);
                     }),
               ),
-              rummyProvider.isMyTurn == false
+              socketProvider.isMyTurn == false
                   ?SizedBox(
                 height: MediaQuery.of(context).size.height * 0.13,
                 width:  MediaQuery.of(context).size.width * 0.06,
@@ -437,10 +407,10 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                     height: MediaQuery.of(context).size.height * 0.135,
                     width:  MediaQuery.of(context).size.width * 0.062,
                     child: CircularProgressIndicator(
-                      value: rummyProvider.secondsRemaining/30,
+                      value: socketProvider.secondsRemaining/30,
                       valueColor: AlwaysStoppedAnimation(Colors.white),
                       strokeWidth: 3,
-                      backgroundColor: rummyProvider.secondsRemaining <= 10 ?Colors.red:Colors.green,
+                      backgroundColor: socketProvider.secondsRemaining <= 10 ?Colors.red:Colors.green,
                     ),
                   ),
                   SizedBox(
@@ -456,7 +426,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                             decoration: BoxDecoration(color: Colors.white,shape: BoxShape.circle),
                             child: Padding(
                               padding: const EdgeInsets.all(4),
-                              child: Text(rummyProvider.secondsRemaining.toString(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
+                              child: Text(socketProvider.secondsRemaining.toString(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
                             ))
                       ],
                     ),
@@ -471,7 +441,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
           :Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          Consumer<RummyProvider>(builder: (context,rummyProvider,_){
+          Consumer<SocketProvider>(builder: (context,socketProvider,_){
 
             return  Container(
               height: 75,
@@ -482,7 +452,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   Align(
                     alignment: Alignment.bottomLeft,
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.23,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.23,top: socketProvider.cardUp[0]?5:15),
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[0],
                         duration: const Duration(milliseconds: 200),
@@ -506,7 +476,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   Align(
                     alignment: Alignment.bottomLeft,
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.276,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.276,top: socketProvider.cardUp[0]?5:15),
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[1],
                         duration: const Duration(milliseconds: 200),
@@ -529,7 +499,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   // Three Card
                   Align(
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.322,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.322,top: socketProvider.cardUp[0]?5:15),
                       alignment: Alignment.bottomLeft,
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[2],
@@ -553,7 +523,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   // Four Card
                   Align(
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.368,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.368,top: socketProvider.cardUp[0]?5:15),
                       alignment: Alignment.bottomLeft,
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[3],
@@ -577,7 +547,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   //Five Card
                   Align(
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.414,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.414,top: socketProvider.cardUp[0]?5:15),
                       alignment: Alignment.bottomLeft,
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[4],
@@ -601,7 +571,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   // Six Card
                   Align(
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.46,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.46,top: socketProvider.cardUp[0]?5:15),
                       alignment: Alignment.bottomLeft,
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[5],
@@ -625,7 +595,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   // Seven Card
                   Align(
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.506,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.506,top: socketProvider.cardUp[0]?5:15),
                       alignment: Alignment.bottomLeft,
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[6],
@@ -649,7 +619,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   // Eight Card
                   Align(
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.553,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.553,top: socketProvider.cardUp[0]?5:15),
                       alignment: Alignment.bottomLeft,
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[7],
@@ -673,7 +643,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   // Nine Card
                   Align(
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.60,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.60,top: socketProvider.cardUp[0]?5:15),
                       alignment: Alignment.bottomLeft,
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[8],
@@ -697,7 +667,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                   //Ten Card
                   Align(
                     child: Container(
-                      margin: EdgeInsets.only(left: rummyProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.647,top: rummyProvider.cardUp[0]?5:15),
+                      margin: EdgeInsets.only(left: socketProvider.isSortCard?0:MediaQuery.of(context).size.width * 0.647,top: socketProvider.cardUp[0]?5:15),
                       alignment: Alignment.bottomLeft,
                       child: SizeAnimatedWidget.tween(
                         enabled: _servedPages[9],

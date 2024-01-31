@@ -1,18 +1,217 @@
 
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:rummy_game/constant/custom_dialog/card_player_winner.dart';
-import 'package:rummy_game/constant/custom_dialog/winner_dialog.dart';
-import 'package:rummy_game/provider/rummy_provider.dart';
+import 'package:rummy_game/model/player_winner_model.dart';
 import 'package:rummy_game/utils/Sockets.dart';
 
 class SocketProvider extends ChangeNotifier{
 
   List<int> _cardNumberList =[];
+  int _secondsRemaining = 30;
+  int _countDown  = 20;
+  int _stopCountDown = 1;
+  int _playerCount = 0;
+  bool _isMyTurn= false;
+  Timer? _timer;
+  final List<Map<String,dynamic>> _cardList = [
+    {"value":"A","suit":"Spades"},
+    {"value":"2","suit":"Spades"},
+    {"value":"3","suit":"Spades"},
+    {"value":"4","suit":"Spades"},
+    {"value":"5","suit":"Spades"},
+    {"value":"6","suit":"Spades"},
+    {"value":"7","suit":"Spades"},
+    {"value":"8","suit":"Spades"},
+    {"value":"9","suit":"Spades"},
+    {"value":"10","suit":"Spades"},
+    {"value":"J","suit":"Spades"},
+    {"value":"Q","suit":"Spades"},
+    {"value":"K","suit":"Spades"},
+    {"value":"A","suit":"Hearts"},
+    {"value":"2","suit":"Hearts"},
+    {"value":"3","suit":"Hearts"},
+    {"value":"4","suit":"Hearts"},
+    {"value":"5","suit":"Hearts"},
+    {"value":"6","suit":"Hearts"},
+    {"value":"7","suit":"Hearts"},
+    {"value":"8","suit":"Hearts"},
+    {"value":"9","suit":"Hearts"},
+    {"value":"10","suit":"Hearts"},
+    {"value":"J","suit":"Hearts"},
+    {"value":"Q","suit":"Hearts"},
+    {"value":"K","suit":"Hearts"},
+    {"value":"A","suit":"Clubs"},
+    {"value":"2","suit":"Clubs"},
+    {"value":"3","suit":"Clubs"},
+    {"value":"4","suit":"Clubs"},
+    {"value":"5","suit":"Clubs"},
+    {"value":"6","suit":"Clubs"},
+    {"value":"7","suit":"Clubs"},
+    {"value":"8","suit":"Clubs"},
+    {"value":"9","suit":"Clubs"},
+    {"value":"10","suit":"Clubs"},
+    {"value":"J","suit":"Clubs"},
+    {"value":"Q","suit":"Clubs"},
+    {"value":"K","suit":"Clubs"},
+    {"value":"A","suit":"Diamonds"},
+    {"value":"2","suit":"Diamonds"},
+    {"value":"3","suit":"Diamonds"},
+    {"value":"4","suit":"Diamonds"},
+    {"value":"5","suit":"Diamonds"},
+    {"value":"6","suit":"Diamonds"},
+    {"value":"7","suit":"Diamonds"},
+    {"value":"8","suit":"Diamonds"},
+    {"value":"9","suit":"Diamonds"},
+    {"value":"10","suit":"Diamonds"},
+    {"value":"J","suit":"Diamonds"},
+    {"value":"Q","suit":"Diamonds"},
+    {"value":"K","suit":"Diamonds"},
+    {"value":"Joker","suit":"Joker"}
+  ];
+  List _cardListIndex = [];
+  int? _finishCardIndex;
+  List<int> _newIndexData = [];
+  int _isDropOneCard = 0;
+  int _isDropTwoCard = 0;
+  int _isDropThreeCard = 0;
+  bool _isNoDropCard = false;
+  List<Map<String,dynamic>> _listOfMap =[];
+  int _isDropFourCard = 0;
+  int _isDropFiveCard = 0;
+  int _isDropSixCard = 0;
+  int _isDropSevenCard = 0;
+  int _isDropEightCard = 0;
+  int _isDropNineCard = 0;
+  int _isDropTenCard = 0;
+  int _isDropElevenCard = 0;
+  int _isDropTwelveCard = 0;
+  int? _dropCardIndex;
+  int _isDropThirteenCard = 0;
+  List _acceptCardListIndex = [];
+  int _setCardUpIndex = -1;
+  List<bool> _cardUp = [];
+  bool _isSortCard = false;
+  bool _isOneAcceptCard = false;
+  List _sortList =[];
+  List _isAcceptCardList = [0,0,0,0,0,0,0,0,0,0,0,0,0];
+  List<List> _isSortData =[];
+  bool _isFilpCard= true;
+  bool _isSortTrueFalse = false;
+  List _newHandData = [];
+  List _setSequencesResponse = [];
+  PlayerWinnerModel _playerWinnerModel = PlayerWinnerModel();
+  List<List<int>> _playerWinnerCardList =[];
+  dynamic _dataResponse;
 
+  final List<String> _rummyCardList = [
+    'assets/cards/bpa.png',
+    'assets/cards/bp2.png',
+    'assets/cards/bp3.png',
+    'assets/cards/bp4.png',
+    'assets/cards/bp5.png',
+    'assets/cards/bp6.png',
+    'assets/cards/bp7.png',
+    'assets/cards/bp8.png',
+    'assets/cards/bp9.png',
+    'assets/cards/bp10.png',
+    'assets/cards/bpj.png',
+    'assets/cards/bpq.png',
+    'assets/cards/bpk.png',
+    'assets/cards/rpa.png',
+    'assets/cards/rp2.png',
+    'assets/cards/rp3.png',
+    'assets/cards/rp4.png',
+    'assets/cards/rp5.png',
+    'assets/cards/rp6.png',
+    'assets/cards/rp7.png',
+    'assets/cards/rp8.png',
+    'assets/cards/rp9.png',
+    'assets/cards/rp10.png',
+    'assets/cards/rpj.png',
+    'assets/cards/rpq.png',
+    'assets/cards/rpk.png',
+    'assets/cards/bla.png',
+    'assets/cards/bl2.png',
+    'assets/cards/bl3.png',
+    'assets/cards/bl4.png',
+    'assets/cards/bl5.png',
+    'assets/cards/bl6.png',
+    'assets/cards/bl7.png',
+    'assets/cards/bl8.png',
+    'assets/cards/bl9.png',
+    'assets/cards/bl10.png',
+    'assets/cards/blj.png',
+    'assets/cards/blq.png',
+    'assets/cards/blk.png',
+    'assets/cards/rsa.png',
+    'assets/cards/rs2.png',
+    'assets/cards/rs3.png',
+    'assets/cards/rs4.png',
+    'assets/cards/rs5.png',
+    'assets/cards/rs6.png',
+    'assets/cards/rs7.png',
+    'assets/cards/rs8.png',
+    'assets/cards/rs9.png',
+    'assets/cards/rs10.png',
+    'assets/cards/rsj.png',
+    'assets/cards/rsq.png',
+    'assets/cards/rsk.png',
+    'assets/cards/jake-02.png'
+  ];
+  int _totalDownCard = 0;
+  List<dynamic> _checkSetSequence = [];
+  List<dynamic> _reArrangeData = [];
+
+  bool get isSortTrueFalse => _isSortTrueFalse;
+  int get isDropOneCard => _isDropOneCard;
+  int get isDropTwoCard => _isDropTwoCard;
+  int get isDropThreeCard => _isDropThreeCard;
+  int get isDropFourCard => _isDropFourCard;
+  List get sortList => _sortList;
+  dynamic get dataResponse => _dataResponse;
+  PlayerWinnerModel get playerWinnerModel => _playerWinnerModel;
+  List<List> get isSortData => _isSortData;
+  int get isDropFiveCard => _isDropFiveCard;
+  int get isDropSixCard => _isDropSixCard;
+  int get isDropSevenCard => _isDropSevenCard;
+  int get isDropEightCard => _isDropEightCard;
+  int get isDropNineCard => _isDropNineCard;
+  int get isDropTenCard => _isDropTenCard;
+  int get setCardUpIndex => _setCardUpIndex;
+  int get isDropElevenCard => _isDropElevenCard;
+  int get isDropTwelveCard => _isDropTwelveCard;
+  int get isDropThirteenCard => _isDropThirteenCard;
+  List get acceptCardListIndex => _acceptCardListIndex;
+  int? get dropCardIndex => _dropCardIndex;
+  List<Map<String,dynamic>> get listOfMap => _listOfMap;
+  List get newHandData => _newHandData;
+  List get cardUp => _cardUp;
+  bool get isSortCard => _isSortCard;
+  bool get isFilpCard => _isFilpCard;
+  List<List> get playerWinnerCardList => _playerWinnerCardList;
+  bool get isNoDropCard => _isNoDropCard;
+  bool get isMyTurn => _isMyTurn;
+  bool get isOneAcceptCard => _isOneAcceptCard;
+  List get isAcceptCardList => _isAcceptCardList;
+  List<Map<String,dynamic>> get cardList => _cardList;
+  int get totalDownCard => _totalDownCard;
+  List<dynamic> get checkSetSequence => _checkSetSequence;
+  List<String> get rummyCardList => _rummyCardList;
+  List get reArrangeData => _reArrangeData;
+  List get setSequencesResponse => _setSequencesResponse;
   List<int> get cardNumberList => _cardNumberList;
+  List<int> get newIndexData => _newIndexData;
+  int? get finishCardIndex => _finishCardIndex;
+  int get stopCountDown => _stopCountDown;
+  int get playerCount => _playerCount;
+  int get countDown => _countDown;
+  int get secondsRemaining => _secondsRemaining;
+  List get cardListIndex => _cardListIndex;
 
   void createGame(String gameID,BuildContext context) async {
     Sockets.socket.emit("game",gameID);
@@ -31,23 +230,22 @@ class SocketProvider extends ChangeNotifier{
   void upCard(BuildContext context) async {
     Sockets.socket.on("up", (data) {
       print('Socket In Up Event Completed ***** up *****  $data');
-      var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
 
       String value = data['value'];
       String suit = data['suit'];
 
 
-      for(int i = 0; i< rummyProvider.cardList.length;i++){
-        if(rummyProvider.cardList[i]['value'] == value){
-          if(rummyProvider.cardList[i]['suit'] == suit){
-            Future.delayed(Duration(seconds: 6),(){
-              Provider.of<RummyProvider>(context,listen: false).setCardListIndex(i+1);
+      for(int i = 0; i< _cardList.length;i++){
+        if(_cardList[i]['value'] == value){
+          if(_cardList[i]['suit'] == suit){
+            Future.delayed(const Duration(seconds: 6),(){
+              setCardListIndex(i+1);
             });
           }
         }
 
-        if(rummyProvider.cardList[rummyProvider.finishCardIndex ?? 0]['value'] == value){
-          rummyProvider.setFinishCardNull();
+        if(_cardList[_finishCardIndex ?? 0]['value'] == value){
+          setFinishCardNull();
         }
       }
     });
@@ -56,14 +254,13 @@ class SocketProvider extends ChangeNotifier{
   void downCard(BuildContext context) async {
     Sockets.socket.on("down", (data) {
       print('Socket In Down Event Completed ***** down *****  $data');
-      Provider.of<RummyProvider>(context,listen: false).setTotalDownCard(data);
+      setTotalDownCard(data);
     });
   }
 
   void handCard(BuildContext context) async {
     Sockets.socket.on("hand", (data) {
       print('Socket In Hand Event Completed ***** hand *****  $data');
-      var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
       List<int> newCardData= [];
       List<Map<String,dynamic>> data2 = [];
       for(int i = 0; i < data.length; i++){
@@ -74,8 +271,8 @@ class SocketProvider extends ChangeNotifier{
         Map<String,dynamic> singleCard = data2[i];
         String singleCardValue = singleCard["value"];
         String singleCardSuit = singleCard["suit"];
-        for(int j = 0; j < rummyProvider.cardList.length; j++){
-          Map<String,dynamic> sCard = rummyProvider.cardList[j];
+        for(int j = 0; j < _cardList.length; j++){
+          Map<String,dynamic> sCard = _cardList[j];
           String sCardValue = sCard["value"];
           String sCardSuit = sCard["suit"];
           if(singleCardValue == sCardValue && singleCardSuit == sCardSuit){
@@ -85,41 +282,51 @@ class SocketProvider extends ChangeNotifier{
       }
 
 
-        rummyProvider.setNewRemoveData();
+        setNewRemoveData();
         _cardNumberList = newCardData;
         for(int i = 0; i< _cardNumberList.length;i++){
-          rummyProvider.setNewData(_cardNumberList[i]);
+          setNewData(_cardNumberList[i]);
         }
+
+        // Future.delayed(const Duration(milliseconds: 200),(){
+        //   if(_isSortTrueFalse){
+        //     newSetData();
+        //     sortDataEvent(_listOfMap);
+        //     checkSetSequenceData(_listOfMap);
+        //     sortTrueFalse();
+        //     isSortGroup(_newIndexData);
+        //   }
+        // });
       });
   }
 
   void turnTime(BuildContext context) async {
     Sockets.socket.on("turn", (data) {
-      print('Socket In Turn Event Completed ***** turn *****  $data  ${Provider.of<RummyProvider>(context,listen: false).isMyTurn}');
+      print('Socket In Turn Event Completed ***** turn *****  $data');
 
       if(data['timeOut'] !=null){
         if(data['timeOut'] == 0){
-          Provider.of<RummyProvider>(context,listen: false).closeTimer();
-          Provider.of<RummyProvider>(context,listen: false).initTimer();
-          Provider.of<RummyProvider>(context,listen: false).setMyTurn(false);
+          closeTimer();
+          initTimer();
+          setMyTurn(false);
         }else{
-          Provider.of<RummyProvider>(context,listen: false).setMyTurn(true);
-          Provider.of<RummyProvider>(context,listen: false).closeTimer();
-          Provider.of<RummyProvider>(context,listen: false).initTimer();
-          Provider.of<RummyProvider>(context,listen: false).startTimer(context);
+         setMyTurn(true);
+          closeTimer();
+          initTimer();
+          startTimer(context);
         }
       }
     });
   }
 
-  void countDown(BuildContext context) async {
+  void countDownEvent(BuildContext context) async {
     Sockets.socket.on("count down", (data) {
       print("**** COUNT DOWN **** $data");
+      setCountDown(data);
 
-      Provider.of<RummyProvider>(context,listen: false).setCountDown(data);
 
       if(data == 0){
-        if(Provider.of<RummyProvider>(context,listen: false).playerCount == 1){
+        if(_playerCount == 1){
           Sockets.socket.disconnect();
           Navigator.pop(context);
         }
@@ -127,9 +334,8 @@ class SocketProvider extends ChangeNotifier{
     });
   }
 
-  void gameOver(BuildContext context,ConfettiController controller,String gameID,) async {
+  void gameOver(BuildContext context,String gameID,) async {
     Sockets.socket.on("game over", (data) {
-      var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
       print("**** Game Over **** $data");
       /*WinnerDialog(
         title: 'You are Winner',
@@ -144,7 +350,7 @@ class SocketProvider extends ChangeNotifier{
 
         },
       ).show(context);*/
-      rummyProvider.setPlayerWinnerCard(gameID).whenComplete((){
+      setPlayerWinnerCard(gameID).whenComplete((){
         CardPlayerWinner(
           title: 'Quit Game',
           message: "Quiting On Going Game In The Middle Results",
@@ -156,6 +362,7 @@ class SocketProvider extends ChangeNotifier{
           onTapRightButton: () {
 
           },
+          gameId: gameID
         ).show(context);
       });
     });
@@ -165,20 +372,22 @@ class SocketProvider extends ChangeNotifier{
     Sockets.socket.on("room message", (data) {
       print("**** ROOM MESSAGE **** $data");
 
-      var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
-      rummyProvider.setPlayerCount(data['playerCount']);
+      // var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
+      // rummyProvider.setPlayerCount(data['playerCount']);
+
+      setPlayerCount(data['playerCount']);
     });
   }
 
   void turnMessage(BuildContext context,String userId) async {
     Sockets.socket.on("turn message", (data) {
       print("**** TURN MESSAGE **** $data");
-      var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
+      // var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
 
       if(data['userId'] == userId){
 
       }else{
-        rummyProvider.setMyTurn(false);
+        setMyTurn(false);
       }
     });
   }
@@ -204,62 +413,360 @@ class SocketProvider extends ChangeNotifier{
   Navigator.pop(context);
   }
 
-  openAlertBox(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(32.0))),
-            contentPadding: EdgeInsets.only(top: 10.0),
-            content: Container(
-              width: 300.0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Container(height: 50,width: 50,decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey,border: Border.all(color: Colors.red),
-                  ),child: const Center(child: Icon(Icons.person)),),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
-                  const Center(child: Text('Winner Name',style: TextStyle(color: Colors.red,fontSize: 15,fontWeight: FontWeight.bold),)),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
-                  const Divider(
-                    color: Colors.grey,
-                    height: 4.0,
-                  ),
-                  const SizedBox(
-                      height: 40,
-                      child: Text('Winner Message',style: TextStyle(color: Colors.black,fontSize: 15),)),
-                  InkWell(
-                    onTap: (){
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(20.0),
-                            bottomRight: Radius.circular(20.0)),
-                      ),
-                      child: const Text(
-                        "Quit Game",
-                        style: TextStyle(color: Colors.white),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
+  setCountDown(int count){
+    _countDown = count;
+    notifyListeners();
+
+    if(count == 0){
+      _stopCountDown = 0;
+      notifyListeners();
+    }
   }
+
+  setStopCountDown(int value){
+    _stopCountDown = value;
+    notifyListeners();
+  }
+
+  setPlayerCount(int value){
+    _playerCount  = value;
+    print('Rummy Provider Count Data :-   ${_playerCount}');
+    notifyListeners();
+  }
+
+  setMyTurn(bool value){
+    _isMyTurn = value;
+    notifyListeners();
+  }
+
+  closeTimer(){
+    _timer?.cancel();
+    notifyListeners();
+  }
+
+  void initTimer(){
+    _secondsRemaining = 30;
+    notifyListeners();
+  }
+
+  startTimer(BuildContext context,{int secondsRemaining=30}) {
+    _secondsRemaining=secondsRemaining;
+    notifyListeners();
+    _timer = Timer.periodic(Duration(seconds: 1), (_) {
+      if (_secondsRemaining != 0) {
+        _secondsRemaining--;
+        notifyListeners();
+      } else {
+        initTimer();
+        setMyTurn(false);
+        closeTimer();
+        notifyListeners();
+      }
+    });
+  }
+
+  setCardListIndex(int value){
+    _cardListIndex.add(value);
+    notifyListeners();
+  }
+
+  setFinishCardNull(){
+    int? data;
+    _finishCardIndex = data;
+    notifyListeners();
+
+  }
+
+  void setFinishCardIndex(int value){
+    _finishCardIndex = value;
+    notifyListeners();
+  }
+
+  setNewRemoveData(){
+    _newIndexData.clear();
+    notifyListeners();
+  }
+
+  void setOldCardRemove(int index){
+    _newIndexData.removeAt(index);
+    notifyListeners();
+  }
+
+  setNewData(int value){
+    _newIndexData.add(value);
+
+  }
+
+  setNewRemoveIndex(int index){
+    _newIndexData.removeAt(index);
+    print('Rummy Provider Data :-   ${_newIndexData.length}');
+    notifyListeners();
+  }
+
+  void sortTrueFalse(){
+    _isSortTrueFalse = !_isSortTrueFalse;
+    notifyListeners();
+  }
+
+  void isSortGroup(List data){
+    int chunkSize = 3;
+    _isSortData.clear();
+    for (var i = 0; i < data.length; i += chunkSize) {
+      _isSortData.add(data.sublist(i,
+          i + chunkSize > data.length ? data.length : i + chunkSize));
+    }
+
+    print('New Sort Grop Data :-  ${_isSortData}');
+  }
+
+  void dropCard(int data) async {
+    print('Drop Card :-   ${data} ');
+    Sockets.socket.emit("drop",data);
+    print("*** DROP EMIT ***");
+  }
+
+  void finishCard(int data) async {
+    print('Finish Card :-   ${data} ');
+    Sockets.socket.emit("finish",data);
+    print("*** Finish EMIT ***");
+  }
+
+  setNoDropCard(bool value){
+    _isNoDropCard = value;
+    notifyListeners();
+  }
+
+  Future setPlayerWinnerCard (String id) async {
+    print('id ;-      $id');
+    Uri url = Uri.parse('http://3.111.148.154:3000/rakesh/games/$id');
+    _playerWinnerCardList.clear();
+    var response = await http.get(url);
+    final dataFinalResponse = jsonDecode(response.body);
+    _dataResponse = dataFinalResponse;
+    notifyListeners();
+    // _playerWinnerModel = PlayerWinnerModel.fromJson(dataResponse);
+
+    for(int i =0;i< _dataResponse['game']['game']['players'].length;i++){
+      List<int> newCardData =[];
+      for(int j = 0;j< _dataResponse['game']['game']['players'][i]['hand'].length;j++){
+        Map<String,dynamic> singleCard = _dataResponse['game']['game']['players'][i]['hand'][j];
+
+        String singleCardValue = singleCard["value"];
+        String singleCardSuit = singleCard["suit"];
+        for(int k = 0; k < _cardList.length; k++){
+          Map<String,dynamic> sCard = cardList[k];
+          String sCardValue = sCard["value"];
+          String sCardSuit = sCard["suit"];
+          if(singleCardValue == sCardValue && singleCardSuit == sCardSuit){
+            newCardData.add(k + 1);
+          }
+        }
+      }
+      _playerWinnerCardList.add(newCardData);
+    }
+    print('response ${_playerWinnerCardList}');
+
+  }
+
+  setRomoveAndIndexData(int newIndex,int oldIndex){
+    final itemCard = _newIndexData.removeAt(oldIndex);
+    if(oldIndex<newIndex){
+      _newIndexData.insert(newIndex-1, itemCard);
+    }else{
+      _newIndexData.insert(newIndex, itemCard);
+    }
+
+    _reArrangeData.clear();
+    _listOfMap.clear();
+
+    for(int i=0;i<_newIndexData.length;i++){
+
+      for(int j=0;j < _cardList.length;j++){
+        if(_newIndexData[i] == j){
+          Map<String,dynamic> singleData = _cardList[j -1];
+          _reArrangeData.add(_cardList[j -1]);
+          _listOfMap.add(singleData);
+        }
+      }
+    }
+
+    //checkSetSequenceData(_reArrangeData);
+    rearrangeData(_listOfMap);
+    // sortDataEvent(_listOfMap);
+    notifyListeners();
+  }
+
+  newSetData(){
+    _listOfMap.clear();
+
+    for(int i=0;i<_newIndexData.length;i++){
+
+      for(int j=0;j < _cardList.length;j++){
+        if(_newIndexData[i] == j){
+          Map<String,dynamic> singleData = _cardList[j -1];
+          _reArrangeData.add(_cardList[j -1]);
+          _listOfMap.add(singleData);
+        }
+      }
+    }
+  }
+
+  checkSetSequenceData(List<Map<String,dynamic>> checkData) async {
+    _setSequencesResponse.clear();
+    print("^^^^ check set sequences ^^^^ $checkData");
+    Sockets.socket.emit("check set sequences",{checkData});
+    Sockets.socket.on("check set sequences", (data) {
+      print("^^^^ check set sequences Data ^^^^ $data");
+      _setSequencesResponse = data;
+
+      _setSequencesResponse.add("d");
+      notifyListeners();
+
+    });
+  }
+
+  void rearrangeData(List<dynamic> rearrange)async{
+    Sockets.socket.emit("re arrange",{rearrange});
+    print("*** RE-ARRANGE ***");
+  }
+
+  void sortDataEvent(List<dynamic> sortData)async{
+    Sockets.socket.emit("sort",{sortData});
+    newSetData();
+    print("*** RE-ARRANGE ***");
+  }
+
+  setFilpCard(bool value){
+    _isFilpCard = value;
+    notifyListeners();
+  }
+
+  setOneAcceptCardList(int value,int index){
+
+    print('Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
+    _isAcceptCardList[index] = value;
+    notifyListeners();
+  }
+
+  setCardUpFalse(){
+    for(int i = 0; i< 14;i++){
+      _cardUp.add(false);
+    }
+  }
+
+  setCardUpTrue(int index,BuildContext context){
+
+
+
+    /* for(int i =0;i<_cardUp.length;i++){
+      if(i != index){
+        if(_cardUp[i] == true){
+          _cardUp[i] = !_cardUp[i];
+        }
+      }
+    }*/
+    _cardUp[index] = !_cardUp[index];
+    if(_cardUp[index] == true){
+      _sortList.add(index);
+    }else{
+      if(_sortList.isNotEmpty){
+        for(int i = 0;i<_sortList.length;i++){
+          if(_sortList[i] == index){
+            _sortList.removeAt(i);
+          }
+        }
+      }
+    }
+
+    print('isMy True Data :- ${_sortList}');
+    _dropCardIndex = newIndexData[index];
+    _setCardUpIndex = index;
+
+    notifyListeners();
+    /*if(_isMyTurn){
+      if(_newIndexData.length == 11){
+
+      }
+      else{
+        showToast("Pick Up a Card".toUpperCase(),
+          context: context,
+          animation: StyledToastAnimation.slideFromTop,
+          reverseAnimation: StyledToastAnimation.fade,
+          position: StyledToastPosition.top,
+          animDuration: Duration(seconds: 1),
+          duration: Duration(seconds: 4),
+          curve: Curves.elasticOut,
+          textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+          backgroundColor: Colors.red.withOpacity(0.8),
+          reverseCurve: Curves.linear,
+        );
+      }
+    }
+    else{
+      showToast("It's not your turn,please wait for your Turn".toUpperCase(),
+        context: context,
+        animation: StyledToastAnimation.slideFromTop,
+        reverseAnimation: StyledToastAnimation.fade,
+        position: StyledToastPosition.top,
+        animDuration: Duration(seconds: 1),
+        duration: Duration(seconds: 4),
+        curve: Curves.elasticOut,
+        textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+        backgroundColor: Colors.red.withOpacity(0.8),
+        reverseCurve: Curves.linear,
+      );
+    }*/
+  }
+
+  setTotalDownCard(int value){
+    _totalDownCard=value;
+    notifyListeners();
+  }
+
+  void resetAllData(){
+
+    _isDropOneCard = 0;
+    _isDropTwoCard = 0;
+    _isDropThreeCard = 0;
+    _isNoDropCard = false;
+    _listOfMap =[];
+    _isDropFourCard = 0;
+    _isDropFiveCard = 0;
+    _isDropSixCard = 0;
+    _isDropSevenCard = 0;
+    _isDropEightCard = 0;
+    _isDropNineCard = 0;
+    _isDropTenCard = 0;
+    _isDropElevenCard = 0;
+    _isDropTwelveCard = 0;
+    _dropCardIndex;
+    _isDropThirteenCard = 0;
+    _acceptCardListIndex = [];
+    _setCardUpIndex = -1;
+    _cardUp = [];
+    _isSortCard = false;
+    _isOneAcceptCard = false;
+    _sortList =[];
+    _isAcceptCardList = [0,0,0,0,0,0,0,0,0,0,0,0,0];
+    _isSortData =[];
+    _newIndexData = [];
+    _isFilpCard= true;
+    _isMyTurn= false;
+    _isSortTrueFalse = false;
+    _newHandData = [];
+    _setSequencesResponse = [];
+    _playerWinnerModel = PlayerWinnerModel();
+    _playerWinnerCardList =[];
+    _dataResponse;
+    _totalDownCard = 0;
+    _checkSetSequence = [];
+    _reArrangeData = [];
+
+    notifyListeners();
+
+  }
+  
+  
+
+
 }

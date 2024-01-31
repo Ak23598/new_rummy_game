@@ -73,6 +73,7 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets:
     - assets/images/
+    - assets/images/poker/
     - assets/r_image/
     - assets/cards/
     - assets/images/sprint_cards_small.png

@@ -12,6 +12,7 @@ class WinnerDialog {
   final String leftButton;
   final VoidCallback onTapLeftButton;
   final ConfettiController controller;
+  final String gameId;
 
   WinnerDialog({
     required this.title,
@@ -21,6 +22,7 @@ class WinnerDialog {
     required this.leftButton,
     required this.onTapLeftButton,
     required this.controller,
+    required this.gameId,
   });
 
   show(BuildContext context) {
@@ -37,6 +39,7 @@ class WinnerDialog {
             onTapLeftButton: onTapLeftButton,
             onTapRightButton: onTapRightButton,
           controller: controller,
+          gameId: gameId,
         );
       },
     );
@@ -51,6 +54,7 @@ class _PopupCall extends StatefulWidget {
   final String leftButton;
   final VoidCallback onTapLeftButton;
   final ConfettiController controller;
+  final String gameId;
 
   const _PopupCall(
       {Key? key,
@@ -60,7 +64,10 @@ class _PopupCall extends StatefulWidget {
         required this.onTapRightButton,
         required this.leftButton,
         required this.controller,
-        required this.onTapLeftButton})
+        required this.onTapLeftButton,
+        required this.gameId,
+
+      })
       : super(key: key);
   @override
   _PopupCallState createState() => _PopupCallState();
@@ -105,7 +112,7 @@ class _PopupCallState extends State<_PopupCall> {
           ),
           Center(
             child: Text(widget.title,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: 'TTNorms',
                   fontWeight: FontWeight.bold,
                   wordSpacing: 0,
@@ -122,7 +129,7 @@ class _PopupCallState extends State<_PopupCall> {
           Text(
             widget.message,
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'TTNorms',
               fontWeight: FontWeight.w400,
               wordSpacing: 0,
@@ -144,6 +151,7 @@ class _PopupCallState extends State<_PopupCall> {
                   child: GestureDetector(
                     onTap: () {
                       Provider.of<SocketProvider>(context,listen: false).disconnectSocket(context);
+                      Provider.of<SocketProvider>(context,listen: false).gameOver(context,widget.gameId);
                       Navigator.pop(context);
                     },
                     child: Container(
@@ -151,7 +159,7 @@ class _PopupCallState extends State<_PopupCall> {
                       width: 120,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.red, width: 2.0),
-                        borderRadius: BorderRadius.all(
+                        borderRadius: const BorderRadius.all(
                           Radius.circular(25),
                         ),
                         color: Colors.blue,
@@ -159,7 +167,7 @@ class _PopupCallState extends State<_PopupCall> {
                       child: Center(
                         child: Text(
                           'Quit Game'.toUpperCase(),
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontFamily: 'TTNorms',
                             fontWeight: FontWeight.bold,
                             wordSpacing: 0,
