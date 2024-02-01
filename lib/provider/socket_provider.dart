@@ -107,6 +107,7 @@ class SocketProvider extends ChangeNotifier{
   PlayerWinnerModel _playerWinnerModel = PlayerWinnerModel();
   List<List<int>> _playerWinnerCardList =[];
   dynamic _dataResponse;
+  bool _isCheckSqu = false;
 
   final List<String> _rummyCardList = [
     'assets/cards/bpa.png',
@@ -193,6 +194,7 @@ class SocketProvider extends ChangeNotifier{
   List get cardUp => _cardUp;
   bool get isSortCard => _isSortCard;
   bool get isFilpCard => _isFilpCard;
+  bool get isCheckSqu => _isCheckSqu;
   List<List> get playerWinnerCardList => _playerWinnerCardList;
   bool get isNoDropCard => _isNoDropCard;
   bool get isMyTurn => _isMyTurn;
@@ -287,6 +289,20 @@ class SocketProvider extends ChangeNotifier{
         for(int i = 0; i< _cardNumberList.length;i++){
           setNewData(_cardNumberList[i]);
         }
+
+
+       if(isSortTrueFalse == true){
+         sortTrueFalse();
+         newSetData();
+
+         sortDataEvent(_listOfMap);
+         Future.delayed(const Duration(milliseconds: 500),(){
+           //checkSetSequenceData(_listOfMap);
+            sortTrueFalse();
+           isSortGroup(_newIndexData);
+         });
+       }
+
 
         // Future.delayed(const Duration(milliseconds: 200),(){
         //   if(_isSortTrueFalse){
@@ -494,7 +510,7 @@ class SocketProvider extends ChangeNotifier{
 
   setNewData(int value){
     _newIndexData.add(value);
-
+    notifyListeners();
   }
 
   setNewRemoveIndex(int index){
@@ -505,6 +521,10 @@ class SocketProvider extends ChangeNotifier{
 
   void sortTrueFalse(){
     _isSortTrueFalse = !_isSortTrueFalse;
+    notifyListeners();
+  }
+  void isCheckSquFalse(bool value){
+    _isCheckSqu = value;
     notifyListeners();
   }
 
@@ -608,21 +628,30 @@ class SocketProvider extends ChangeNotifier{
           _listOfMap.add(singleData);
         }
       }
+
+
     }
+
+    notifyListeners();
+    print('New Sort Data :-    $_listOfMap');
   }
 
   checkSetSequenceData(List<Map<String,dynamic>> checkData) async {
     _setSequencesResponse.clear();
-    print("^^^^ check set sequences ^^^^ $checkData");
-    Sockets.socket.emit("check set sequences",{checkData});
-    Sockets.socket.on("check set sequences", (data) {
-      print("^^^^ check set sequences Data ^^^^ $data");
-      _setSequencesResponse = data;
 
-      _setSequencesResponse.add("d");
-      notifyListeners();
 
-    });
+      print("^^^^ check set sequences ^^^^ $checkData");
+      Sockets.socket.emit("check set sequences",{checkData});
+      Sockets.socket.on("check set sequences", (data) {
+        print("^^^^ check set sequences Data ^^^^ $data");
+        _setSequencesResponse = data;
+
+        _setSequencesResponse.add("d");
+        notifyListeners();
+
+      });
+
+
   }
 
   void rearrangeData(List<dynamic> rearrange)async{
@@ -633,7 +662,7 @@ class SocketProvider extends ChangeNotifier{
   void sortDataEvent(List<dynamic> sortData)async{
     Sockets.socket.emit("sort",{sortData});
     newSetData();
-    print("*** RE-ARRANGE ***");
+    print("*** SortData ***");
   }
 
   setFilpCard(bool value){

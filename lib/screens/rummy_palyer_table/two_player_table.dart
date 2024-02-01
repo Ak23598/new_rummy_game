@@ -119,12 +119,9 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                         child: InkWell(
                           onTap: (){
                             if(socketProvider.isMyTurn){
-                              if(socketProvider.isSortTrueFalse){
-                                socketProvider.sortTrueFalse();
+
                                 Sockets.socket.emit("draw","down");
-                              }else{
-                                Sockets.socket.emit("draw","down");
-                              }
+
                             if (kDebugMode) {
                               print('draw emit down done');
                             }}else{
@@ -351,11 +348,17 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                      )
                          : InkWell(
                        onTap: (){
-                         socketProvider.newSetData();
-                         socketProvider.sortDataEvent(socketProvider.listOfMap);
-                         socketProvider.checkSetSequenceData(socketProvider.listOfMap);
-                         socketProvider.sortTrueFalse();
-                         socketProvider.isSortGroup(socketProvider.newIndexData);
+                        if(socketProvider.isSortTrueFalse == false){
+                          socketProvider.newSetData();
+                          socketProvider.sortDataEvent(socketProvider.listOfMap);
+                          Future.delayed(const Duration(milliseconds: 500),(){
+                            socketProvider.checkSetSequenceData(socketProvider.listOfMap);
+                            socketProvider.sortTrueFalse();
+                            socketProvider.isSortGroup(socketProvider.newIndexData);
+                          });
+                        }else{
+                          socketProvider.sortTrueFalse();
+                        }
                        },
                        child: Container(
                          height: 30,

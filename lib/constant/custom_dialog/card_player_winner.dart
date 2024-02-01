@@ -121,7 +121,6 @@ class _PopupCallState extends State<_PopupCall> {
                   ),
                 ],
               ),
-
               const Padding(
                 padding: EdgeInsets.only(left: 40,right: 40),
                 child: SizedBox(
@@ -184,47 +183,6 @@ class _PopupCallState extends State<_PopupCall> {
                         ],
                       );
                     }),
-              ),
-              Row(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 10.0),
-                    child: Center(
-                      child: GestureDetector(
-                        onTap: () {
-                          Provider.of<SocketProvider>(context,listen: false).gameOver(context,widget.gameId);
-                          Provider.of<SocketProvider>(context,listen: false).disconnectSocket(context);
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          height: 40,
-                          width: 120,
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.yellow, width: 2.0),
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(25),
-                            ),
-                            color: Colors.blue,
-                          ),
-                          child: Center(
-                            child: Text(
-                              'Exit Game'.toUpperCase(),
-                              style: const TextStyle(
-                                decoration: TextDecoration.none,
-                                fontFamily: 'TTNorms',
-                                fontWeight: FontWeight.bold,
-                                wordSpacing: 0,
-                                letterSpacing: 0,
-                                fontSize: 15,
-                                color: Colors.yellow,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
               ),
 
             ],

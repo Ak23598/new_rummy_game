@@ -140,9 +140,9 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
       if (serveCounter == 11) {
         serveTimer.cancel();
         servingTimer?.cancel();
-        Future.delayed(Duration(seconds: 1),(){
+        Future.delayed(const Duration(seconds: 1),(){
           Provider.of<SocketProvider>(context,listen: false).setFilpCard(false);
-          flipingTimer = Timer.periodic(Duration(milliseconds: 200), (flipTimer) {
+          flipingTimer = Timer.periodic(const Duration(milliseconds: 200), (flipTimer) {
             if (!mounted) return;
             setState(() {
               _flipedPages[flipCounter] = true;
@@ -242,6 +242,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
 
                                               },
                                               onDragStarted: () {
+                                                socketProvider.sortTrueFalse();
                                                 if(socketProvider.isMyTurn){
                                                   socketProvider.sortTrueFalse();
                                                   if(socketProvider.newIndexData.length == 11){
@@ -292,20 +293,30 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                               child: socketProvider.isAcceptCardList[index] == 1
                                                   ? SizedBox()
                                                   : socketProvider.isAcceptCardList[index] == 2
-                                                  ? Container(
-                                                child: Image.asset(socketProvider.rummyCardList[socketProvider.isSortData[i][index] - 1]),
-                                              )
-                                                  : OpacityAnimatedWidget.tween(
-                                                opacityEnabled: 1,
-                                                opacityDisabled: 0,
-                                                enabled: widget.Fliped[index],
-                                                child: RotationAnimatedWidget.tween(
-                                                  enabled: widget.Fliped[index],
-                                                  rotationDisabled: Rotation.deg(y: 10),
-                                                  rotationEnabled: Rotation.deg(y: 10),
-                                                  child: Image.asset(socketProvider.rummyCardList[socketProvider.isSortData[i][index] - 1]),
-                                                ),
-                                              ),
+                                                  ? InkWell(
+                                                onTap: (){
+                                                  print('ataabbcnbvvbmn    vmjlnfjnjk ');
+                                                },
+                                                    child: Container(
+                                                                                                    child: Image.asset(socketProvider.rummyCardList[socketProvider.isSortData[i][index] - 1]),
+                                                                                                  ),
+                                                  )
+                                                  : InkWell(
+                                                onTap: (){
+                                                  print('ataabbcnbvvbmn    ');
+                                                },
+                                                    child: OpacityAnimatedWidget.tween(
+                                                                                                    opacityEnabled: 1,
+                                                                                                    opacityDisabled: 0,
+                                                                                                    enabled: widget.Fliped[index],
+                                                                                                    child: RotationAnimatedWidget.tween(
+                                                    enabled: widget.Fliped[index],
+                                                    rotationDisabled: Rotation.deg(y: 10),
+                                                    rotationEnabled: Rotation.deg(y: 10),
+                                                    child: Image.asset(socketProvider.rummyCardList[socketProvider.isSortData[i][index] - 1]),
+                                                                                                    ),
+                                                                                                  ),
+                                                  ),
                                             ),
                                           ),
                                         ),
@@ -317,7 +328,9 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                           ),
                         ),
                       );
-                    }, onReorder: (int oldIndex, int newIndex) { socketProvider.sortTrueFalse();},),
+                    }, onReorder: (int oldIndex, int newIndex) {
+                      socketProvider.sortTrueFalse();
+                      },),
                 ),
               )
                   : Container(
