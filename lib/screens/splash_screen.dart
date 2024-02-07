@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:rummy_game/screens/login/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -33,6 +34,8 @@ class _SplashScreenState extends State<SplashScreen> {
           fit: BoxFit.fill,
         ),
       ),
+
     );
   }
+
 }

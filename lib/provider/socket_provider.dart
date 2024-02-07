@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -9,78 +8,79 @@ import 'package:rummy_game/constant/custom_dialog/card_player_winner.dart';
 import 'package:rummy_game/model/player_winner_model.dart';
 import 'package:rummy_game/utils/Sockets.dart';
 
-class SocketProvider extends ChangeNotifier{
-
-  List<int> _cardNumberList =[];
+class SocketProvider extends ChangeNotifier {
+  List<int> _cardNumberList = [];
   int _secondsRemaining = 30;
-  int _countDown  = 20;
+  int _countDown = 20;
   int _stopCountDown = 1;
   int _playerCount = 0;
-  bool _isMyTurn= false;
+  bool _isMyTurn = false;
+  List<int> _newSort = [];
   Timer? _timer;
-  final List<Map<String,dynamic>> _cardList = [
-    {"value":"A","suit":"Spades"},
-    {"value":"2","suit":"Spades"},
-    {"value":"3","suit":"Spades"},
-    {"value":"4","suit":"Spades"},
-    {"value":"5","suit":"Spades"},
-    {"value":"6","suit":"Spades"},
-    {"value":"7","suit":"Spades"},
-    {"value":"8","suit":"Spades"},
-    {"value":"9","suit":"Spades"},
-    {"value":"10","suit":"Spades"},
-    {"value":"J","suit":"Spades"},
-    {"value":"Q","suit":"Spades"},
-    {"value":"K","suit":"Spades"},
-    {"value":"A","suit":"Hearts"},
-    {"value":"2","suit":"Hearts"},
-    {"value":"3","suit":"Hearts"},
-    {"value":"4","suit":"Hearts"},
-    {"value":"5","suit":"Hearts"},
-    {"value":"6","suit":"Hearts"},
-    {"value":"7","suit":"Hearts"},
-    {"value":"8","suit":"Hearts"},
-    {"value":"9","suit":"Hearts"},
-    {"value":"10","suit":"Hearts"},
-    {"value":"J","suit":"Hearts"},
-    {"value":"Q","suit":"Hearts"},
-    {"value":"K","suit":"Hearts"},
-    {"value":"A","suit":"Clubs"},
-    {"value":"2","suit":"Clubs"},
-    {"value":"3","suit":"Clubs"},
-    {"value":"4","suit":"Clubs"},
-    {"value":"5","suit":"Clubs"},
-    {"value":"6","suit":"Clubs"},
-    {"value":"7","suit":"Clubs"},
-    {"value":"8","suit":"Clubs"},
-    {"value":"9","suit":"Clubs"},
-    {"value":"10","suit":"Clubs"},
-    {"value":"J","suit":"Clubs"},
-    {"value":"Q","suit":"Clubs"},
-    {"value":"K","suit":"Clubs"},
-    {"value":"A","suit":"Diamonds"},
-    {"value":"2","suit":"Diamonds"},
-    {"value":"3","suit":"Diamonds"},
-    {"value":"4","suit":"Diamonds"},
-    {"value":"5","suit":"Diamonds"},
-    {"value":"6","suit":"Diamonds"},
-    {"value":"7","suit":"Diamonds"},
-    {"value":"8","suit":"Diamonds"},
-    {"value":"9","suit":"Diamonds"},
-    {"value":"10","suit":"Diamonds"},
-    {"value":"J","suit":"Diamonds"},
-    {"value":"Q","suit":"Diamonds"},
-    {"value":"K","suit":"Diamonds"},
-    {"value":"Joker","suit":"Joker"}
+  final List<Map<String, dynamic>> _cardList = [
+    {"value": "A", "suit": "Spades"},
+    {"value": "2", "suit": "Spades"},
+    {"value": "3", "suit": "Spades"},
+    {"value": "4", "suit": "Spades"},
+    {"value": "5", "suit": "Spades"},
+    {"value": "6", "suit": "Spades"},
+    {"value": "7", "suit": "Spades"},
+    {"value": "8", "suit": "Spades"},
+    {"value": "9", "suit": "Spades"},
+    {"value": "10", "suit": "Spades"},
+    {"value": "J", "suit": "Spades"},
+    {"value": "Q", "suit": "Spades"},
+    {"value": "K", "suit": "Spades"},
+    {"value": "A", "suit": "Hearts"},
+    {"value": "2", "suit": "Hearts"},
+    {"value": "3", "suit": "Hearts"},
+    {"value": "4", "suit": "Hearts"},
+    {"value": "5", "suit": "Hearts"},
+    {"value": "6", "suit": "Hearts"},
+    {"value": "7", "suit": "Hearts"},
+    {"value": "8", "suit": "Hearts"},
+    {"value": "9", "suit": "Hearts"},
+    {"value": "10", "suit": "Hearts"},
+    {"value": "J", "suit": "Hearts"},
+    {"value": "Q", "suit": "Hearts"},
+    {"value": "K", "suit": "Hearts"},
+    {"value": "A", "suit": "Clubs"},
+    {"value": "2", "suit": "Clubs"},
+    {"value": "3", "suit": "Clubs"},
+    {"value": "4", "suit": "Clubs"},
+    {"value": "5", "suit": "Clubs"},
+    {"value": "6", "suit": "Clubs"},
+    {"value": "7", "suit": "Clubs"},
+    {"value": "8", "suit": "Clubs"},
+    {"value": "9", "suit": "Clubs"},
+    {"value": "10", "suit": "Clubs"},
+    {"value": "J", "suit": "Clubs"},
+    {"value": "Q", "suit": "Clubs"},
+    {"value": "K", "suit": "Clubs"},
+    {"value": "A", "suit": "Diamonds"},
+    {"value": "2", "suit": "Diamonds"},
+    {"value": "3", "suit": "Diamonds"},
+    {"value": "4", "suit": "Diamonds"},
+    {"value": "5", "suit": "Diamonds"},
+    {"value": "6", "suit": "Diamonds"},
+    {"value": "7", "suit": "Diamonds"},
+    {"value": "8", "suit": "Diamonds"},
+    {"value": "9", "suit": "Diamonds"},
+    {"value": "10", "suit": "Diamonds"},
+    {"value": "J", "suit": "Diamonds"},
+    {"value": "Q", "suit": "Diamonds"},
+    {"value": "K", "suit": "Diamonds"},
+    {"value": "Joker", "suit": "Joker"}
   ];
   List _cardListIndex = [];
   int? _finishCardIndex;
   List<int> _newIndexData = [];
+  List<int> _newIndexSortData = [];
   int _isDropOneCard = 0;
   int _isDropTwoCard = 0;
   int _isDropThreeCard = 0;
   bool _isNoDropCard = false;
-  List<Map<String,dynamic>> _listOfMap =[];
+  List<Map<String, dynamic>> _listOfMap = [];
   int _isDropFourCard = 0;
   int _isDropFiveCard = 0;
   int _isDropSixCard = 0;
@@ -97,18 +97,18 @@ class SocketProvider extends ChangeNotifier{
   List<bool> _cardUp = [];
   bool _isSortCard = false;
   bool _isOneAcceptCard = false;
-  List _sortList =[];
-  List _isAcceptCardList = [0,0,0,0,0,0,0,0,0,0,0,0,0];
-  List<List> _isSortData =[];
-  bool _isFilpCard= true;
+  List _sortList = [];
+  List _isAcceptCardList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  final List _isAcceptSortCardList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  List<List> _isSortData = [];
+  bool _isFilpCard = true;
   bool _isSortTrueFalse = false;
   List _newHandData = [];
   List _setSequencesResponse = [];
   PlayerWinnerModel _playerWinnerModel = PlayerWinnerModel();
-  List<List<int>> _playerWinnerCardList =[];
+  List<List<int>> _playerWinnerCardList = [];
   dynamic _dataResponse;
   bool _isCheckSqu = false;
-
   final List<String> _rummyCardList = [
     'assets/cards/bpa.png',
     'assets/cards/bp2.png',
@@ -168,66 +168,130 @@ class SocketProvider extends ChangeNotifier{
   List<dynamic> _checkSetSequence = [];
   List<dynamic> _reArrangeData = [];
 
+
+  // New Sort
+
+
+  bool _isNewSortTrueFalse = false;
+  List<int> _newSortListData =[];
+
+  bool get isNewSortTrueFalse => _isNewSortTrueFalse;
+
+  List<int> get newSortListData => _newSortListData;
+
+
+
   bool get isSortTrueFalse => _isSortTrueFalse;
+
   int get isDropOneCard => _isDropOneCard;
+
   int get isDropTwoCard => _isDropTwoCard;
+
   int get isDropThreeCard => _isDropThreeCard;
+
   int get isDropFourCard => _isDropFourCard;
+
   List get sortList => _sortList;
+
   dynamic get dataResponse => _dataResponse;
+
   PlayerWinnerModel get playerWinnerModel => _playerWinnerModel;
+
   List<List> get isSortData => _isSortData;
+
+  List<int> get newSort => _newSort;
+
   int get isDropFiveCard => _isDropFiveCard;
+
   int get isDropSixCard => _isDropSixCard;
+
   int get isDropSevenCard => _isDropSevenCard;
+
   int get isDropEightCard => _isDropEightCard;
+
   int get isDropNineCard => _isDropNineCard;
+
   int get isDropTenCard => _isDropTenCard;
+
   int get setCardUpIndex => _setCardUpIndex;
+
   int get isDropElevenCard => _isDropElevenCard;
+
   int get isDropTwelveCard => _isDropTwelveCard;
+
   int get isDropThirteenCard => _isDropThirteenCard;
+
   List get acceptCardListIndex => _acceptCardListIndex;
+
   int? get dropCardIndex => _dropCardIndex;
-  List<Map<String,dynamic>> get listOfMap => _listOfMap;
+
+  List<Map<String, dynamic>> get listOfMap => _listOfMap;
+
   List get newHandData => _newHandData;
+
   List get cardUp => _cardUp;
+
   bool get isSortCard => _isSortCard;
+
   bool get isFilpCard => _isFilpCard;
+
   bool get isCheckSqu => _isCheckSqu;
+
   List<List> get playerWinnerCardList => _playerWinnerCardList;
+
   bool get isNoDropCard => _isNoDropCard;
+
   bool get isMyTurn => _isMyTurn;
+
   bool get isOneAcceptCard => _isOneAcceptCard;
+
   List get isAcceptCardList => _isAcceptCardList;
-  List<Map<String,dynamic>> get cardList => _cardList;
+
+  List get isAcceptSortCardList => _isAcceptSortCardList;
+
+  List<Map<String, dynamic>> get cardList => _cardList;
+
   int get totalDownCard => _totalDownCard;
+
   List<dynamic> get checkSetSequence => _checkSetSequence;
+
   List<String> get rummyCardList => _rummyCardList;
+
   List get reArrangeData => _reArrangeData;
+
   List get setSequencesResponse => _setSequencesResponse;
+
   List<int> get cardNumberList => _cardNumberList;
+
   List<int> get newIndexData => _newIndexData;
+
+  List<int> get newIndexSortData => _newIndexSortData;
+
   int? get finishCardIndex => _finishCardIndex;
+
   int get stopCountDown => _stopCountDown;
+
   int get playerCount => _playerCount;
+
   int get countDown => _countDown;
+
   int get secondsRemaining => _secondsRemaining;
+
   List get cardListIndex => _cardListIndex;
 
-  void createGame(String gameID,BuildContext context) async {
-    Sockets.socket.emit("game",gameID);
+  void createGame(String gameID, BuildContext context) async {
+    Sockets.socket.emit("game", gameID);
     Sockets.socket.on("game", (data) {
-     print('Socket In Game Event Completed ***** game *****  $data');
+      print('Socket In Game Event Completed ***** game *****  $data');
     });
   }
 
   void drawCard(BuildContext context) async {
-  Sockets.socket.emit("draw","up");
-  Sockets.socket.on("draw", (data) {
-    print('Socket In Draw Event Completed ***** draw *****  $data');
-  });
-}
+    Sockets.socket.emit("draw", "up");
+    Sockets.socket.on("draw", (data) {
+      print('Socket In Draw Event Completed ***** draw *****  $data');
+    });
+  }
 
   void upCard(BuildContext context) async {
     Sockets.socket.on("up", (data) {
@@ -236,17 +300,16 @@ class SocketProvider extends ChangeNotifier{
       String value = data['value'];
       String suit = data['suit'];
 
-
-      for(int i = 0; i< _cardList.length;i++){
-        if(_cardList[i]['value'] == value){
-          if(_cardList[i]['suit'] == suit){
-            Future.delayed(const Duration(seconds: 6),(){
-              setCardListIndex(i+1);
+      for (int i = 0; i < _cardList.length; i++) {
+        if (_cardList[i]['value'] == value) {
+          if (_cardList[i]['suit'] == suit) {
+            Future.delayed(const Duration(seconds: 6), () {
+              setCardListIndex(i + 1);
             });
           }
         }
 
-        if(_cardList[_finishCardIndex ?? 0]['value'] == value){
+        if (_cardList[_finishCardIndex ?? 0]['value'] == value) {
           setFinishCardNull();
         }
       }
@@ -263,70 +326,78 @@ class SocketProvider extends ChangeNotifier{
   void handCard(BuildContext context) async {
     Sockets.socket.on("hand", (data) {
       print('Socket In Hand Event Completed ***** hand *****  $data');
-      List<int> newCardData= [];
-      List<Map<String,dynamic>> data2 = [];
-      for(int i = 0; i < data.length; i++){
-        Map<String,dynamic> data3 = data[i];
+      List<int> newCardData = [];
+      List<Map<String, dynamic>> data2 = [];
+      for (int i = 0; i < data[0].length; i++) {
+        Map<String, dynamic> data3 = data[0][i];
         data2.add(data3);
       }
-      for(int i = 0; i < data2.length; i++){
-        Map<String,dynamic> singleCard = data2[i];
+      for (int i = 0; i < data2.length; i++) {
+        Map<String, dynamic> singleCard = data2[i];
         String singleCardValue = singleCard["value"];
         String singleCardSuit = singleCard["suit"];
-        for(int j = 0; j < _cardList.length; j++){
-          Map<String,dynamic> sCard = _cardList[j];
+        for (int j = 0; j < _cardList.length; j++) {
+          Map<String, dynamic> sCard = _cardList[j];
           String sCardValue = sCard["value"];
           String sCardSuit = sCard["suit"];
-          if(singleCardValue == sCardValue && singleCardSuit == sCardSuit){
+          if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
             newCardData.add(j + 1);
           }
         }
       }
 
+      setNewRemoveData();
+      notifyListeners();
+      List<int> newData = [];
+      _cardNumberList = newCardData;
+      for (int i = 0; i < _cardNumberList.length; i++) {
+        setNewData(_cardNumberList[i]);
+        newData.add(_cardNumberList[i]);
+      }
+      _newSortListData = newData;
+      notifyListeners();
 
-        setNewRemoveData();
-        _cardNumberList = newCardData;
-        for(int i = 0; i< _cardNumberList.length;i++){
-          setNewData(_cardNumberList[i]);
-        }
+      // Future.delayed(const Duration(milliseconds: 200), () {
+      //   if (isSortTrueFalse == true) {
+      //     newSetSortGroupData();
+      //   }
+      // });
 
+      // if(isSortTrueFalse == true){
+      //   sortTrueFalse();
+      //   newSetData();
+      //
+      //   sortDataEvent(_listOfMap);
+      //   Future.delayed(const Duration(milliseconds: 500),(){
+      //     //checkSetSequenceData(_listOfMap);
+      //      sortTrueFalse();
+      //     isSortGroup(_newIndexData);
+      //   });
+      // }
 
-       if(isSortTrueFalse == true){
-         sortTrueFalse();
-         newSetData();
-
-         sortDataEvent(_listOfMap);
-         Future.delayed(const Duration(milliseconds: 500),(){
-           //checkSetSequenceData(_listOfMap);
-            sortTrueFalse();
-           isSortGroup(_newIndexData);
-         });
-       }
-
-
-        // Future.delayed(const Duration(milliseconds: 200),(){
-        //   if(_isSortTrueFalse){
-        //     newSetData();
-        //     sortDataEvent(_listOfMap);
-        //     checkSetSequenceData(_listOfMap);
-        //     sortTrueFalse();
-        //     isSortGroup(_newIndexData);
-        //   }
-        // });
-      });
+      // Future.delayed(const Duration(milliseconds: 200),(){
+      //   if(_isSortTrueFalse){
+      //     newSetData();
+      //     sortDataEvent(_listOfMap);
+      //     checkSetSequenceData(_listOfMap);
+      //     sortTrueFalse();
+      //     isSortGroup(_newIndexData);
+      //   }
+      // });
+    });
   }
 
   void turnTime(BuildContext context) async {
     Sockets.socket.on("turn", (data) {
       print('Socket In Turn Event Completed ***** turn *****  $data');
 
-      if(data['timeOut'] !=null){
-        if(data['timeOut'] == 0){
+      if (data['timeOut'] != null) {
+        if (data['timeOut'] == 0) {
           closeTimer();
           initTimer();
           setMyTurn(false);
-        }else{
-         setMyTurn(true);
+        } else {
+          setMyTurn(true);
           closeTimer();
           initTimer();
           startTimer(context);
@@ -340,9 +411,8 @@ class SocketProvider extends ChangeNotifier{
       print("**** COUNT DOWN **** $data");
       setCountDown(data);
 
-
-      if(data == 0){
-        if(_playerCount == 1){
+      if (data == 0) {
+        if (_playerCount == 1) {
           Sockets.socket.disconnect();
           Navigator.pop(context);
         }
@@ -350,7 +420,7 @@ class SocketProvider extends ChangeNotifier{
     });
   }
 
-  void gameOver(BuildContext context,String gameID,) async {
+  void gameOver(BuildContext context, String gameID,) async {
     Sockets.socket.on("game over", (data) {
       print("**** Game Over **** $data");
       /*WinnerDialog(
@@ -366,20 +436,18 @@ class SocketProvider extends ChangeNotifier{
 
         },
       ).show(context);*/
-      setPlayerWinnerCard(gameID).whenComplete((){
+      setPlayerWinnerCard(gameID).whenComplete(() {
         CardPlayerWinner(
-          title: 'Quit Game',
-          message: "Quiting On Going Game In The Middle Results",
-          leftButton: 'Cancel',
-          rightButton: 'Exit',
-          onTapLeftButton: () {
-            Navigator.pop(context);
-          },
-          onTapRightButton: () {
-
-          },
-          gameId: gameID
-        ).show(context);
+                title: 'Quit Game',
+                message: "Quiting On Going Game In The Middle Results",
+                leftButton: 'Cancel',
+                rightButton: 'Exit',
+                onTapLeftButton: () {
+                  Navigator.pop(context);
+                },
+                onTapRightButton: () {},
+                gameId: gameID)
+            .show(context);
       });
     });
   }
@@ -395,14 +463,13 @@ class SocketProvider extends ChangeNotifier{
     });
   }
 
-  void turnMessage(BuildContext context,String userId) async {
+  void turnMessage(BuildContext context, String userId) async {
     Sockets.socket.on("turn message", (data) {
       print("**** TURN MESSAGE **** $data");
       // var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
 
-      if(data['userId'] == userId){
-
-      }else{
+      if (data['userId'] == userId) {
+      } else {
         setMyTurn(false);
       }
     });
@@ -414,59 +481,59 @@ class SocketProvider extends ChangeNotifier{
     });
   }
 
-  setRemoveIndex(int index){
+  setRemoveIndex(int index) {
     _cardNumberList.removeAt(index);
     notifyListeners();
   }
 
-  setNewIndex(int index,int value){
-    _cardNumberList.insert(index,value);
+  setNewIndex(int index, int value) {
+    _cardNumberList.insert(index, value);
     notifyListeners();
   }
 
-  disconnectSocket(BuildContext context){
-  Sockets.socket.disconnect();
-  Navigator.pop(context);
+  disconnectSocket(BuildContext context) {
+    Sockets.socket.disconnect();
+    Navigator.pop(context);
   }
 
-  setCountDown(int count){
+  setCountDown(int count) {
     _countDown = count;
     notifyListeners();
 
-    if(count == 0){
+    if (count == 0) {
       _stopCountDown = 0;
       notifyListeners();
     }
   }
 
-  setStopCountDown(int value){
+  setStopCountDown(int value) {
     _stopCountDown = value;
     notifyListeners();
   }
 
-  setPlayerCount(int value){
-    _playerCount  = value;
+  setPlayerCount(int value) {
+    _playerCount = value;
     print('Rummy Provider Count Data :-   ${_playerCount}');
     notifyListeners();
   }
 
-  setMyTurn(bool value){
+  setMyTurn(bool value) {
     _isMyTurn = value;
     notifyListeners();
   }
 
-  closeTimer(){
+  closeTimer() {
     _timer?.cancel();
     notifyListeners();
   }
 
-  void initTimer(){
+  void initTimer() {
     _secondsRemaining = 30;
     notifyListeners();
   }
 
-  startTimer(BuildContext context,{int secondsRemaining=30}) {
-    _secondsRemaining=secondsRemaining;
+  startTimer(BuildContext context, {int secondsRemaining = 30}) {
+    _secondsRemaining = secondsRemaining;
     notifyListeners();
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       if (_secondsRemaining != 0) {
@@ -481,59 +548,79 @@ class SocketProvider extends ChangeNotifier{
     });
   }
 
-  setCardListIndex(int value){
+  setCardListIndex(int value) {
     _cardListIndex.add(value);
     notifyListeners();
   }
 
-  setFinishCardNull(){
+  setFinishCardNull() {
     int? data;
     _finishCardIndex = data;
     notifyListeners();
-
   }
 
-  void setFinishCardIndex(int value){
+  void setFinishCardIndex(int value) {
     _finishCardIndex = value;
     notifyListeners();
   }
 
-  setNewRemoveData(){
+  setNewRemoveData() {
     _newIndexData.clear();
     notifyListeners();
   }
 
-  void setOldCardRemove(int index){
+  setNewRemoveHandData() {
+    _newSort.clear();
+    notifyListeners();
+  }
+
+  void setOldCardRemove(int index) {
     _newIndexData.removeAt(index);
     notifyListeners();
   }
 
-  setNewData(int value){
+  void setOldCardHandRemove(int index) {
+    _newSort.removeAt(index);
+    notifyListeners();
+  }
+
+  setNewData(int value) {
     _newIndexData.add(value);
     notifyListeners();
   }
 
-  setNewRemoveIndex(int index){
+  setNewSortData(int value) {
+    _newIndexSortData.add(value);
+    notifyListeners();
+  }
+
+  setNewHandData(int value) {
+    _newSort.add(value);
+    notifyListeners();
+  }
+
+  setNewRemoveIndex(int index) {
     _newIndexData.removeAt(index);
     print('Rummy Provider Data :-   ${_newIndexData.length}');
     notifyListeners();
   }
 
-  void sortTrueFalse(){
+  void sortTrueFalse() {
     _isSortTrueFalse = !_isSortTrueFalse;
     notifyListeners();
   }
-  void isCheckSquFalse(bool value){
+
+  void isCheckSquFalse(bool value) {
     _isCheckSqu = value;
     notifyListeners();
   }
 
-  void isSortGroup(List data){
+  void isSortGroup(List data) {
     int chunkSize = 3;
     _isSortData.clear();
     for (var i = 0; i < data.length; i += chunkSize) {
-      _isSortData.add(data.sublist(i,
-          i + chunkSize > data.length ? data.length : i + chunkSize));
+      _isSortData.add(data.sublist(
+          i, i + chunkSize > data.length ? data.length : i + chunkSize));
     }
 
     print('New Sort Grop Data :-  ${_isSortData}');
@@ -541,22 +628,22 @@ class SocketProvider extends ChangeNotifier{
 
   void dropCard(int data) async {
     print('Drop Card :-   ${data} ');
-    Sockets.socket.emit("drop",data);
+    Sockets.socket.emit("drop", data);
     print("*** DROP EMIT ***");
   }
 
   void finishCard(int data) async {
     print('Finish Card :-   ${data} ');
-    Sockets.socket.emit("finish",data);
+    Sockets.socket.emit("finish", data);
     print("*** Finish EMIT ***");
   }
 
-  setNoDropCard(bool value){
+  setNoDropCard(bool value) {
     _isNoDropCard = value;
     notifyListeners();
   }
 
-  Future setPlayerWinnerCard (String id) async {
+  Future setPlayerWinnerCard(String id) async {
     print('id ;-      $id');
     Uri url = Uri.parse('http://3.111.148.154:3000/rakesh/games/$id');
     _playerWinnerCardList.clear();
@@ -566,18 +653,21 @@ class SocketProvider extends ChangeNotifier{
     notifyListeners();
     // _playerWinnerModel = PlayerWinnerModel.fromJson(dataResponse);
 
-    for(int i =0;i< _dataResponse['game']['game']['players'].length;i++){
-      List<int> newCardData =[];
-      for(int j = 0;j< _dataResponse['game']['game']['players'][i]['hand'].length;j++){
-        Map<String,dynamic> singleCard = _dataResponse['game']['game']['players'][i]['hand'][j];
+    for (int i = 0; i < _dataResponse['game']['game']['players'].length; i++) {
+      List<int> newCardData = [];
+      for (int j = 0;
+          j < _dataResponse['game']['game']['players'][i]['hand'].length;
+          j++) {
+        Map<String, dynamic> singleCard =
+            _dataResponse['game']['game']['players'][i]['hand'][j];
 
         String singleCardValue = singleCard["value"];
         String singleCardSuit = singleCard["suit"];
-        for(int k = 0; k < _cardList.length; k++){
-          Map<String,dynamic> sCard = cardList[k];
+        for (int k = 0; k < _cardList.length; k++) {
+          Map<String, dynamic> sCard = cardList[k];
           String sCardValue = sCard["value"];
           String sCardSuit = sCard["suit"];
-          if(singleCardValue == sCardValue && singleCardSuit == sCardSuit){
+          if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
             newCardData.add(k + 1);
           }
         }
@@ -585,26 +675,24 @@ class SocketProvider extends ChangeNotifier{
       _playerWinnerCardList.add(newCardData);
     }
     print('response ${_playerWinnerCardList}');
-
   }
 
-  setRomoveAndIndexData(int newIndex,int oldIndex){
+  setRomoveAndIndexData(int newIndex, int oldIndex) {
     final itemCard = _newIndexData.removeAt(oldIndex);
-    if(oldIndex<newIndex){
-      _newIndexData.insert(newIndex-1, itemCard);
-    }else{
+    if (oldIndex < newIndex) {
+      _newIndexData.insert(newIndex - 1, itemCard);
+    } else {
       _newIndexData.insert(newIndex, itemCard);
     }
 
     _reArrangeData.clear();
     _listOfMap.clear();
 
-    for(int i=0;i<_newIndexData.length;i++){
-
-      for(int j=0;j < _cardList.length;j++){
-        if(_newIndexData[i] == j){
-          Map<String,dynamic> singleData = _cardList[j -1];
-          _reArrangeData.add(_cardList[j -1]);
+    for (int i = 0; i < _newIndexData.length; i++) {
+      for (int j = 0; j < _cardList.length; j++) {
+        if (_newIndexData[i] == j) {
+          Map<String, dynamic> singleData = _cardList[j - 1];
+          _reArrangeData.add(_cardList[j - 1]);
           _listOfMap.add(singleData);
         }
       }
@@ -616,77 +704,82 @@ class SocketProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  newSetData(){
+  newSetData() {
     _listOfMap.clear();
 
-    for(int i=0;i<_newIndexData.length;i++){
-
-      for(int j=0;j < _cardList.length;j++){
-        if(_newIndexData[i] == j){
-          Map<String,dynamic> singleData = _cardList[j -1];
-          _reArrangeData.add(_cardList[j -1]);
+    for (int i = 0; i < _newIndexData.length; i++) {
+      for (int j = 0; j < _cardList.length; j++) {
+        if (_newIndexData[i] == j) {
+          Map<String, dynamic> singleData = _cardList[j - 1];
+          _reArrangeData.add(_cardList[j - 1]);
           _listOfMap.add(singleData);
         }
       }
-
-
     }
 
     notifyListeners();
     print('New Sort Data :-    $_listOfMap');
   }
 
-  checkSetSequenceData(List<Map<String,dynamic>> checkData) async {
+  // newSetSortGroupData() {
+  //   _newSort.insert(3, 100);
+  //   _newSort.insert(7, 100);
+  //   _newSort.insert(11, 100);
+  //
+  //   notifyListeners();
+  // }
+
+  checkSetSequenceData(List<Map<String, dynamic>> checkData) async {
     _setSequencesResponse.clear();
 
+    print("^^^^ check set sequences ^^^^ $checkData");
+    Sockets.socket.emit("check set sequences", {checkData});
+    Sockets.socket.on("check set sequences", (data) {
+      print("^^^^ check set sequences Data ^^^^ $data");
+      _setSequencesResponse = data;
 
-      print("^^^^ check set sequences ^^^^ $checkData");
-      Sockets.socket.emit("check set sequences",{checkData});
-      Sockets.socket.on("check set sequences", (data) {
-        print("^^^^ check set sequences Data ^^^^ $data");
-        _setSequencesResponse = data;
-
-        _setSequencesResponse.add("d");
-        notifyListeners();
-
-      });
-
-
+      _setSequencesResponse.add("d");
+      notifyListeners();
+    });
   }
 
-  void rearrangeData(List<dynamic> rearrange)async{
-    Sockets.socket.emit("re arrange",{rearrange});
+  void rearrangeData(List<dynamic> rearrange) async {
+    Sockets.socket.emit("re arrange", {rearrange});
     print("*** RE-ARRANGE ***");
   }
 
-  void sortDataEvent(List<dynamic> sortData)async{
-    Sockets.socket.emit("sort",{sortData});
+  void sortDataEvent(List<dynamic> sortData) async {
+    Sockets.socket.emit("sort", {sortData});
     newSetData();
     print("*** SortData ***");
   }
 
-  setFilpCard(bool value){
+  setFilpCard(bool value) {
     _isFilpCard = value;
     notifyListeners();
   }
 
-  setOneAcceptCardList(int value,int index){
-
-    print('Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
+  setOneAcceptCardList(int value, int index) {
+    print(
+        'Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
     _isAcceptCardList[index] = value;
     notifyListeners();
   }
 
-  setCardUpFalse(){
-    for(int i = 0; i< 14;i++){
+  setOneAcceptHandCardList(int value, int index) {
+    print(
+        'Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
+    _isAcceptSortCardList[index] = value;
+    notifyListeners();
+  }
+
+  setCardUpFalse() {
+    for (int i = 0; i < 18; i++) {
       _cardUp.add(false);
     }
   }
 
-  setCardUpTrue(int index,BuildContext context){
-
-
-
+  setCardUpTrue(int index, BuildContext context) {
     /* for(int i =0;i<_cardUp.length;i++){
       if(i != index){
         if(_cardUp[i] == true){
@@ -695,12 +788,12 @@ class SocketProvider extends ChangeNotifier{
       }
     }*/
     _cardUp[index] = !_cardUp[index];
-    if(_cardUp[index] == true){
+    if (_cardUp[index] == true) {
       _sortList.add(index);
-    }else{
-      if(_sortList.isNotEmpty){
-        for(int i = 0;i<_sortList.length;i++){
-          if(_sortList[i] == index){
+    } else {
+      if (_sortList.isNotEmpty) {
+        for (int i = 0; i < _sortList.length; i++) {
+          if (_sortList[i] == index) {
             _sortList.removeAt(i);
           }
         }
@@ -747,18 +840,17 @@ class SocketProvider extends ChangeNotifier{
     }*/
   }
 
-  setTotalDownCard(int value){
-    _totalDownCard=value;
+  setTotalDownCard(int value) {
+    _totalDownCard = value;
     notifyListeners();
   }
 
-  void resetAllData(){
-
+  void resetAllData() {
     _isDropOneCard = 0;
     _isDropTwoCard = 0;
     _isDropThreeCard = 0;
     _isNoDropCard = false;
-    _listOfMap =[];
+    _listOfMap = [];
     _isDropFourCard = 0;
     _isDropFiveCard = 0;
     _isDropSixCard = 0;
@@ -775,27 +867,65 @@ class SocketProvider extends ChangeNotifier{
     _cardUp = [];
     _isSortCard = false;
     _isOneAcceptCard = false;
-    _sortList =[];
-    _isAcceptCardList = [0,0,0,0,0,0,0,0,0,0,0,0,0];
-    _isSortData =[];
+    _sortList = [];
+    _isAcceptCardList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    _isSortData = [];
     _newIndexData = [];
-    _isFilpCard= true;
-    _isMyTurn= false;
+    _isFilpCard = true;
+    _isMyTurn = false;
     _isSortTrueFalse = false;
     _newHandData = [];
     _setSequencesResponse = [];
     _playerWinnerModel = PlayerWinnerModel();
-    _playerWinnerCardList =[];
+    _playerWinnerCardList = [];
     _dataResponse;
     _totalDownCard = 0;
     _checkSetSequence = [];
     _reArrangeData = [];
 
     notifyListeners();
-
   }
-  
-  
 
+  // New Sort Data ....
 
+  void setNewSortTrueFalse(bool value) {
+    _isNewSortTrueFalse = value;
+    notifyListeners();
+  }
+
+  void setNewSortListData(){
+    _newSortListData.insert(3, 100);
+    _newSortListData.insert(7, 100);
+    _newSortListData.insert(11, 100);
+
+    notifyListeners();
+    Future.delayed(const Duration(seconds: 2));
+  }
+
+  setRemoveAndIndexNewSortData(int newIndex, int oldIndex) {
+    final itemCard = _newSortListData.removeAt(oldIndex);
+    if (oldIndex < newIndex) {
+      _newSortListData.insert(newIndex - 1, itemCard);
+    } else {
+      _newSortListData.insert(newIndex, itemCard);
+    }
+
+    // _reArrangeData.clear();
+    // _listOfMap.clear();
+    //
+    // for (int i = 0; i < _newIndexData.length; i++) {
+    //   for (int j = 0; j < _cardList.length; j++) {
+    //     if (_newIndexData[i] == j) {
+    //       Map<String, dynamic> singleData = _cardList[j - 1];
+    //       _reArrangeData.add(_cardList[j - 1]);
+    //       _listOfMap.add(singleData);
+    //     }
+    //   }
+    // }
+    //
+    // //checkSetSequenceData(_reArrangeData);
+    // rearrangeData(_listOfMap);
+    // // sortDataEvent(_listOfMap);
+    // notifyListeners();
+  }
 }

@@ -28,8 +28,8 @@ class RummyGameScreen extends StatefulWidget {
 
 class _RummyGameScreenState extends State<RummyGameScreen> {
   bool sizeChange = false;
-  List<bool> _servedPages = [false, false, false,false,false, false, false,false,false, false,false,false];
-  List<bool> _flipedPages = [false, false, false,false,false, false, false,false,false, false,false,false];
+  final List<bool> _servedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false,false,false];
+  final List<bool> _flipedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false,false,false];
   Timer? servingTimer;
   Timer? flipingTimer;
   bool isPlaying = false;

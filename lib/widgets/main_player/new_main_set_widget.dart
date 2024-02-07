@@ -110,8 +110,8 @@ class NewPlayer3SeatWidget extends StatefulWidget {
 
 class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
 
-  List<bool> _servedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false];
-  List<bool> _flipedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false];
+  final List<bool> _servedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false,false,false,false];
+  final List<bool> _flipedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false,false,false,false];
   Timer? servingTimer;
   Timer? flipingTimer;
   bool isPlaying = false;
@@ -120,6 +120,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
   void initState() {
     sizeChangeAnimation();
   }
+
   @override
   void dispose() {
     servingTimer?.cancel();
@@ -161,6 +162,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
         isPlaying = true;
       });
       Provider.of<SocketProvider>(context,listen: false).newSetData();
+      Provider.of<SocketProvider>(context,listen: false).setNewSortListData();
     });
   }
 
@@ -176,7 +178,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
         builder: (context,socketProvider,_){
           return Column(
             children: [
-              socketProvider.isSortTrueFalse
+              /*socketProvider.isSortTrueFalse
                   ? SizedBox(
                 width: MediaQuery.of(context).size.width * 0.90,
                 height: 90,
@@ -332,6 +334,81 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                       socketProvider.sortTrueFalse();
                       },),
                 ),
+              )*/
+              socketProvider.isNewSortTrueFalse
+                  ?Container(
+                height: 70,
+                margin: const EdgeInsets.only(bottom: 09.0),
+                child: ReorderableListView(
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.all(0),
+                    children: [
+                      for(int index = 0;index<socketProvider.newSortListData.length;index++)
+                        Align(
+                        key: ValueKey(index),
+                        alignment: Alignment.bottomLeft,
+                        child: socketProvider.newSortListData[index] == 100?const SizedBox( height: 20,
+                          width: 20,):Container(
+                          margin: EdgeInsets.only(top: socketProvider.cardUp[index]?5:15),
+                          child: SizeAnimatedWidget.tween(
+                            enabled: true,
+                            duration: const Duration(milliseconds: 200),
+                            sizeEnabled: socketProvider.newSortListData[index] == 100?const Size(20, 70):const Size(40, 70),
+                            sizeDisabled: const Size(0, 0),
+                            curve: Curves.ease,
+                            child: TranslationAnimatedWidget.tween(
+                              enabled: true,
+                              delay: const Duration(milliseconds: 500),
+                              translationEnabled: const Offset(0, 0),
+                              translationDisabled: const Offset(10.0, -(20.0)),
+                              curve: Curves.ease,
+                              duration: const Duration(milliseconds: 500),
+                              child: InkWell(
+                                onTap: () {
+                                  socketProvider.setCardUpTrue(index,context);
+                                },
+                                child: Draggable<int>(
+                                  onDragStarted: () {
+                                    socketProvider.setOneAcceptHandCardList(1,index);
+                                  },
+                                  onDraggableCanceled: (velocity, offset) {
+                                    socketProvider.setOneAcceptHandCardList(2,index);
+                                  },
+                                  feedback: SizedBox(
+                                    height: 70,
+                                    width: 40,
+                                    child: Image.asset(socketProvider.rummyCardList[socketProvider.newSortListData[index] - 1]),
+                                  ),
+                                  data: index,
+                                  child: socketProvider.isAcceptSortCardList[index] == 1
+                                      ? const SizedBox()
+                                      : socketProvider.isAcceptSortCardList[index] == 2
+                                      ? Image.asset(socketProvider.rummyCardList[socketProvider.newSortListData[index] - 1])
+                                      : OpacityAnimatedWidget.tween(
+                                    opacityEnabled: 1,
+                                    opacityDisabled: 0,
+                                    enabled: true,
+                                    child: RotationAnimatedWidget.tween(
+                                      enabled: true,
+                                      rotationDisabled: Rotation.deg(y: 10),
+                                      rotationEnabled: Rotation.deg(y: 10),
+                                      child: Image.asset(socketProvider.rummyCardList[socketProvider.newSortListData[index] - 1]),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+
+
+                    onReorder: (oldIndex,newIndex){
+                      print('OldIndex :-  $oldIndex **** NewIndex :- $newIndex');
+                      socketProvider.setRemoveAndIndexNewSortData(newIndex, oldIndex);
+                    }),
               )
                   : Container(
                 height: 70,
@@ -385,9 +462,9 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                         : OpacityAnimatedWidget.tween(
                                       opacityEnabled: 1,
                                       opacityDisabled: 0,
-                                      enabled: widget.Fliped[index],
+                                      enabled: true,
                                       child: RotationAnimatedWidget.tween(
-                                        enabled: widget.Fliped[index],
+                                        enabled: true,
                                         rotationDisabled: Rotation.deg(y: 10),
                                         rotationEnabled: Rotation.deg(y: 10),
                                         child: Image.asset(socketProvider.rummyCardList[socketProvider.newIndexData[index] - 1]),
