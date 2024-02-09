@@ -206,12 +206,22 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                   socketProvider.dropCard(int.parse(data.toString()));
                                   socketProvider.setOneAcceptHandCardList(2,int.parse(data.toString()));
                                 }else{
-                                  int finishData = socketProvider.newIndexData[int.parse(data.toString())];
-                                  socketProvider.setNoDropCard(false);
-                                  socketProvider.setCardListIndex(finishData);
-                                  socketProvider.setOldCardRemove(int.parse(data.toString()));
-                                  socketProvider.dropCard(int.parse(data.toString()));
-                                  socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                                  if(socketProvider.isNewSortTrueFalseNew == false){
+                                    int finishData = socketProvider.newSortListGroupData[int.parse(data.toString())];
+                                    print('finifh   L_----:-  $finishData');
+                                    socketProvider.setNoDropCard(false);
+                                    socketProvider.setCardListIndex(finishData);
+                                    socketProvider.setOldCardSortRemove(int.parse(data.toString()));
+                                    socketProvider.dropCard(int.parse(data.toString()));
+                                    socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                                  }else{
+                                    int finishData = socketProvider.newIndexData[int.parse(data.toString())];
+                                    socketProvider.setNoDropCard(false);
+                                    socketProvider.setCardListIndex(finishData);
+                                    socketProvider.setOldCardRemove(int.parse(data.toString()));
+                                    socketProvider.dropCard(int.parse(data.toString()));
+                                    socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                                  }
                                 }
                               }else{
                                 showToast("Pick Up a Card".toUpperCase(),
@@ -294,11 +304,37 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                        child:  socketProvider.sortList.length == 1
                          ? InkWell(
                        onTap: (){
+                         socketProvider.setSortData();
+                         List<int> dataValue =[];
+                         int intValue =0;
+                         int? finaIntValue;
+                         print('dataggllllllll :-  ${socketProvider.GroupData} ...${socketProvider.setCardUpIndex}');
+                         intValue = socketProvider.GroupData[socketProvider.setCardUpIndex];
+
+                         dataValue = socketProvider.GroupData;
+
+                         for(int i = 0; i< dataValue.length;i++){
+                            // dataValue.remove(100);
+                         }
+
+                         for(int i = 0;i<socketProvider.newIndexData.length;i++){
+                           if(socketProvider.newIndexData[i] == intValue){
+                             print('dataa a  a :-  print  ${i}');
+                             finaIntValue = i;
+                           }
+                         }
+
                          if(socketProvider.isMyTurn){
                            if(socketProvider.newIndexData.length == 11){
-                              socketProvider.setOldCardRemove(socketProvider.setCardUpIndex);
-                              socketProvider.dropCard(socketProvider.setCardUpIndex);
-                              socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
+                              if(socketProvider.isNewSortTrueFalseNew == false){
+                                socketProvider.setOldSortCardRemove(socketProvider.setCardUpIndex);
+                                socketProvider.dropCard(finaIntValue ??0);
+                                socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
+                              }else{
+                                socketProvider.setOldCardRemove(socketProvider.setCardUpIndex);
+                                socketProvider.dropCard(socketProvider.setCardUpIndex);
+                                socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
+                              }
                            }
                            else{
                              showToast("Pick Up a Card".toUpperCase(),
@@ -342,11 +378,28 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                          ),
                        ),
                      )
-                         : InkWell(
+                         :  socketProvider.sortList.length >= 2? InkWell(onTap: (){
+                           socketProvider.setNewGroupData();
+                       },child: Container(
+                         height: 30,
+                         decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
+                         child: const Padding(
+                           padding: EdgeInsets.only(left: 20,right: 20),
+                           child: Center(
+                             child: Text('Group',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                           ),
+                         ),
+                       ),):
+                       socketProvider.isNewSortTrueFalseNew?InkWell(
                        onTap: (){
 
-                        if(socketProvider.isNewSortTrueFalse == false){
-                          socketProvider.setNewSortTrueFalse(true);
+
+                        if(socketProvider.isNewSortTrueFalseNew == true){
+                          // socketProvider.setNewGroupData();
+                          socketProvider.checkSortData();
+                          socketProvider.setNewSortTrueFalse(false);
+
+
                           // socketProvider.setNewSortListData();
                          /* socketProvider.newSetData();
                           socketProvider.sortDataEvent(socketProvider.listOfMap);
@@ -356,20 +409,20 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                             socketProvider.isSortGroup(socketProvider.newIndexData);
                           });*/
                         }else{
-                          socketProvider.setNewSortTrueFalse(false);
+                          // socketProvider.setNewSortTrueFalse(false);
                         }
                        },
                        child: Container(
                          height: 30,
                          decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
-                         child: const Padding(
+                         child:  const Padding(
                            padding: EdgeInsets.only(left: 20,right: 20),
                            child: Center(
                              child: Text('Sort',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
                            ),
                          ),
                        ),
-                     ),),
+                     ):Container(),),
 
                       NewPlayer3SeatWidget(
                         userProfileImage: ImageConst.icProfilePic3,
