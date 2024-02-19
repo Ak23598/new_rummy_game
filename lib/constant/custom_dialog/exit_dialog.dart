@@ -138,11 +138,7 @@ class _PopupCallState extends State<_PopupCall> {
                 padding: const EdgeInsets.only(bottom: 10.0),
                 child: Center(
                   child: GestureDetector(
-                    onTap: () {
-                      Provider.of<SocketProvider>(context,listen: false).gameOver(context,widget.gameId);
-                      Provider.of<SocketProvider>(context,listen: false).disconnectSocket(context);
-                      Navigator.pop(context);
-                    },
+                    onTap: widget.onTapLeftButton,
                     child: Container(
                       height: 40,
                       width: 120,

@@ -94,6 +94,8 @@ class _RummyGameScreenState extends State<RummyGameScreen> {
       leftButton: 'Cancel',
       rightButton: 'Exit',
       onTapLeftButton: () {
+        Provider.of<SocketProvider>(context,listen: false).gameOver(context,widget.gameId);
+        Provider.of<SocketProvider>(context,listen: false).disconnectSocket(context);
         Navigator.pop(context);
       },
       onTapRightButton: () {

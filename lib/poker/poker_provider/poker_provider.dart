@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
@@ -116,17 +117,37 @@ class PokerProvider extends ChangeNotifier{
     'assets/cards/rsk.png',
     'assets/cards/jake-02.png'
   ];
+  int _secondsRemaining = 30;
+  String _callBet ="";
+  Timer? _timer;
+  final List<String> _buttonImage = [
+   'assets/images/pokerCallButton.png',
+   'assets/images/pokerCheckButton.png',
+    'assets/images/pokerFoldCheckButton.png',
+    'assets/images/pokerFoldSwitchButton.png',
+  ];
   bool _chipSliderTrueFalse= false;
   List<int> _newHandCard =[];
-  double _callBet = 0;
+  List<int> _flopCard =[];
+  String _callChips = "";
   String _totalBetChips = '';
+  bool _isMyTurn = false;
+  String _bindName ="";
+  List<String> _callButtonList = [];
 
   List<String> get pokerCardList => _pokerCardList;
+  List<String> get buttonImage => _buttonImage;
   bool get chipSliderTrueFalse => _chipSliderTrueFalse;
   List<Map<String,dynamic>> get oldCardList => _oldCardList;
   List<int> get newHandCard => _newHandCard;
-  double get callBet => _callBet;
+  List<int> get flopCard => _flopCard;
+  List<String> get callButtonList => _callButtonList;
+  String get callChips => _callChips;
+  int get secondsRemaining => _secondsRemaining;
   String get totalBetChips => _totalBetChips;
+  String get bindName => _bindName;
+  bool get isMyTurn => _isMyTurn;
+  String get callBet => _callBet;
 
 
   void cardsEvent(BuildContext context) async {
@@ -180,27 +201,43 @@ class PokerProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('Poker Socket In Blind Name Event Completed $data');
       }
+
+      if(data.toString().isNotEmpty){
+        _bindName = data['blindName'].toString().trim().toUpperCase();
+      }
+      notifyListeners();
     });
   }
-
-
 
   void displayPlayerOptionsEvent(BuildContext context) async {
     PokerSockets.socket.on("displayPlayerOptions", (data) {
       if (kDebugMode) {
         print('Poker Socket In Display Player Options Event Completed $data');
-        print('Poker Socket In Display Player Options Event Completed ${data['betChips']}');
+        print('Poker Socket In Display Player Options Event Completed ${data['detail']['action']}');
       }
+      _callButtonList =[];
 
       if(data != null){
-        if(data['callChips'] != null) {
-          _callBet = data['callChips'];
-        }
-        if(data['betChips'] != null) {
-          _totalBetChips = data['betChips'].toString();
+        closeTimer();
+        initTimer();
+        setMyTurn(true);
+
+        for(int i = 0;i< data['detail']['action'].length;i++){
+          _callButtonList.add( data['detail']['action'][i].toString());
         }
 
-        print('Game Data a a a a a :-  ${_callBet}    .....  ${_totalBetChips}');
+        if(data['detail']['callChips'].toString().toLowerCase() != "nan") {
+          _callChips = data['detail']['callChips'].toString();
+        }
+
+        _totalBetChips = data['detail']['betChipsRange'].toString();
+
+
+        Future.delayed(Duration(seconds: 2),(){
+          startTimer(context);
+        });
+
+        print('Game Data a a a a a :-  ${_callChips}    .....  ${_callButtonList} ... $_totalBetChips');
 
         notifyListeners();
       }
@@ -212,6 +249,36 @@ class PokerProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('Poker Socket In Flop Cards Event Completed $data');
       }
+
+      List<int> newCardData = [];
+      List<Map<String, dynamic>> data2 = [];
+      for (int i = 0; i < data.length; i++) {
+        Map<String, dynamic> data3 = data[i];
+        data2.add(data3);
+      }
+      for (int i = 0; i < data2.length; i++) {
+        Map<String, dynamic> singleCard = data2[i];
+        String singleCardValue = singleCard["value"];
+        String singleCardSuit = singleCard["suit"];
+        for (int j = 0; j < _oldCardList.length; j++) {
+          Map<String, dynamic> sCard = _oldCardList[j];
+          String sCardValue = sCard["value"];
+          String sCardSuit = sCard["suit"];
+          if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
+            newCardData.add(j + 1);
+          }
+        }
+      }
+
+      notifyListeners();
+      List<int> newData = [];
+      _flopCard = newCardData;
+      for (int i = 0; i < _flopCard.length; i++) {
+        newData.add(_flopCard[i]);
+      }
+      _flopCard = newData;
+      notifyListeners();
+      print('New Data a a a  a a a ;- Flop  $_flopCard :_    $newCardData');
     });
   }
 
@@ -220,6 +287,30 @@ class PokerProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('Poker Socket In Turn Cards Event Completed $data');
       }
+      List<Map<String, dynamic>> data2 = [];
+      List<int> newCardData = [];
+      for (int i = 0; i < data.length; i++) {
+        Map<String, dynamic> data3 = data[i];
+        data2.add(data3);
+      }
+      for (int i = 0; i < data2.length; i++) {
+        Map<String, dynamic> singleCard = data2[i];
+        String singleCardValue = singleCard["value"];
+        String singleCardSuit = singleCard["suit"];
+        for (int j = 0; j < _oldCardList.length; j++) {
+          Map<String, dynamic> sCard = _oldCardList[j];
+          String sCardValue = sCard["value"];
+          String sCardSuit = sCard["suit"];
+          if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
+            newCardData.add(j + 1);
+          }
+        }
+      }
+      for(int i = 0; i<newCardData.length;i++){
+        _flopCard.add(newCardData[i]);
+      }
+
+      notifyListeners();
     });
   }
 
@@ -228,6 +319,30 @@ class PokerProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('Poker Socket In River Cards Event Completed $data');
       }
+      List<Map<String, dynamic>> data2 = [];
+      List<int> newCardData = [];
+      for (int i = 0; i < data.length; i++) {
+        Map<String, dynamic> data3 = data[i];
+        data2.add(data3);
+      }
+      for (int i = 0; i < data2.length; i++) {
+        Map<String, dynamic> singleCard = data2[i];
+        String singleCardValue = singleCard["value"];
+        String singleCardSuit = singleCard["suit"];
+        for (int j = 0; j < _oldCardList.length; j++) {
+          Map<String, dynamic> sCard = _oldCardList[j];
+          String sCardValue = sCard["value"];
+          String sCardSuit = sCard["suit"];
+          if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
+            newCardData.add(j + 1);
+          }
+        }
+      }
+      for(int i = 0; i<newCardData.length;i++){
+        _flopCard.add(newCardData[i]);
+      }
+
+      notifyListeners();
     });
   }
 
@@ -271,9 +386,9 @@ class PokerProvider extends ChangeNotifier{
     });
   }
 
-  void gameJoinCard(BuildContext context,String playerId,String gameId,String chips) async {
+  void gameJoinCard(BuildContext context,String playerId,String gameId,String chips,String contestId,String smallBind,String bigBind) async {
 
-    PokerSockets.socket.emit("gameJoin",[playerId,gameId,chips]);
+    PokerSockets.socket.emit("gameJoin",[playerId,gameId,chips,contestId,smallBind,bigBind]);
     PokerSockets.socket.on("gameJoin", (data) {
       if (kDebugMode) {
         print('Poker Socket In Game Join Completed ***** draw *****  $data');
@@ -281,13 +396,16 @@ class PokerProvider extends ChangeNotifier{
     });
   }
 
-  void playerActionCard(BuildContext context,String data) async {
-    PokerSockets.socket.emit("playerAction",jsonEncode(data));
-    PokerSockets.socket.on("playerAction", (data) {
-      if (kDebugMode) {
-        print('Poker Socket In Player Action Completed ***** draw *****  $data');
-      }
-    });
+  void playerActionCard(BuildContext context,String action,String chip) async {
+
+    print('Poker Socket In Player Action Completed ***** draw ***** ');
+    Map<String,dynamic> map = {
+      "action":action,
+      "chips" : double.parse(chip)
+    };
+    PokerSockets.socket.emit("playerAction",map);
+    setMyTurn(false);
+    closeTimer();
   }
 
   void disconnectSocket(BuildContext context){
@@ -297,6 +415,42 @@ class PokerProvider extends ChangeNotifier{
 
   void setChipSliderTrueFalse(bool value){
     _chipSliderTrueFalse = value;
+    notifyListeners();
+  }
+
+  closeTimer() {
+    _timer?.cancel();
+    notifyListeners();
+  }
+
+  void initTimer() {
+    _secondsRemaining = 30;
+    notifyListeners();
+  }
+
+  startTimer(BuildContext context, {int secondsRemaining = 30}) {
+    _secondsRemaining = secondsRemaining;
+    notifyListeners();
+    _timer = Timer.periodic(Duration(seconds: 1), (_) {
+      if (_secondsRemaining != 0) {
+        _secondsRemaining--;
+        notifyListeners();
+      } else {
+        initTimer();
+        closeTimer();
+        setMyTurn(false);
+        notifyListeners();
+      }
+    });
+  }
+
+  setMyTurn(bool value) {
+    _isMyTurn = value;
+    notifyListeners();
+  }
+
+  setCallBet(String value) {
+    _callBet = value;
     notifyListeners();
   }
 

@@ -26,7 +26,7 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
   @override
   void initState() {
     sizeChangeAnimation();
-    PokerSockets.connectAndListen(context,'user123','123','200','controller');
+    PokerSockets.connectAndListen(context,'user1232','87253fff','200','controller','287253fff','50','70');
   }
 
   @override
@@ -123,203 +123,33 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
                         ),
                       )),
                 ),
-                Padding(
+                pokerProvider.callBet.toString().isNotEmpty?Padding(
                   padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.62,left: MediaQuery.of(context).size.width * 0.55),
-                  child: const Row(
+                  child:  Row(
                     children: [
-                      Text('₹ ',style: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),),
-                      Text('3.0',style: TextStyle(color: Color(0xff22EB72),fontSize: 16,fontWeight: FontWeight.bold),),
+                      const Text('₹ ',style: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),),
+                      Text(pokerProvider.callBet.toString(),style: const TextStyle(color: Color(0xff22EB72),fontSize: 16,fontWeight: FontWeight.bold),),
                     ],
                   ),
+                ):Container(),
+                Container(
+                  margin: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.31,
+                      left: MediaQuery.of(context).size.width * 0.37
+                  ),
+                  height: 60,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    shrinkWrap: true,
+                      itemCount: pokerProvider.flopCard.length,
+                      itemBuilder: (context,index){
+                    return Container(
+                      width: 45,
+                      child: Image.asset(pokerProvider.pokerCardList[pokerProvider.flopCard[index] - 1]),
+                    );
+                  }),
                 ),
-                isPlaying
-                    ? Stack(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.31,
-                          left: MediaQuery.of(context).size.width * 0.37),
-                      width: 60,
-                      height: 60,
-                      child: Image.asset('assets/cards/bl8.png'),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.31,
-                          left: MediaQuery.of(context).size.width * 0.42),
-                      width: 60,
-                      height: 60,
-                      child: Image.asset('assets/cards/bl9.png'),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.31,
-                          left: MediaQuery.of(context).size.width * 0.47),
-                      width: 60,
-                      height: 60,
-                      child: Image.asset('assets/cards/bl5.png'),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.31,
-                          left: MediaQuery.of(context).size.width * 0.52),
-                      width: 60,
-                      height: 60,
-                      child: Image.asset('assets/cards/blj.png'),
-                    ),
-                    Container(
-                      margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.31,
-                          left: MediaQuery.of(context).size.width * 0.57),
-                      width: 60,
-                      height: 60,
-                      child: Image.asset('assets/cards/bla.png'),
-                    ),
-                  ],
-                )
-                    : Stack(
-                  children: [
-                    // One Card
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Container(
-                        margin: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.31,
-                            left: MediaQuery.of(context).size.width * 0.37),
-                        child: SizeAnimatedWidget.tween(
-                          enabled: _servedPages[0],
-                          duration: const Duration(milliseconds: 200),
-                          sizeEnabled: const Size(60, 60),
-                          sizeDisabled: const Size(0, 0),
-                          curve: Curves.ease,
-                          child: TranslationAnimatedWidget.tween(
-                            enabled: _servedPages[0],
-                            delay: const Duration(milliseconds: 500),
-                            translationEnabled: const Offset(0, 0),
-                            translationDisabled: Offset(
-                                MediaQuery.of(context).size.width * 0.10,
-                                -MediaQuery.of(context).size.height * 0.15),
-                            curve: Curves.ease,
-                            duration: const Duration(milliseconds: 500),
-                            child: Image.asset('assets/cards/red_back.png'),
-                          ),
-                        ),
-                      ),
-                    ),
 
-                    // Two Card
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Container(
-                        margin: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.31,
-                            left: MediaQuery.of(context).size.width * 0.42),
-                        child: SizeAnimatedWidget.tween(
-                          enabled: _servedPages[1],
-                          duration: const Duration(milliseconds: 200),
-                          sizeEnabled: const Size(60, 60),
-                          sizeDisabled: const Size(0, 0),
-                          curve: Curves.ease,
-                          child: TranslationAnimatedWidget.tween(
-                            enabled: _servedPages[1],
-                            delay: const Duration(milliseconds: 500),
-                            translationEnabled: const Offset(0, 0),
-                            translationDisabled: Offset(
-                                MediaQuery.of(context).size.width * 0.05,
-                                -MediaQuery.of(context).size.height * 0.2),
-                            curve: Curves.ease,
-                            duration: const Duration(milliseconds: 500),
-                            child: Image.asset('assets/cards/red_back.png'),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Three Card
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Container(
-                        margin: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.31,
-                            left: MediaQuery.of(context).size.width * 0.47),
-                        child: SizeAnimatedWidget.tween(
-                          enabled: _servedPages[2],
-                          duration: const Duration(milliseconds: 200),
-                          sizeEnabled: const Size(60, 60),
-                          sizeDisabled: const Size(0, 0),
-                          curve: Curves.ease,
-                          child: TranslationAnimatedWidget.tween(
-                            enabled: _servedPages[2],
-                            delay: const Duration(milliseconds: 500),
-                            translationEnabled: const Offset(0, 0),
-                            translationDisabled: Offset(
-                                MediaQuery.of(context).size.width * 0.0,
-                                -MediaQuery.of(context).size.height * 0.2),
-                            curve: Curves.ease,
-                            duration: const Duration(milliseconds: 500),
-                            child: Image.asset('assets/cards/red_back.png'),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Four Card
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Container(
-                        margin: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.31,
-                            left: MediaQuery.of(context).size.width * 0.52),
-                        child: SizeAnimatedWidget.tween(
-                          enabled: _servedPages[3],
-                          duration: const Duration(milliseconds: 200),
-                          sizeEnabled: const Size(60, 60),
-                          sizeDisabled: const Size(0, 0),
-                          curve: Curves.ease,
-                          child: TranslationAnimatedWidget.tween(
-                            enabled: _servedPages[3],
-                            delay: const Duration(milliseconds: 500),
-                            translationEnabled: const Offset(0, 0),
-                            translationDisabled: Offset(
-                                -MediaQuery.of(context).size.width * 0.05,
-                                -MediaQuery.of(context).size.height * 0.2),
-                            curve: Curves.ease,
-                            duration: const Duration(milliseconds: 500),
-                            child: Image.asset('assets/cards/red_back.png'),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Five Card
-                    Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Container(
-                        margin: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.31,
-                          left: MediaQuery.of(context).size.width * 0.57,),
-                        child: SizeAnimatedWidget.tween(
-                          enabled: _servedPages[4],
-                          duration: const Duration(milliseconds: 200),
-                          sizeEnabled: const Size(60, 60),
-                          sizeDisabled: const Size(0, 0),
-                          curve: Curves.ease,
-                          child: TranslationAnimatedWidget.tween(
-                            enabled: _servedPages[4],
-                            delay: const Duration(milliseconds: 500),
-                            translationEnabled: const Offset(0, 0),
-                            translationDisabled: Offset(
-                                -MediaQuery.of(context).size.width * 0.10,
-                                -MediaQuery.of(context).size.height * 0.2),
-                            curve: Curves.ease,
-                            duration: const Duration(milliseconds: 500),
-                            child: Image.asset('assets/cards/red_back.png'),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),
@@ -331,37 +161,78 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
           Positioned(
             bottom: MediaQuery.of(context).size.height * 0.13,
             left: MediaQuery.of(context).size.width * 0.40,
-            child: Row(
+            child: Stack(
+              alignment: Alignment.topRight,
               children: [
+                Row(
+                  children: [
 
-                Container(
-                  height: 44,
-                  width: 150,
-                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
-                  child: Stack(
-                    children: [
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Image.asset(
-                          ImageConst.icProfilePic1,
-                          height: MediaQuery.of(context).size.height * 0.12,
-                          width:  MediaQuery.of(context).size.width * 0.05,
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.08),
-                        child: Column(
-                          children: [
-                            const Text('Surdhi',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
-                            Text('₹ ${pokerProvider.totalBetChips.toString()}',style: const TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),),
-                          ],
-                        ),
-                      ),
+                    Container(
+                      height: 44,
+                      width: 150,
+                      decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
+                      child: Stack(
+                        children: [
+                          Stack(
+                            children: [
 
-                    ],
-                  ),
+                              pokerProvider.isMyTurn ?Container(
+                                height: MediaQuery.of(context).size.height * 0.14,
+                                width:  MediaQuery.of(context).size.width * 0.051,
+                                child: CircularProgressIndicator(
+                                  value: pokerProvider.secondsRemaining/30,
+                                  valueColor: const AlwaysStoppedAnimation(Colors.white),
+                                  strokeWidth: 3,
+                                  backgroundColor: pokerProvider.secondsRemaining <= 10 ?Colors.red:Colors.green,
+                                ),
+                              ):Container(),
+                              Align(
+                                alignment: Alignment.bottomLeft,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Image.asset(
+                                      ImageConst.icProfilePic1,
+                                      height: MediaQuery.of(context).size.height * 0.12,
+                                      width:  MediaQuery.of(context).size.width * 0.05,
+                                    ),
+                                    pokerProvider.isMyTurn
+                                        ?Text(pokerProvider.secondsRemaining.toString(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),):const Text('',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
+                                  ],
+                                ),
+                              ),
+
+
+                            ],
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.08),
+                            child: Column(
+                              children: [
+                                const Text('Surdhi',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
+                                pokerProvider.totalBetChips.toString().isNotEmpty
+                                    ? Text('₹ ${double.parse(pokerProvider.totalBetChips.toString()).toStringAsFixed(2)}',style: TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),)
+                                    : Container()
+                              ],
+                            ),
+                          ),
+
+                        ],
+                      ),
+                    ),
+
+                  ],
                 ),
-
+                pokerProvider.bindName.isNotEmpty?Container(
+                  height: 30,
+                  width: 30,
+                  decoration: const BoxDecoration(shape: BoxShape.circle,color: Colors.red),
+                  child: Center(
+                    child: Text(
+                      pokerProvider.bindName,style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ):Container()
               ],
             ),
           ),
@@ -402,43 +273,6 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
               ],
             ),
           ),
-          // Positioned(
-          //   bottom: MediaQuery.of(context).size.height * 0.45,
-          //   left: MediaQuery.of(context).size.width * 0.00,
-          //   child: Row(
-          //     children: [
-          //
-          //       Container(
-          //         height: 44,
-          //         width: 150,
-          //         decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
-          //         child: Stack(
-          //           children: [
-          //             Align(
-          //               alignment: Alignment.bottomLeft,
-          //               child: Image.asset(
-          //                 ImageConst.icProfilePic2,
-          //                 height: MediaQuery.of(context).size.height * 0.12,
-          //                 width:  MediaQuery.of(context).size.width * 0.05,
-          //               ),
-          //             ),
-          //             Padding(
-          //               padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.08),
-          //               child: const Column(
-          //                 children: [
-          //                   Text('Surdhi',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
-          //                   Text('₹ 2.0',style: TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),),
-          //                 ],
-          //               ),
-          //             ),
-          //
-          //           ],
-          //         ),
-          //       ),
-          //
-          //     ],
-          //   ),
-          // ),
           Positioned(
             bottom: MediaQuery.of(context).size.height * 0.27,
             left: MediaQuery.of(context).size.width * 0.02,
@@ -512,42 +346,6 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
               ],
             ),
           ),
-          // Positioned(
-          //   bottom: MediaQuery.of(context).size.height * 0.45,
-          //   right: MediaQuery.of(context).size.width * 0.01,
-          //   child: Row(
-          //     children: [
-          //
-          //       Container(
-          //         height: 44,
-          //         width: 150,
-          //         decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
-          //         child: Stack(
-          //           children: [
-          //             Padding(
-          //               padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.05),
-          //               child: const Column(
-          //                 children: [
-          //                   Text('Surdhi',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
-          //                   Text('₹ 2.0',style: TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),),
-          //                 ],
-          //               ),
-          //             ),
-          //             Align(
-          //               alignment: Alignment.bottomRight,
-          //               child: Image.asset(
-          //                 ImageConst.icProfilePic2,
-          //                 height: MediaQuery.of(context).size.height * 0.12,
-          //                 width:  MediaQuery.of(context).size.width * 0.05,
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       ),
-          //
-          //     ],
-          //   ),
-          // ),
           Positioned(
             bottom: MediaQuery.of(context).size.height * 0.27,
             right: MediaQuery.of(context).size.width * 0.02,

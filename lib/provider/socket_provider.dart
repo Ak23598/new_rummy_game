@@ -915,7 +915,7 @@ class SocketProvider extends ChangeNotifier {
     }
 
     print('isMy True Data :- ${_newSortListGroupData.length} .... ${_newSortListGroupData} .... $index');
-    if(_isNewSortTrueFalseNew == true){
+    if(_isNewSortTrueFalseNew == false){
       _dropCardIndex = _newSortListGroupData[index -1];
     }else{
       _dropCardIndex = newIndexData[index];

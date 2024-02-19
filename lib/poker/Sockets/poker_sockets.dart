@@ -14,7 +14,7 @@ class PokerSockets{
       OptionBuilder()
           .setTransports(['websocket']).build());
 
-  static void connectAndListen(BuildContext context,String playerId,String gameId,String chip,String data){
+  static void connectAndListen(BuildContext context,String playerId,String gameId,String chip,String data,String contestId,String smallBind,String bigBind){
     var pokerProvider = Provider.of<PokerProvider>(context,listen: false);
     print("poker Socket connect and listen ");
     if(socket.connected){
@@ -38,8 +38,8 @@ class PokerSockets{
         pokerProvider.winnerAmountEvent(context);
         pokerProvider.bigBlindTrnWithOutActionEvent(context);
         pokerProvider.roomMessageActionEvent(context);
-        pokerProvider.gameJoinCard(context,playerId,gameId,chip);
-        pokerProvider.playerActionCard(context,data);
+        pokerProvider.playerActionCard(context,'call','0.0');
+        pokerProvider.gameJoinCard(context, playerId, gameId, chip,contestId,smallBind,bigBind);
 
       });
     });
