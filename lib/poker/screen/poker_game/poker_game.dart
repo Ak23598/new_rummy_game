@@ -26,7 +26,7 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
   @override
   void initState() {
     sizeChangeAnimation();
-    PokerSockets.connectAndListen(context,'user1232','87253fff','200','controller','287253fff','50','70');
+    PokerSockets.connectAndListen(context,'user12fq','9909434318','300','controller','90540968585','50','70');
   }
 
   @override
@@ -84,23 +84,23 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
           Positioned(
             left: 0.0,
             right: 0.0,
-            top: MediaQuery.of(context).size.height * 0.07,
+
             child: Stack(
               children: [
                 Center(
                   child: Container(
-                    width: MediaQuery.of(context).size.width -50,
-                    height: MediaQuery.of(context).size.height - 70,
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
                     decoration: const BoxDecoration(
                       image: DecorationImage(
-                        image: AssetImage('assets/images/poker/poker_table.png'),
+                        image: AssetImage('assets/images/poker/new_pocker_table.jpeg'),
                         fit: BoxFit.fill,
                       ),
                     ),
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.21),
+                  padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.30),
                   child: Align(
                       alignment: Alignment.topCenter,
                       child: Container(
@@ -134,7 +134,7 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
                 ):Container(),
                 Container(
                   margin: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.31,
+                      top: MediaQuery.of(context).size.height * 0.40,
                       left: MediaQuery.of(context).size.width * 0.37
                   ),
                   height: 60,
@@ -349,6 +349,42 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
           Positioned(
             bottom: MediaQuery.of(context).size.height * 0.27,
             right: MediaQuery.of(context).size.width * 0.02,
+            child: Row(
+              children: [
+
+                Container(
+                  height: 44,
+                  width: 150,
+                  decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.05),
+                        child: const Column(
+                          children: [
+                            Text('Surdhi',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
+                            Text('₹ 2.0',style: TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),),
+                          ],
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Image.asset(
+                          ImageConst.icProfilePic2,
+                          height: MediaQuery.of(context).size.height * 0.12,
+                          width:  MediaQuery.of(context).size.width * 0.05,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              ],
+            ),
+          ),
+          Positioned(
+            top: MediaQuery.of(context).size.height * 0.08,
+            right: MediaQuery.of(context).size.width * 0.42,
             child: Row(
               children: [
 

@@ -99,7 +99,7 @@ class SocketProvider extends ChangeNotifier {
   bool _isSortCard = false;
   bool _isOneAcceptCard = false;
   List _sortList = [];
-  List _isAcceptCardList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  List _isAcceptCardList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0,0,0,0,0];
   final List _isAcceptSortCardList = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   List<List> _isSortData = [];
   bool _isFilpCard = true;
@@ -313,7 +313,9 @@ class SocketProvider extends ChangeNotifier {
   void upCard(BuildContext context) async {
     Sockets.socket.on("up", (data) {
       print('Socket In Up Event Completed ***** up *****  $data');
+      print('Socket In Up Event Completed ***** up   ${_newSortListGroupData}');
 
+    if(data != null){
       String value = data['value'];
       String suit = data['suit'];
 
@@ -331,6 +333,7 @@ class SocketProvider extends ChangeNotifier {
           setFinishCardNull();
         }
       }
+    }
     });
   }
 
@@ -680,7 +683,9 @@ class SocketProvider extends ChangeNotifier {
   }
 
   void setOldCardSortRemove(int index) {
+    print('New Sort Remore   :-  $_newSortListGroupData');
     _newSortListGroupData.removeAt(index);
+    print('New Sort Remore   :-  $_newSortListGroupData');
     notifyListeners();
   }
 
@@ -874,9 +879,14 @@ class SocketProvider extends ChangeNotifier {
   }
 
   setOneAcceptCardList(int value, int index) {
-    print(
-        'Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
-    _isAcceptCardList[index] = value;
+
+   if(_isNewSortTrueFalseNew){
+     _isAcceptCardList[index] = value;
+   }else{
+     _isAcceptCardList[index] = value;
+   }
+   print(
+       'Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
     notifyListeners();
   }
 
@@ -914,12 +924,8 @@ class SocketProvider extends ChangeNotifier {
       }
     }
 
-    print('isMy True Data :- ${_newSortListGroupData.length} .... ${_newSortListGroupData} .... $index');
-    if(_isNewSortTrueFalseNew == false){
-      _dropCardIndex = _newSortListGroupData[index -1];
-    }else{
-      _dropCardIndex = newIndexData[index];
-    }
+    print('isMy True Data :- ${_newSortListGroupData.length} .... ${_newSortListGroupData} .... $_cardUp ..... $index');
+
     _setCardUpIndex = index;
 
     notifyListeners();
@@ -1008,9 +1014,11 @@ class SocketProvider extends ChangeNotifier {
   // New Sort Data ....
 
   void setNewSortTrueFalse(bool value) {
-   if(_isNewSortTrueFalseNew == true){
      _isNewSortTrueFalseNew = value;
-   }
+     Future.delayed(Duration(seconds: 2),(){
+       checkSortData();
+     });
+     print('Value Sort   :-  ${_isNewSortTrueFalseNew}');
     notifyListeners();
   }
 
@@ -1170,6 +1178,7 @@ class SocketProvider extends ChangeNotifier {
 
      rearrangeData(finalkk);
     checkSetSequenceData(finalkk);
+    checkSortData();
 
     _data2List = finalkk;
     _newSortListData= finalkk;
