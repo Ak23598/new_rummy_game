@@ -187,6 +187,10 @@ class SocketProvider extends ChangeNotifier {
 
 
   List<int> _newSortListGroupData = [];
+  bool _noSortGroupFalse = false;
+
+  List<int> _noSortListGroupData = [];
+  List<int> _noNewSortListGroupData = [];
   List<int> _GroupData = [];
 
   List<int> get newSortListGroupData => _newSortListGroupData;
@@ -199,6 +203,8 @@ class SocketProvider extends ChangeNotifier {
 
 
   bool get isSortTrueFalse => _isSortTrueFalse;
+
+  bool get noSortGroupFalse => _noSortGroupFalse;
 
   int get isDropOneCard => _isDropOneCard;
 
@@ -295,6 +301,8 @@ class SocketProvider extends ChangeNotifier {
   int get secondsRemaining => _secondsRemaining;
 
   List get cardListIndex => _cardListIndex;
+  List<int> get noSortListGroupData => _noSortListGroupData;
+  List<int> get noNewSortListGroupData => _noNewSortListGroupData;
 
   void createGame(String gameID, BuildContext context) async {
     Sockets.socket.emit("game", gameID);
@@ -362,6 +370,7 @@ class SocketProvider extends ChangeNotifier {
               String sCardSuit = sCard["suit"];
               if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
                 _newSortListGroupData.add(k+1);
+                _noSortListGroupData.add(k+1);
                 setNewData(k+1);
                 // print('New Hand Data aa :-  ${data2List[i][j]} ..... ${k+1}');
               }
@@ -392,6 +401,7 @@ class SocketProvider extends ChangeNotifier {
               if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
                 setNewData(k+1);
                 _newSortListGroupData.add(k+1);
+                _noSortListGroupData.add(k+1);
                 // print('New Hand Data aa :-  ${data2List[i][j]} ..... ${k+1}');
               }
             }
@@ -404,89 +414,12 @@ class SocketProvider extends ChangeNotifier {
 
         _newSortListGroupData.removeLast();
 
-        // print('nnnnnnnnnnn  $dataInt');
       }
-      // for(int a = 0;a < data.length;a++){
-      //   for (int i = 0; i < data[a].length; i++) {
-      //     Map<String, dynamic> data3 = data[a][i];
-      //     data2.add(data3);
-      //   }
-      //   for (int i = 0; i < data2.length; i++) {
-      //     Map<String, dynamic> singleCard = data2[i];
-      //     String singleCardValue = singleCard["value"];
-      //     String singleCardSuit = singleCard["suit"];
-      //     for (int j = 0; j < _cardList.length; j++) {
-      //       Map<String, dynamic> sCard = _cardList[j];
-      //       String sCardValue = sCard["value"];
-      //       String sCardSuit = sCard["suit"];
-      //       if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
-      //         newCardData.add(j + 1);
-      //       }
-      //     }
-      //   }
-      //
-      //
-      //
-      //   setNewRemoveData();
-      //   notifyListeners();
-      //   List<int> newData = [];
-      //   _newSortListGroupData = [];
-      //   _cardNumberList = newCardData;
-      //   for (int i = 0; i < _cardNumberList.length; i++) {
-      //     setNewData(_cardNumberList[i]);
-      //     newData.add(_cardNumberList[i]);
-      //     _newSortListGroupData.add(_cardNumberList[i]);
-      //   }
-      // }
-      // _newSortListData = newData;
-      // notifyListeners();
-
-      // Future.delayed(const Duration(seconds: 2),(){
-      //   _newSortListGroupData.insert(3, 100);
-      //   _newSortListGroupData.insert(7, 100);
-      //   _newSortListGroupData.insert(11, 100);
-      // });
-
-
-
-      // if(_newSortListData.length == 10){
-      //   _newSortListData.insert(3, 100);
-      //   _newSortListData.insert(7, 100);
-      //   _newSortListData.insert(11, 100);
-      //
-      //
-      // }
       print('Hand Card Eve   :-    $_newSortListGroupData');
 
       notifyListeners();
 
-      // Future.delayed(const Duration(milliseconds: 200), () {
-      //   if (isSortTrueFalse == true) {
-      //     newSetSortGroupData();
-      //   }
-      // });
 
-      // if(isSortTrueFalse == true){
-      //   sortTrueFalse();
-      //   newSetData();
-      //
-      //   sortDataEvent(_listOfMap);
-      //   Future.delayed(const Duration(milliseconds: 500),(){
-      //     //checkSetSequenceData(_listOfMap);
-      //      sortTrueFalse();
-      //     isSortGroup(_newIndexData);
-      //   });
-      // }
-
-      // Future.delayed(const Duration(milliseconds: 200),(){
-      //   if(_isSortTrueFalse){
-      //     newSetData();
-      //     sortDataEvent(_listOfMap);
-      //     checkSetSequenceData(_listOfMap);
-      //     sortTrueFalse();
-      //     isSortGroup(_newIndexData);
-      //   }
-      // });
     });
   }
 
@@ -521,6 +454,11 @@ class SocketProvider extends ChangeNotifier {
         }
       }
     });
+  }
+
+  void setNoSortGroupFalse(bool value) async {
+    _noSortGroupFalse = value;
+    notifyListeners();
   }
 
   void gameOver(BuildContext context, String gameID,) async {
@@ -1068,127 +1006,279 @@ class SocketProvider extends ChangeNotifier {
   }
 
   setNewGroupData() {
-    List<int> dataValue = [];
-    List<int> dataIndex = [];
-    int loopValue = 0;
-    print('New Group Data :-   List  ${_newSortListGroupData} }');
-    for (int i = 0; i < _cardUp.length; i++) {
-      if (_cardUp[i] == true) {
-        dataIndex.add(i);
-      }
-    }
+   if(_noSortGroupFalse == true){
 
-    for (int i = 0; i < dataIndex.length; i++) {
-      print(
-          'itttttttt   ${_newSortListGroupData[dataIndex[i]]}.... ${dataIndex[i]}');
-      dataValue.add(_newSortListGroupData[dataIndex[i]]);
-      notifyListeners();
-    }
+    /* _noSortListGroupData = _newSortListGroupData;
+     _noSortListGroupData.remove(100);
+     notifyListeners();
+     List<int> dataValue = [];
+     List<int> dataIndex = [];
+     int loopValue = 0;*/
+     print('New Group Data :-   List Grop Fafafa  ${_noSortListGroupData} }');
 
-    _sortList.clear();
+     List<int> dataValue = [];
+     List<int> dataIndex = [];
 
-    for (int i = 0; i < _cardUp.length; i++) {
-      _cardUp[i] = false;
-      notifyListeners();
-    }
+     int loopValue = 0;
+     print('New Group Data :-   List  ${_noSortListGroupData} }');
+     for (int i = 0; i < _cardUp.length; i++) {
+       if (_cardUp[i] == true) {
+         dataIndex.add(i);
+       }
+     }
 
+     for (int i = 0; i < dataIndex.length; i++) {
+       print(
+           'itttttttt   ${_noSortListGroupData[dataIndex[i]]}.... ${dataIndex[i]}');
+       dataValue.add(_noSortListGroupData[dataIndex[i]]);
+       notifyListeners();
+     }
 
-    print(
-        'New Group Data :-   ${dataValue}   ....  ${dataIndex}   ..... ${_newSortListGroupData}');
-    for (int i = 0; i < dataValue.length; i++) {
-      _newSortListGroupData.remove(dataValue[i]);
-    }
+     _sortList.clear();
 
-    _newSortListGroupData.add(100);
-
-    for (int i = 0; i < dataValue.length; i++) {
-      _newSortListGroupData.add(dataValue[i]);
-    }
-    for (int i = 0; i < _newSortListGroupData.length; i++) {
-      if (_newSortListGroupData[i] == 100) {
-        if (_newSortListGroupData[i + 1] == 100) {
-          print('gataagagg  :-  ${_newSortListGroupData[i]} ---- $i');
-          _newSortListGroupData.removeAt(i + 1);
-          notifyListeners();
-        }
-      }
-    }
-    List<int> data = [0];
-
-    for (int i = loopValue; i < _newSortListGroupData.length; i++) {
-      if (_newSortListGroupData[i] == 100) {
-        data.add(i);
-        notifyListeners();
-      }
-    }
-
-    List<int> dataGroup = [];
-    _newListGroupData =[];
+     for (int i = 0; i < _cardUp.length; i++) {
+       _cardUp[i] = false;
+       notifyListeners();
+     }
 
 
-    notifyListeners();
 
 
-    for(int i = 0;i< data.length;i++){
-
-      for(int j = data[i];j<_newSortListGroupData.length;j++){
-        dataGroup.add(_newSortListGroupData[j]);
-        if(_newSortListGroupData[j] == 100){
-          _newListGroupData.add(dataGroup);
-          dataGroup = [];
-        }
-      }
-    }
+     for (int i = 0; i < dataValue.length; i++) {
+       _noSortListGroupData.remove(dataValue[i]);
+     }
 
 
-      for(int i = 0;i<_newListGroupData.length;i++){
+     _noSortListGroupData.add(100);
 
-        _newListGroupData[i].remove(100);
-      }
 
-      List<List<int>>  dataListGroup =[];
 
-      for(int i = 0;i< data.length;i++){
-        dataListGroup.add(_newListGroupData[i]);
-      }
-    List<List<Map<String,dynamic>>> finalData=[];
+     for (int i = 0; i < dataValue.length; i++) {
+       _noSortListGroupData.add(dataValue[i]);
+     }
 
-      for(int i = 0;i< dataListGroup.length;i++){
-        List<Map<String,dynamic>> dddd = [];
-        for(int j = 0;j < dataListGroup[i].length;j++){
-          // print('nvbvgvb  :-  ${dataListGroup[i][j]}');
+     /*_noNewSortListGroupData = _noSortListGroupData;
 
-          for (int k = 0; k <= _cardList.length; k++) {
-            if (dataListGroup[i][j] == k) {
-              Map<String, dynamic> singleData = _cardList[k - 1];
-              dddd.add(singleData);
-            }
-          }
-          finalData.add(dddd);
-        }
-      }
+     notifyListeners();
 
-      Set<List<Map<String,dynamic>>>   finalddd = finalData.cast<List<Map<String, dynamic>>>().toSet();
+     print('gataagagg  :-  ${_noNewSortListGroupData}');
 
-      List<List<Map<String,dynamic>>> finalkk = [];
+     for (int i = 0; i < _noSortListGroupData.length; i++) {
+       if (_noSortListGroupData[i] == 100) {
+         if (_noSortListGroupData[i + 1] == 100) {
 
-    finalddd.forEach((element) {
-        finalkk.add(element);
-      });
+           _noSortListGroupData.removeAt(i + 1);
+           notifyListeners();
+         }
+       }
+     }
+     List<int> data = [0];
+
+     for (int i = loopValue; i < _noSortListGroupData.length; i++) {
+       if (_noSortListGroupData[i] == 100) {
+         data.add(i);
+         notifyListeners();
+       }
+     }
+
+     List<int> dataGroup = [];
+     _newListGroupData =[];
+
+
+     notifyListeners();
+
+
+     for(int i = 0;i< data.length;i++){
+
+       for(int j = data[i];j<_noSortListGroupData.length;j++){
+         dataGroup.add(_noSortListGroupData[j]);
+         if(_noSortListGroupData[j] == 100){
+           _newListGroupData.add(dataGroup);
+           dataGroup = [];
+         }
+       }
+     }
+
+     for(int i = 0;i<_newListGroupData.length;i++){
+
+       _newListGroupData[i].remove(100);
+     }
+
+
+
+     List<List<int>>  dataListGroup =[];
+
+     for(int i = 0;i< data.length;i++){
+       dataListGroup.add(_newListGroupData[i]);
+     }
+
+     print(
+         'New Group Data :- dfff  ${dataValue}   ....  ${dataIndex}   ..... ${dataListGroup} ');
+     List<List<Map<String,dynamic>>> finalData=[];
+
+     for(int i = 0;i< dataListGroup.length;i++){
+       List<Map<String,dynamic>> dddd = [];
+       for(int j = 0;j < dataListGroup[i].length;j++){
+         // print('nvbvgvb  :-  ${dataListGroup[i][j]}');
+
+         for (int k = 0; k <= _cardList.length; k++) {
+           if (dataListGroup[i][j] == k) {
+             Map<String, dynamic> singleData = _cardList[k - 1];
+             dddd.add(singleData);
+           }
+         }
+         finalData.add(dddd);
+       }
+     }
+
+
+
+     Set<List<Map<String,dynamic>>>   finalddd = finalData.cast<List<Map<String, dynamic>>>().toSet();
+
+     List<List<Map<String,dynamic>>> finalkk = [];
+
+     finalddd.forEach((element) {
+       finalkk.add(element);
+     });
 
      rearrangeData(finalkk);
-    checkSetSequenceData(finalkk);
-    checkSortData();
-
-    _data2List = finalkk;
-    _newSortListData= finalkk;
+     checkSetSequenceData(finalkk);
 
 
 
+     print('New Group Data :-   3 $finalkk');
+     print('New Group Data :-   3 ${_noSortListGroupData}');*/
 
-    print('New Group Data :-   2${dataValue}   ....  ${dataIndex}   ..... ${data} ..... .... $_newSortListGroupData');
-    print('New Group Data :-   3 $dataListGroup');
-    print('New Group Data :-   3 ${_data2List}');
+
+
+   }
+   else{
+     List<int> dataValue = [];
+     List<int> dataIndex = [];
+     int loopValue = 0;
+     print('New Group Data :-   List  ${_newSortListGroupData} }');
+     for (int i = 0; i < _cardUp.length; i++) {
+       if (_cardUp[i] == true) {
+         dataIndex.add(i);
+       }
+     }
+
+     for (int i = 0; i < dataIndex.length; i++) {
+       print(
+           'itttttttt   ${_newSortListGroupData[dataIndex[i]]}.... ${dataIndex[i]}');
+       dataValue.add(_newSortListGroupData[dataIndex[i]]);
+       notifyListeners();
+     }
+
+     _sortList.clear();
+
+     for (int i = 0; i < _cardUp.length; i++) {
+       _cardUp[i] = false;
+       notifyListeners();
+     }
+
+
+     print(
+         'New Group Data :-   ${dataValue}   ....  ${dataIndex}   ..... ${_newSortListGroupData}');
+     for (int i = 0; i < dataValue.length; i++) {
+       _newSortListGroupData.remove(dataValue[i]);
+     }
+
+     _newSortListGroupData.add(100);
+
+     for (int i = 0; i < dataValue.length; i++) {
+       _newSortListGroupData.add(dataValue[i]);
+     }
+
+     for (int i = 0; i < _newSortListGroupData.length; i++) {
+       if (_newSortListGroupData[i] == 100) {
+         if (_newSortListGroupData[i + 1] == 100) {
+           print('gataagagg  :-  ${_newSortListGroupData[i]} ---- $i');
+           _newSortListGroupData.removeAt(i + 1);
+           notifyListeners();
+         }
+       }
+     }
+     List<int> data = [0];
+
+     for (int i = loopValue; i < _newSortListGroupData.length; i++) {
+       if (_newSortListGroupData[i] == 100) {
+         data.add(i);
+         notifyListeners();
+       }
+     }
+
+     List<int> dataGroup = [];
+     _newListGroupData =[];
+
+
+     notifyListeners();
+
+
+     for(int i = 0;i< data.length;i++){
+
+       for(int j = data[i];j<_newSortListGroupData.length;j++){
+         dataGroup.add(_newSortListGroupData[j]);
+         if(_newSortListGroupData[j] == 100){
+           _newListGroupData.add(dataGroup);
+           dataGroup = [];
+         }
+       }
+     }
+
+
+     for(int i = 0;i<_newListGroupData.length;i++){
+
+       _newListGroupData[i].remove(100);
+     }
+
+     List<List<int>>  dataListGroup =[];
+
+     for(int i = 0;i< data.length;i++){
+       print('Final  data a a a aa  :-  ${_newListGroupData[i]}');
+       dataListGroup.add(_newListGroupData[i]);
+     }
+     List<List<Map<String,dynamic>>> finalData=[];
+
+     for(int i = 0;i< dataListGroup.length;i++){
+       List<Map<String,dynamic>> dddd = [];
+       for(int j = 0;j < dataListGroup[i].length;j++){
+         // print('nvbvgvb  :-  ${dataListGroup[i][j]}');
+
+         for (int k = 0; k <= _cardList.length; k++) {
+           if (dataListGroup[i][j] == k) {
+             Map<String, dynamic> singleData = _cardList[k - 1];
+             dddd.add(singleData);
+           }
+         }
+         finalData.add(dddd);
+       }
+     }
+
+
+
+     Set<List<Map<String,dynamic>>>   finalddd = finalData.cast<List<Map<String, dynamic>>>().toSet();
+
+     List<List<Map<String,dynamic>>> finalkk = [];
+
+     finalddd.forEach((element) {
+       finalkk.add(element);
+     });
+
+     rearrangeData(finalkk);
+     checkSetSequenceData(finalkk);
+     checkSortData();
+
+     _data2List = finalkk;
+     _newSortListData= finalkk;
+
+
+
+
+     print('New Group Data :-   2${dataValue}   ....  ${dataIndex}   ..... ${data} ..... .... $_newSortListGroupData');
+     print('New Group Data :-   3 $dataListGroup');
+     print('New Group Data :-   3 ${_data2List}');
+   }
 
     // notifyListeners();
 

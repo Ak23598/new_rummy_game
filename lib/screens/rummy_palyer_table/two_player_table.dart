@@ -422,12 +422,17 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                          :  socketProvider.sortList.length >= 2
                            ? InkWell(
                          onTap: (){
-                           // if(socketProvider.isNewSortTrueFalseNew == false){
-                           //
-                           //   socketProvider.setNewSortTrueFalse(true);
-                           // }
 
-                           socketProvider.setNewGroupData();
+
+                           if(socketProvider.isNewSortTrueFalseNew ){
+                             socketProvider.setNewGroupData();
+                           }else{
+                             if(socketProvider.noSortGroupFalse == false){
+                               socketProvider.setNoSortGroupFalse(true);
+
+                             }
+                             Future.delayed(Duration(microseconds: 500),(){   socketProvider.setNewGroupData();});
+                           }
 
                        },
                          child: Container(
@@ -442,11 +447,12 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                        ),):
                        socketProvider.isNewSortTrueFalseNew
                            ? Container()
-                           : InkWell(
+                           : socketProvider.noSortGroupFalse ? Container():InkWell(
                          onTap: (){
 
 
                            if(socketProvider.isNewSortTrueFalseNew == false){
+                             socketProvider.setNoSortGroupFalse(false);
                              // socketProvider.setNewGroupData();
 
                              socketProvider.setNewSortTrueFalse(true);

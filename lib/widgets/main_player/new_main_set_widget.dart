@@ -180,7 +180,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
           return Column(
             children: [
               socketProvider.isNewSortTrueFalseNew
-                  ?SizedBox(
+                  ? SizedBox(
                    height: 100,
                     child: Column(
                       children: [
@@ -281,6 +281,108 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                       ],
                     ),
                   )
+                  : socketProvider.noSortGroupFalse
+                  ? SizedBox(
+                height: 100,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 20,
+                      child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          itemCount: socketProvider.setSequencesResponse.length,
+                          itemBuilder: (context,index){
+                            return  SizedBox(
+                              width: 45 * socketProvider.newSortListData[index].length.toDouble(),
+                              child: socketProvider.newSortListData[index].length >= 2?Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  socketProvider.setSequencesResponse[index] == 'd'?Container():socketProvider.setSequencesResponse[index] == 'invalid'?const Icon(Icons.close,color: Colors.red,size: 16,):const Icon(Icons.check,color: Colors.green,size: 16,),
+                                  const SizedBox(width: 05,),
+                                  socketProvider.setSequencesResponse[index] == 'd'?Container():socketProvider.setSequencesResponse[index] == 'invalid'?Center(child: Text(socketProvider.setSequencesResponse[index].toString().toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red),)):Center(child: Text('valid'.toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.green),)),
+                                ],
+                              ):Container(),
+                            );
+
+                          }),
+                    ),
+                    Container(
+                      height: 70,
+                      margin: const EdgeInsets.only(bottom: 9.0),
+                      child: ReorderableListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context,index){
+                            return Align(
+                              key: ValueKey(index),
+                              alignment: Alignment.bottomLeft,
+                              child: socketProvider.noSortListGroupData[index] == 100
+                                  ? const SizedBox( height: 20,
+                                width: 20,)
+                                  :Container(
+                                margin: EdgeInsets.only(top: socketProvider.cardUp[index]?5:15),
+                                child: SizeAnimatedWidget.tween(
+                                  enabled: true,
+                                  duration: const Duration(milliseconds: 200),
+                                  sizeEnabled: socketProvider.noSortListGroupData[index] == 100?const Size(20, 70):const Size(40, 70),
+                                  sizeDisabled: const Size(0, 0),
+                                  curve: Curves.ease,
+                                  child: TranslationAnimatedWidget.tween(
+                                    enabled: true,
+                                    delay: const Duration(milliseconds: 500),
+                                    translationEnabled: const Offset(0, 0),
+                                    translationDisabled: const Offset(10.0, -(20.0)),
+                                    curve: Curves.ease,
+                                    duration: const Duration(milliseconds: 500),
+                                    child: InkWell(
+                                      onTap: () {
+                                        socketProvider.setCardUpTrue(index,context);
+                                      },
+                                      child: Draggable<int>(
+                                        onDragStarted: () {
+                                          socketProvider.setOneAcceptHandCardList(1,index);
+                                        },
+                                        onDraggableCanceled: (velocity, offset) {
+                                          socketProvider.setOneAcceptHandCardList(2,index);
+                                        },
+                                        feedback: SizedBox(
+                                          height: 70,
+                                          width: 40,
+                                          child: Image.asset(socketProvider.rummyCardList[socketProvider.noSortListGroupData[index] - 1]),
+                                        ),
+                                        data: index,
+                                        child: socketProvider.isAcceptSortCardList[index] == 1
+                                            ? const SizedBox()
+                                            : socketProvider.isAcceptSortCardList[index] == 2
+                                            ? Image.asset(socketProvider.rummyCardList[socketProvider.noSortListGroupData[index] - 1])
+                                            : OpacityAnimatedWidget.tween(
+                                          opacityEnabled: 1,
+                                          opacityDisabled: 0,
+                                          enabled: true,
+                                          child: RotationAnimatedWidget.tween(
+                                            enabled: true,
+                                            rotationDisabled: Rotation.deg(y: 10),
+                                            rotationEnabled: Rotation.deg(y: 10),
+                                            child: Image.asset(socketProvider.rummyCardList[socketProvider.noSortListGroupData[index] - 1]),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                          itemCount: socketProvider.noSortListGroupData.length,  onReorder: (oldIndex,newIndex){
+                        print('OldIndex :-  $oldIndex **** NewIndex :- $newIndex');
+                        socketProvider.setRemoveAndIndexNewSortData(newIndex, oldIndex);
+                      }),
+                    ),
+                  ],
+                ),
+              )
                   :Container(
                 height: 70,
                 margin: const EdgeInsets.only(bottom: 09.0),
