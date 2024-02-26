@@ -10,6 +10,7 @@ import 'package:rummy_game/utils/Sockets.dart';
 
 class SocketProvider extends ChangeNotifier {
   List<int> _cardNumberList = [];
+  bool isTrueData = false;
   int _secondsRemaining = 30;
   int _countDown = 20;
   int _stopCountDown = 1;
@@ -415,7 +416,6 @@ class SocketProvider extends ChangeNotifier {
         _newSortListGroupData.removeLast();
 
       }
-      print('Hand Card Eve   :-    $_newSortListGroupData');
       _noNewSortListGroupData.clear();
       for(int i = 0;i< _newSortListGroupData.length;i++){
         _noNewSortListGroupData.add(_newSortListGroupData[i]);
@@ -553,7 +553,6 @@ class SocketProvider extends ChangeNotifier {
 
   setStopCountDown(int value) {
     _stopCountDown = value;
-    notifyListeners();
   }
 
   setPlayerCount(int value) {
@@ -634,6 +633,12 @@ class SocketProvider extends ChangeNotifier {
   void setOldSortCardRemove(int index) {
     print('datadatad   "-n     ${_newSortListGroupData}');
     _newSortListGroupData.removeAt(index);
+    notifyListeners();
+  }
+
+  void setNewDataSortCardRemove(int index) {
+    print('datadatad   "-n     $_noNewSortListGroupData');
+    _noNewSortListGroupData.removeAt(index);
     notifyListeners();
   }
 
@@ -822,15 +827,20 @@ class SocketProvider extends ChangeNotifier {
 
   setOneAcceptCardList(int value, int index) {
 
-   if(_isNewSortTrueFalseNew){
-     _isAcceptCardList[index] = value;
+   if(_isNewSortTrueFalseNew == true){
+     _isAcceptSortCardList[index] = value;
+   }else if(_noSortGroupFalse == true){
+     _isAcceptSortCardList[index] = value;
    }else{
      _isAcceptCardList[index] = value;
    }
+
    print(
        'Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
     notifyListeners();
   }
+
+
 
   setOneAcceptHandCardList(int value, int index) {
     print(
@@ -949,8 +959,6 @@ class SocketProvider extends ChangeNotifier {
     _totalDownCard = 0;
     _checkSetSequence = [];
     _reArrangeData = [];
-
-    notifyListeners();
   }
 
   // New Sort Data ....
@@ -960,7 +968,6 @@ class SocketProvider extends ChangeNotifier {
      Future.delayed(Duration(seconds: 2),(){
        checkSortData();
      });
-     print('Value Sort   :-  ${_isNewSortTrueFalseNew}');
     notifyListeners();
   }
 
@@ -973,7 +980,7 @@ class SocketProvider extends ChangeNotifier {
     }
     print('data a a a a New List  L:- ${_newSortListGroupData}');
 
-    for(int i = 0;i< _newSortListGroupData.length;i++){
+    /*for(int i = 0;i< _newSortListGroupData.length;i++){
 
       if(_newSortListGroupData[i] == 100){
         if(_newSortListGroupData[i +1] == 100){
@@ -982,7 +989,7 @@ class SocketProvider extends ChangeNotifier {
           notifyListeners();
         }
       }
-    }
+    }*/
 
     print('data a a a a New List  L:- 2${_newSortListGroupData}');
 
@@ -1010,11 +1017,30 @@ class SocketProvider extends ChangeNotifier {
   }
 
   setNewGroupData() {
+    print(' dadadadadadadadd  kkkkkk  :-  ${_noSortGroupFalse}');
    if(_noSortGroupFalse == true){
 
 
      List<int> dataValue = [];
      List<int> dataIndex = [];
+     List<int> finalListData = [];
+
+     if(isTrueData == false){
+       for(int i = 0;i< _noSortListGroupData.length;i++){
+         finalListData.add(_noSortListGroupData[i]);
+       }
+
+       _noSortListGroupData.clear();
+
+       _noSortListGroupData = finalListData.toSet().toList();
+
+       isTrueData = true;
+     }
+
+
+
+
+     print('datadatad  final  :-  ${finalListData} ..... $_noSortListGroupData');
 
      int loopValue = 0;
      for (int i = 0; i < _cardUp.length; i++) {
@@ -1092,6 +1118,8 @@ class SocketProvider extends ChangeNotifier {
        }
      }
 
+     print('datadatad  final  :-  ${_newListGroupData}');
+
      for(int i = 0;i<_newListGroupData.length;i++){
 
        _newListGroupData[i].remove(100);
@@ -1129,6 +1157,8 @@ class SocketProvider extends ChangeNotifier {
      finalddd.forEach((element) {
        finalkk.add(element);
      });
+
+     print('datadatad  final kk :-  ${finalkk}');
 
      rearrangeData(finalkk);
      checkSetSequenceData(finalkk);
@@ -1224,7 +1254,6 @@ class SocketProvider extends ChangeNotifier {
      List<List<int>>  dataListGroup =[];
 
      for(int i = 0;i< data.length;i++){
-       print('Final  data a a a aa  :-  ${_newListGroupData[i]}');
        dataListGroup.add(_newListGroupData[i]);
      }
      List<List<Map<String,dynamic>>> finalData=[];
@@ -1232,8 +1261,6 @@ class SocketProvider extends ChangeNotifier {
      for(int i = 0;i< dataListGroup.length;i++){
        List<Map<String,dynamic>> dddd = [];
        for(int j = 0;j < dataListGroup[i].length;j++){
-         // print('nvbvgvb  :-  ${dataListGroup[i][j]}');
-
          for (int k = 0; k <= _cardList.length; k++) {
            if (dataListGroup[i][j] == k) {
              Map<String, dynamic> singleData = _cardList[k - 1];
@@ -1254,22 +1281,21 @@ class SocketProvider extends ChangeNotifier {
        finalkk.add(element);
      });
 
+     print('Check Data a a kkkk:-  ${finalkk}');
+
+
      rearrangeData(finalkk);
      checkSetSequenceData(finalkk);
      checkSortData();
 
+
+
+
      _data2List = finalkk;
      _newSortListData= finalkk;
 
-
-
-
-     print('New Group Data :-   2${dataValue}   ....  ${dataIndex}   ..... ${data} ..... .... $_newSortListGroupData');
-     print('New Group Data :-   3 $dataListGroup');
-     print('New Group Data :-   3 ${_data2List}');
    }
 
-    // notifyListeners();
 
 
   }
@@ -1319,7 +1345,6 @@ class SocketProvider extends ChangeNotifier {
     for(int i = 0;i< dataListGroup.length;i++){
       List<Map<String,dynamic>> dddd = [];
       for(int j = 0;j < dataListGroup[i].length;j++){
-        // print('nvbvgvb  :-  ${dataListGroup[i][j]}');
 
         for (int k = 0; k <= _cardList.length; k++) {
           if (dataListGroup[i][j] == k) {
@@ -1339,10 +1364,11 @@ class SocketProvider extends ChangeNotifier {
       finalkk.add(element);
     });
 
+    print('dadadadadadaaddadadadad  :- $finalkk');
+
     checkSetSequenceData(finalkk);
     _newSortListData= finalkk;
 
-    print('lllllllllllllł1lllļlll  :-  ${finalkk}');
   }
 
   arrangeSortData(){

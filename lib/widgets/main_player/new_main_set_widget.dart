@@ -108,7 +108,9 @@ class NewPlayer3SeatWidget extends StatefulWidget {
   State<NewPlayer3SeatWidget> createState() => _NewPlayer3SeatWidgetState();
 }
 
-class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
+class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with SingleTickerProviderStateMixin{
+
+  AnimationController? _controller;
 
   final List<bool> _servedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false,false,false,false];
   final List<bool> _flipedPages = [false, false, false,false,false, false, false,false,false, false,false,false,false,false,false,false];
@@ -118,6 +120,11 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
 
   @override
   void initState() {
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 800),
+    );
+
     sizeChangeAnimation();
   }
 
@@ -125,6 +132,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
   void dispose() {
     servingTimer?.cancel();
     flipingTimer?.cancel();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -166,6 +174,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
       // Provider.of<SocketProvider>(context,listen: false).setNewSortListData();
     });
   }
+
 
   @override
   Widget build(BuildContext context) {

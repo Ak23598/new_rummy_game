@@ -29,7 +29,7 @@ class CreateGameProvider extends ChangeNotifier {
     notifyListeners();
     Uri uri = Uri.parse('${ApiConstant().baseUrl}${ApiConstant().createGameApi}');
     var response = await http.post(uri,body: {
-      "selectedPlayerCount":number.toString()
+      "selectedPlayerCount":'2'
     });
     if(response.body.isEmpty){
       _isLoading = false;

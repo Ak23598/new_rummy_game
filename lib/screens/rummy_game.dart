@@ -37,6 +37,8 @@ class _RummyGameScreenState extends State<RummyGameScreen> {
 
   @override
   void initState() {
+
+    print('Socket Game Id :-    ${widget.gameId}');
     Provider.of<SocketProvider>(context, listen: false).resetAllData();
     Provider.of<SocketProvider>(context, listen: false).setStopCountDown(1);
     Sockets.connectAndListen(context,widget.gameId,widget.userId,controller);

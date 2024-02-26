@@ -681,7 +681,6 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                height: MediaQuery.of(context).size.height - 175,
                 width: MediaQuery.of(context).size.width * 0.60,
                 decoration: const BoxDecoration(
                     color: Colors.white,
@@ -690,6 +689,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         topLeft: Radius.circular(10))),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
                       "Select No. of Players",
