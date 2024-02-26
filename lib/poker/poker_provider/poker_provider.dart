@@ -228,6 +228,10 @@ class PokerProvider extends ChangeNotifier{
 
         if(data['detail']['callChips'].toString().toLowerCase() != "nan") {
           _callChips = data['detail']['callChips'].toString();
+        } else if(data['detail']['callChips'].toString().toLowerCase() != "null") {
+          _callChips = data['detail']['callChips'].toString();
+        }else{
+          _callChips = '0.0';
         }
 
         _totalBetChips = data['detail']['betChipsRange'].toString();

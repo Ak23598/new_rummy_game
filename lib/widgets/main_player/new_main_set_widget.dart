@@ -318,7 +318,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                             return Align(
                               key: ValueKey(index),
                               alignment: Alignment.bottomLeft,
-                              child: socketProvider.noSortListGroupData[index] == 100
+                              child: socketProvider.noNewSortListGroupData[index] == 100
                                   ? const SizedBox( height: 20,
                                 width: 20,)
                                   :Container(
@@ -326,7 +326,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                 child: SizeAnimatedWidget.tween(
                                   enabled: true,
                                   duration: const Duration(milliseconds: 200),
-                                  sizeEnabled: socketProvider.noSortListGroupData[index] == 100?const Size(20, 70):const Size(40, 70),
+                                  sizeEnabled: socketProvider.noNewSortListGroupData[index] == 100?const Size(20, 70):const Size(40, 70),
                                   sizeDisabled: const Size(0, 0),
                                   curve: Curves.ease,
                                   child: TranslationAnimatedWidget.tween(
@@ -350,13 +350,13 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                         feedback: SizedBox(
                                           height: 70,
                                           width: 40,
-                                          child: Image.asset(socketProvider.rummyCardList[socketProvider.noSortListGroupData[index] - 1]),
+                                          child: Image.asset(socketProvider.rummyCardList[socketProvider.noNewSortListGroupData[index] - 1]),
                                         ),
                                         data: index,
                                         child: socketProvider.isAcceptSortCardList[index] == 1
                                             ? const SizedBox()
                                             : socketProvider.isAcceptSortCardList[index] == 2
-                                            ? Image.asset(socketProvider.rummyCardList[socketProvider.noSortListGroupData[index] - 1])
+                                            ? Image.asset(socketProvider.rummyCardList[socketProvider.noNewSortListGroupData[index] - 1])
                                             : OpacityAnimatedWidget.tween(
                                           opacityEnabled: 1,
                                           opacityDisabled: 0,
@@ -365,7 +365,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> {
                                             enabled: true,
                                             rotationDisabled: Rotation.deg(y: 10),
                                             rotationEnabled: Rotation.deg(y: 10),
-                                            child: Image.asset(socketProvider.rummyCardList[socketProvider.noSortListGroupData[index] - 1]),
+                                            child: Image.asset(socketProvider.rummyCardList[socketProvider.noNewSortListGroupData[index] - 1]),
                                           ),
                                         ),
                                       ),

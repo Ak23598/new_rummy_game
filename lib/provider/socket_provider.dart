@@ -416,6 +416,10 @@ class SocketProvider extends ChangeNotifier {
 
       }
       print('Hand Card Eve   :-    $_newSortListGroupData');
+      _noNewSortListGroupData.clear();
+      for(int i = 0;i< _newSortListGroupData.length;i++){
+        _noNewSortListGroupData.add(_newSortListGroupData[i]);
+      }
 
       notifyListeners();
 
@@ -807,8 +811,8 @@ class SocketProvider extends ChangeNotifier {
 
   void sortDataEvent(List<dynamic> sortData) async {
     Sockets.socket.emit("sort", {sortData});
-    newSetData();
-    print("*** SortData ***");
+    //newSetData();
+    print("*** SortData ***  £££££££  emit");
   }
 
   setFilpCard(bool value) {
@@ -1008,19 +1012,11 @@ class SocketProvider extends ChangeNotifier {
   setNewGroupData() {
    if(_noSortGroupFalse == true){
 
-    /* _noSortListGroupData = _newSortListGroupData;
-     _noSortListGroupData.remove(100);
-     notifyListeners();
-     List<int> dataValue = [];
-     List<int> dataIndex = [];
-     int loopValue = 0;*/
-     print('New Group Data :-   List Grop Fafafa  ${_noSortListGroupData} }');
 
      List<int> dataValue = [];
      List<int> dataIndex = [];
 
      int loopValue = 0;
-     print('New Group Data :-   List  ${_noSortListGroupData} }');
      for (int i = 0; i < _cardUp.length; i++) {
        if (_cardUp[i] == true) {
          dataIndex.add(i);
@@ -1028,8 +1024,6 @@ class SocketProvider extends ChangeNotifier {
      }
 
      for (int i = 0; i < dataIndex.length; i++) {
-       print(
-           'itttttttt   ${_noSortListGroupData[dataIndex[i]]}.... ${dataIndex[i]}');
        dataValue.add(_noSortListGroupData[dataIndex[i]]);
        notifyListeners();
      }
@@ -1057,11 +1051,10 @@ class SocketProvider extends ChangeNotifier {
        _noSortListGroupData.add(dataValue[i]);
      }
 
-     /*_noNewSortListGroupData = _noSortListGroupData;
+     _noNewSortListGroupData = _noSortListGroupData;
 
      notifyListeners();
 
-     print('gataagagg  :-  ${_noNewSortListGroupData}');
 
      for (int i = 0; i < _noSortListGroupData.length; i++) {
        if (_noSortListGroupData[i] == 100) {
@@ -1111,15 +1104,11 @@ class SocketProvider extends ChangeNotifier {
      for(int i = 0;i< data.length;i++){
        dataListGroup.add(_newListGroupData[i]);
      }
-
-     print(
-         'New Group Data :- dfff  ${dataValue}   ....  ${dataIndex}   ..... ${dataListGroup} ');
      List<List<Map<String,dynamic>>> finalData=[];
 
      for(int i = 0;i< dataListGroup.length;i++){
        List<Map<String,dynamic>> dddd = [];
        for(int j = 0;j < dataListGroup[i].length;j++){
-         // print('nvbvgvb  :-  ${dataListGroup[i][j]}');
 
          for (int k = 0; k <= _cardList.length; k++) {
            if (dataListGroup[i][j] == k) {
@@ -1144,11 +1133,11 @@ class SocketProvider extends ChangeNotifier {
      rearrangeData(finalkk);
      checkSetSequenceData(finalkk);
 
+     _data2List = finalkk;
+     _newSortListData= finalkk;
 
 
-     print('New Group Data :-   3 $finalkk');
-     print('New Group Data :-   3 ${_noSortListGroupData}');*/
-
+     notifyListeners();
 
 
    }

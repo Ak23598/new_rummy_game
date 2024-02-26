@@ -453,21 +453,11 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
 
                            if(socketProvider.isNewSortTrueFalseNew == false){
                              socketProvider.setNoSortGroupFalse(false);
-                             // socketProvider.setNewGroupData();
 
                              socketProvider.setNewSortTrueFalse(true);
 
 
-                             // socketProvider.setNewSortListData();
-                             /* socketProvider.newSetData();
-                          socketProvider.sortDataEvent(socketProvider.listOfMap);
-                          Future.delayed(const Duration(milliseconds: 500),(){
-                            socketProvider.checkSetSequenceData(socketProvider.listOfMap);
-                            socketProvider.sortTrueFalse();
-                            socketProvider.isSortGroup(socketProvider.newIndexData);
-                          });*/
                            }else{
-                             // socketProvider.setNewSortTrueFalse(false);
                            }
                          },
                          child: Container(

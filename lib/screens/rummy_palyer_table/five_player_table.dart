@@ -267,40 +267,90 @@ class _FivePlayerTableWidgetState extends State<FivePlayerTableWidget> {
                       onAccept: (data){
                         print('dta     :-    ${data}');
                         if(socketProvider.isMyTurn){
-                          if(socketProvider.newIndexData.length ==11){
-                            int finishData = socketProvider.newIndexData[int.parse(data.toString())];
-                            socketProvider.setNoDropCard(false);
-                            socketProvider.setCardListIndex(finishData);
-                            socketProvider.setOldCardRemove(int.parse(data.toString()));
-                            socketProvider.dropCard(int.parse(data.toString()));
-                            socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
-                            // socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
-                            /*for(int i = 0; i < socketProvider.cardList.length; i++){
-                                  Map<String,dynamic> singleData = socketProvider.cardList[i];
-                                  if((i+1) == int.parse(data.toString())){
-                                    socketProvider.dropCard(int.parse(data.toString()));
-                                  }
+
+                          if(socketProvider.isNewSortTrueFalseNew){
+
+                            List removeData = [];
+                            int dropCardIndex = 0;
+                            for(int i = 0;i< socketProvider.newSortListGroupData.length;i++){
+                              if(socketProvider.newSortListGroupData[i] !=100){
+                                removeData.add(socketProvider.newSortListGroupData[i]);
+                              }
+                            }
+                            print('finifh   L_----:-  ${removeData.length} ........${data}.... ${socketProvider.isAcceptCardList}');
+                            if(removeData.length ==11){
+                              int finishData = socketProvider.newSortListGroupData[int.parse(data.toString())];
+                              print('Print Data a a :-  ${finishData}');
+                              for(int i = 0;i< socketProvider.newIndexData.length ;i++){
+                                if(socketProvider.newIndexData[i] == finishData){
+                                  dropCardIndex = i;
                                 }
-                                for(int j = 0; j < socketProvider.newIndexData.length;j++){
-                                  if(socketProvider.newIndexData[j] == data){
-                                    socketProvider.setNewRemoveIndex(j);
-                                    socketProvider.setOneAcceptCardList(2,j);
-                                  }
-                                }*/
+                              }
+                              socketProvider.setNoDropCard(false);
+                              socketProvider.setCardListIndex(finishData);
+                              socketProvider.setOldCardSortRemove(int.parse(data.toString()));
+                              socketProvider.dropCard(int.parse(dropCardIndex.toString()));
+                              socketProvider.setOneAcceptHandCardList(2,int.parse(data.toString()));
+                            }
+                            else{
+                              showToast("Pick Up a Card".toUpperCase(),
+                                context: context,
+                                animation: StyledToastAnimation.slideFromTop,
+                                reverseAnimation: StyledToastAnimation.fade,
+                                position: StyledToastPosition.top,
+                                animDuration: Duration(seconds: 1),
+                                duration: Duration(seconds: 4),
+                                curve: Curves.elasticOut,
+                                textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                backgroundColor: Colors.red.withOpacity(0.8),
+                                reverseCurve: Curves.linear,
+                              );
+                              socketProvider.setOneAcceptHandCardList(2,int.parse(data.toString()));
+                            }
                           }else{
-                            showToast("Pick Up a Card".toUpperCase(),
-                              context: context,
-                              animation: StyledToastAnimation.slideFromTop,
-                              reverseAnimation: StyledToastAnimation.fade,
-                              position: StyledToastPosition.top,
-                              animDuration: Duration(seconds: 1),
-                              duration: Duration(seconds: 4),
-                              curve: Curves.elasticOut,
-                              textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
-                              backgroundColor: Colors.red.withOpacity(0.8),
-                              reverseCurve: Curves.linear,
-                            );
-                            socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                            print('finifh  ........ ${socketProvider.isAcceptCardList}');
+                            if(socketProvider.newIndexData.length ==11){
+                              if(socketProvider.isSortTrueFalse == true){
+                                int finishData = socketProvider.newSort[int.parse(data.toString())];
+                                socketProvider.setNoDropCard(false);
+                                socketProvider.setCardListIndex(finishData);
+                                socketProvider.setOldCardHandRemove(int.parse(data.toString()));
+                                socketProvider.dropCard(int.parse(data.toString()));
+                                socketProvider.setOneAcceptHandCardList(2,int.parse(data.toString()));
+                              }else{
+                                if(socketProvider.isNewSortTrueFalseNew == false){
+                                  int finishData = socketProvider.newSortListGroupData[int.parse(data.toString())];
+                                  print('finifh   L_----:-  $finishData');
+                                  socketProvider.setNoDropCard(false);
+                                  socketProvider.setCardListIndex(finishData);
+                                  socketProvider.setOldCardSortRemove(int.parse(data.toString()));
+                                  socketProvider.dropCard(int.parse(data.toString()));
+                                  socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                                }else{
+                                  int finishData = socketProvider.newIndexData[int.parse(data.toString())];
+                                  socketProvider.setNoDropCard(false);
+                                  socketProvider.setCardListIndex(finishData);
+                                  socketProvider.setOldCardRemove(int.parse(data.toString()));
+                                  socketProvider.dropCard(int.parse(data.toString()));
+                                  socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                                }
+                              }
+                            }
+                            else{
+                              showToast("Pick Up a Card".toUpperCase(),
+                                context: context,
+                                animation: StyledToastAnimation.slideFromTop,
+                                reverseAnimation: StyledToastAnimation.fade,
+                                position: StyledToastPosition.top,
+                                animDuration: Duration(seconds: 1),
+                                duration: Duration(seconds: 4),
+                                curve: Curves.elasticOut,
+                                textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                backgroundColor: Colors.red.withOpacity(0.8),
+                                reverseCurve: Curves.linear,
+                              );
+                              socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
+                            }
                           }
                         }else{
                           showToast("It's not your turn,please wait for your Turn".toUpperCase(),
@@ -363,114 +413,138 @@ class _FivePlayerTableWidgetState extends State<FivePlayerTableWidget> {
                   ),
 
                   Positioned(
-                    top: MediaQuery.of(context).size.height / 4,
-                    left: MediaQuery.of(context).size.width * 0.60,
-                    child:  socketProvider.sortList.length == 1
-                        ? InkWell(
-                      onTap: (){
-                        if(socketProvider.isMyTurn){
-                          if(socketProvider.newIndexData.length == 11){
-                            socketProvider.setOldCardRemove(socketProvider.setCardUpIndex);
-                            socketProvider.dropCard(socketProvider.setCardUpIndex);
-                            socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
+                      top: MediaQuery.of(context).size.height / 4,
+                      left: MediaQuery.of(context).size.width * 0.60,
+                      child:  socketProvider.sortList.length == 1
+                          ? InkWell(
+                        onTap: (){
+                          socketProvider.setSortData();
+                          List<int> dataValue =[];
+                          int intValue =0;
+                          int? finaIntValue;
+                          intValue = socketProvider.GroupData[socketProvider.setCardUpIndex];
+
+                          dataValue = socketProvider.GroupData;
+
+                          for(int i = 0; i< dataValue.length;i++){
+                            // dataValue.remove(100);
+                          }
+
+                          for(int i = 0;i<socketProvider.newIndexData.length;i++){
+                            if(socketProvider.newIndexData[i] == intValue){
+                              finaIntValue = i;
+                            }
+                          }
+
+                          if(socketProvider.isMyTurn){
+                            if(socketProvider.newIndexData.length == 11){
+                              if(socketProvider.isNewSortTrueFalseNew == false){
+                                socketProvider.setOldSortCardRemove(socketProvider.setCardUpIndex);
+                                socketProvider.dropCard(finaIntValue ??0);
+                                socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
+                              }else{
+                                socketProvider.setOldCardRemove(socketProvider.setCardUpIndex);
+                                socketProvider.dropCard(socketProvider.setCardUpIndex);
+                                socketProvider.setCardUpTrue(socketProvider.setCardUpIndex,context);
+                              }
+                            }
+                            else{
+                              showToast("Pick Up a Card".toUpperCase(),
+                                context: context,
+                                animation: StyledToastAnimation.slideFromTop,
+                                reverseAnimation: StyledToastAnimation.fade,
+                                position: StyledToastPosition.top,
+                                animDuration: Duration(seconds: 1),
+                                duration: Duration(seconds: 4),
+                                curve: Curves.elasticOut,
+                                textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                                backgroundColor: Colors.red.withOpacity(0.8),
+                                reverseCurve: Curves.linear,
+                              );
+                            }
                           }
                           else{
-                            showToast("Pick Up a Card".toUpperCase(),
+                            showToast("It's not your turn,please wait for your Turn".toUpperCase(),
                               context: context,
                               animation: StyledToastAnimation.slideFromTop,
                               reverseAnimation: StyledToastAnimation.fade,
                               position: StyledToastPosition.top,
-                              animDuration: Duration(seconds: 1),
-                              duration: Duration(seconds: 4),
+                              animDuration: const Duration(seconds: 1),
+                              duration: const Duration(seconds: 4),
                               curve: Curves.elasticOut,
-                              textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+                              textStyle: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
                               backgroundColor: Colors.red.withOpacity(0.8),
                               reverseCurve: Curves.linear,
                             );
                           }
-                        }
-                        else{
-                          showToast("It's not your turn,please wait for your Turn".toUpperCase(),
-                            context: context,
-                            animation: StyledToastAnimation.slideFromTop,
-                            reverseAnimation: StyledToastAnimation.fade,
-                            position: StyledToastPosition.top,
-                            animDuration: const Duration(seconds: 1),
-                            duration: const Duration(seconds: 4),
-                            curve: Curves.elasticOut,
-                            textStyle: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
-                            backgroundColor: Colors.red.withOpacity(0.8),
-                            reverseCurve: Curves.linear,
-                          );
-                        }
 
-                      },
-                      child: Container(
-                        height: 30,
-                        decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
-                        child: const Padding(
-                          padding: EdgeInsets.only(left: 20,right: 20),
-                          child: Center(
-                            child: Text('Drop',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                        },
+                        child: Container(
+                          height: 30,
+                          decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
+                          child: const Padding(
+                            padding: EdgeInsets.only(left: 20,right: 20),
+                            child: Center(
+                              child: Text('Drop',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                        : InkWell(
-                      onTap: (){
-                        socketProvider.newSetData();
-                        socketProvider.sortDataEvent(socketProvider.listOfMap);
-                        socketProvider.checkSetSequenceData(socketProvider.listOfMap);
-                        socketProvider.sortTrueFalse();
-                        socketProvider.isSortGroup(socketProvider.newIndexData);
-                      },
-                      child: Container(
-                        height: 30,
-                        decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
-                        child: const Padding(
-                          padding: EdgeInsets.only(left: 20,right: 20),
-                          child: Center(
-                            child: Text('Sort',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                      )
+                          :  socketProvider.sortList.length >= 2
+                          ? InkWell(
+                        onTap: (){
+
+
+                          if(socketProvider.isNewSortTrueFalseNew ){
+                            socketProvider.setNewGroupData();
+                          }else{
+                            if(socketProvider.noSortGroupFalse == false){
+                              socketProvider.setNoSortGroupFalse(true);
+
+                            }
+                            Future.delayed(Duration(microseconds: 500),(){   socketProvider.setNewGroupData();});
+                          }
+
+                        },
+                        child: Container(
+                          height: 30,
+                          decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
+                          child: const Padding(
+                            padding: EdgeInsets.only(left: 20,right: 20),
+                            child: Center(
+                              child: Text('Group',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                            ),
+                          ),
+                        ),):
+                      socketProvider.isNewSortTrueFalseNew
+                          ? Container()
+                          : socketProvider.noSortGroupFalse ? Container():InkWell(
+                        onTap: (){
+
+
+                          if(socketProvider.isNewSortTrueFalseNew == false){
+                            socketProvider.setNoSortGroupFalse(false);
+
+                            socketProvider.setNewSortTrueFalse(true);
+
+
+                          }else{
+                          }
+                        },
+                        child: Container(
+                          height: 30,
+                          decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(20)),
+                          child:  const Padding(
+                            padding: EdgeInsets.only(left: 20,right: 20),
+                            child: Center(
+                              child: Text('Sort',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),),
+                            ),
                           ),
                         ),
-                      ),
-                    ),),
+                      )),
 
                   NewPlayer3SeatWidget(
                     userProfileImage: ImageConst.icProfilePic3,
-                    // oneCardServed: widget.servedPages[0],
-                    // twoCardServed: widget.servedPages[1],
-                    // threeCardServed: widget.servedPages[2],
-                    // fourCardServed: widget.servedPages[3],
-                    // fiveCardServed: widget.servedPages[4],
-                    // sixCardServed: widget.servedPages[5],
-                    // sevenCardServed: widget.servedPages[6],
-                    // eightCardServed: widget.servedPages[7],
-                    // nineCardServed: widget.servedPages[8],
-                    // tenCardServed: widget.servedPages[9],
-                    // oneCardFliped: widget.flipedPages[9],
-                    // twoCardFliped: widget.flipedPages[8],
-                    // threeCardFliped: widget.flipedPages[7],
-                    // fourCardFliped: widget.flipedPages[6],
-                    // fiveCardFliped: widget.flipedPages[5],
-                    // sixCardFliped: widget.flipedPages[4],
-                    // sevenCardFliped: widget.flipedPages[3],
-                    // eightCardFliped: widget.flipedPages[2],
-                    // nineCardFliped: widget.flipedPages[1],
-                    // tenCardFliped: widget.flipedPages[0],
-                    // oneCardNo: widget.cardPage[0],
-                    // twoCardNo: widget.cardPage[1],
-                    // threeCardNo: widget.cardPage[2],
-                    // fourCardNo: widget.cardPage[3],
-                    // fiveCardNo: widget.cardPage[4],
-                    // sixCardNo: widget.cardPage[5],
-                    // sevenCardNo: widget.cardPage[6],
-                    // eightCardNo: widget.cardPage[7],
-                    // nineCardNo: widget.cardPage[8],
-                    // tenCardNo: widget.cardPage[9],
-                    // jokerCardFliped: widget.jokerFlipedPages[0],
-                    // jokerCardNo: widget.cardPage[0],
-                    // jokerCardServed: widget.jokerServedPages[0],
                     Served: widget.servedPages,
                     Fliped: widget.flipedPages,
                     CardNo: widget.cardPage,

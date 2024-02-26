@@ -146,8 +146,9 @@ class _PokerScreenState extends State<PokerScreen> {
                                     pokerProvider.setCallBet(pokerProvider.callChips.toString());
                                     pokerProvider.playerActionCard(context, pokerProvider.callButtonList[index],pokerProvider.callChips.toString());
                                   }else if(pokerProvider.callButtonList[index].toUpperCase() == "BET"){
+                                    print('dataataat  :-   ${pokerProvider.callChips}');
                                     setState(() {
-                                      _currentSliderValue = double.parse(double.parse(pokerProvider.callChips).toStringAsFixed(2));
+                                      _currentSliderValue = pokerProvider.callChips == 'null'?0.0:double.parse(double.parse(pokerProvider.callChips).toStringAsFixed(2));
                                       _TotalSliderValue = double.parse(double.parse(pokerProvider.totalBetChips).toStringAsFixed(2));
                                     });
                                     if(pokerProvider.chipSliderTrueFalse == false){

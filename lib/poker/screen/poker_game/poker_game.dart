@@ -26,7 +26,7 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
   @override
   void initState() {
     sizeChangeAnimation();
-    PokerSockets.connectAndListen(context,'user12fq','9909434318','300','controller','90540968585','50','70');
+    PokerSockets.connectAndListen(context,'user12fq2','9909434317','300','controller','90540968587','50','70');
   }
 
   @override
