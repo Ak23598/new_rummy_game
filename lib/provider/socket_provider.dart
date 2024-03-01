@@ -14,10 +14,12 @@ class SocketProvider extends ChangeNotifier {
   int _secondsRemaining = 30;
   int _countDown = 20;
   int _stopCountDown = 1;
-  int _playerCount = 0;
-  bool _isMyTurn = false;
+  int _playerCount = 1;
+  bool _isNewMyTurn = false;
+  bool _isNewDataMyTurn = false;
   List<int> _newSort = [];
   List _data2List =[];
+  List _mapSortData =[];
   Timer? _timer;
   final List<Map<String, dynamic>> _cardList = [
     {"value": "A", "suit": "Spades"},
@@ -168,6 +170,7 @@ class SocketProvider extends ChangeNotifier {
   ];
   int _totalDownCard = 0;
   List<dynamic> _checkSetSequence = [];
+  List get mapSortData => _mapSortData;
   List<dynamic> _reArrangeData = [];
 
 
@@ -265,7 +268,8 @@ class SocketProvider extends ChangeNotifier {
 
   bool get isNoDropCard => _isNoDropCard;
 
-  bool get isMyTurn => _isMyTurn;
+  bool get isNewMyTurn => _isNewMyTurn;
+  bool get isNewDataMyTurn => _isNewDataMyTurn;
 
   bool get isOneAcceptCard => _isOneAcceptCard;
 
@@ -322,13 +326,11 @@ class SocketProvider extends ChangeNotifier {
   void upCard(BuildContext context) async {
     Sockets.socket.on("up", (data) {
       print('Socket In Up Event Completed ***** up *****  $data');
-      print('Socket In Up Event Completed ***** up   ${_newSortListGroupData}');
 
     if(data != null){
       String value = data['value'];
       String suit = data['suit'];
 
-      print('gtagatga  ;-  ${value} ... $suit');
       for (int i = 0; i < _cardList.length; i++) {
         if (_cardList[i]['value'] == value) {
           if (_cardList[i]['suit'] == suit) {
@@ -356,6 +358,7 @@ class SocketProvider extends ChangeNotifier {
   void handCard(BuildContext context) async {
     Sockets.socket.on("hand", (data) {
       print('Socket In Hand Event Completed ***** hand *****  $data');
+      _mapSortData = data;
       _newSortListGroupData =[];
       _data2List = data;
       _newIndexData =[];
@@ -373,7 +376,6 @@ class SocketProvider extends ChangeNotifier {
                 _newSortListGroupData.add(k+1);
                 _noSortListGroupData.add(k+1);
                 setNewData(k+1);
-                // print('New Hand Data aa :-  ${data2List[i][j]} ..... ${k+1}');
               }
             }
           }
@@ -403,7 +405,6 @@ class SocketProvider extends ChangeNotifier {
                 setNewData(k+1);
                 _newSortListGroupData.add(k+1);
                 _noSortListGroupData.add(k+1);
-                // print('New Hand Data aa :-  ${data2List[i][j]} ..... ${k+1}');
               }
             }
 
@@ -435,14 +436,18 @@ class SocketProvider extends ChangeNotifier {
         if (data['timeOut'] == 0) {
           closeTimer();
           initTimer();
-          setMyTurn(false);
+          _isNewDataMyTurn = false;
+          notifyListeners();
         } else {
-          setMyTurn(true);
+          _isNewDataMyTurn = true;
+          notifyListeners();
           closeTimer();
           initTimer();
           startTimer(context);
         }
       }
+
+      notifyListeners();
     });
   }
 
@@ -468,19 +473,6 @@ class SocketProvider extends ChangeNotifier {
   void gameOver(BuildContext context, String gameID,) async {
     Sockets.socket.on("game over", (data) {
       print("**** Game Over **** $data");
-      /*WinnerDialog(
-        title: 'You are Winner',
-        message: data['message'],
-        leftButton: 'Cancel',
-        rightButton: 'Exit',
-        controller: controller,
-        onTapLeftButton: () {
-          Navigator.pop(context);
-        },
-        onTapRightButton: () {
-
-        },
-      ).show(context);*/
       setPlayerWinnerCard(gameID).whenComplete(() {
         CardPlayerWinner(
                 title: 'Quit Game',
@@ -501,21 +493,19 @@ class SocketProvider extends ChangeNotifier {
     Sockets.socket.on("room message", (data) {
       print("**** ROOM MESSAGE **** $data");
 
-      // var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
-      // rummyProvider.setPlayerCount(data['playerCount']);
-
-      setPlayerCount(data['playerCount']);
+      _playerCount = data['playerCount'];
+      notifyListeners();
     });
   }
 
   void turnMessage(BuildContext context, String userId) async {
     Sockets.socket.on("turn message", (data) {
       print("**** TURN MESSAGE **** $data");
-      // var rummyProvider = Provider.of<RummyProvider>(context,listen: false);
 
       if (data['userId'] == userId) {
       } else {
-        setMyTurn(false);
+        _isNewMyTurn = false;
+        notifyListeners();
       }
     });
   }
@@ -555,17 +545,6 @@ class SocketProvider extends ChangeNotifier {
     _stopCountDown = value;
   }
 
-  setPlayerCount(int value) {
-    _playerCount = value;
-    print('Rummy Provider Count Data :-   ${_playerCount}');
-    notifyListeners();
-  }
-
-  setMyTurn(bool value) {
-    _isMyTurn = value;
-    notifyListeners();
-  }
-
   closeTimer() {
     _timer?.cancel();
     notifyListeners();
@@ -579,13 +558,14 @@ class SocketProvider extends ChangeNotifier {
   startTimer(BuildContext context, {int secondsRemaining = 30}) {
     _secondsRemaining = secondsRemaining;
     notifyListeners();
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (_secondsRemaining != 0) {
         _secondsRemaining--;
         notifyListeners();
       } else {
         initTimer();
-        setMyTurn(false);
+        _isNewDataMyTurn = false;
+
         closeTimer();
         notifyListeners();
       }
@@ -624,20 +604,16 @@ class SocketProvider extends ChangeNotifier {
   }
 
   void setOldCardSortRemove(int index) {
-    print('New Sort Remore   :-  $_newSortListGroupData');
     _newSortListGroupData.removeAt(index);
-    print('New Sort Remore   :-  $_newSortListGroupData');
     notifyListeners();
   }
 
   void setOldSortCardRemove(int index) {
-    print('datadatad   "-n     ${_newSortListGroupData}');
     _newSortListGroupData.removeAt(index);
     notifyListeners();
   }
 
   void setNewDataSortCardRemove(int index) {
-    print('datadatad   "-n     $_noNewSortListGroupData');
     _noNewSortListGroupData.removeAt(index);
     notifyListeners();
   }
@@ -670,7 +646,6 @@ class SocketProvider extends ChangeNotifier {
 
   setNewRemoveIndex(int index) {
     _newIndexData.removeAt(index);
-    print('Rummy Provider Data :-   ${_newIndexData.length}');
     notifyListeners();
   }
 
@@ -692,7 +667,6 @@ class SocketProvider extends ChangeNotifier {
           i, i + chunkSize > data.length ? data.length : i + chunkSize));
     }
 
-    print('New Sort Grop Data :-  ${_isSortData}');
   }
 
   void dropCard(int data) async {
@@ -700,10 +674,22 @@ class SocketProvider extends ChangeNotifier {
     print("*** DROP EMIT ***  $data");
   }
 
-  void finishCard(int data) async {
-    print('Finish Card :-   ${data} ');
+  void finishCard(int data,BuildContext context, String gameID,) async {
     Sockets.socket.emit("finish", data);
     print("*** Finish EMIT ***");
+    setPlayerWinnerCard(gameID).whenComplete(() {
+      CardPlayerWinner(
+          title: 'Quit Game',
+          message: "Quiting On Going Game In The Middle Results",
+          leftButton: 'Cancel',
+          rightButton: 'Exit',
+          onTapLeftButton: () {
+            Navigator.pop(context);
+          },
+          onTapRightButton: () {},
+          gameId: gameID)
+          .show(context);
+    });
   }
 
   setNoDropCard(bool value) {
@@ -712,7 +698,6 @@ class SocketProvider extends ChangeNotifier {
   }
 
   Future setPlayerWinnerCard(String id) async {
-    print('id ;-      $id');
     Uri url = Uri.parse('http://3.111.148.154:3000/rakesh/games/$id');
     _playerWinnerCardList.clear();
     var response = await http.get(url);
@@ -742,7 +727,6 @@ class SocketProvider extends ChangeNotifier {
       }
       _playerWinnerCardList.add(newCardData);
     }
-    print('response ${_playerWinnerCardList}');
   }
 
   setRomoveAndIndexData(int newIndex, int oldIndex) {
@@ -786,21 +770,11 @@ class SocketProvider extends ChangeNotifier {
     }
 
     notifyListeners();
-    print('New Sort Data :-    $_listOfMap');
   }
 
-  // newSetSortGroupData() {
-  //   _newSort.insert(3, 100);
-  //   _newSort.insert(7, 100);
-  //   _newSort.insert(11, 100);
-  //
-  //   notifyListeners();
-  // }
 
   checkSetSequenceData(List<dynamic> checkData) async {
     _setSequencesResponse.clear();
-
-    print("^^^^ check set sequences ^^^^ $checkData");
     Sockets.socket.emit("check set sequences", {checkData});
     Sockets.socket.on("check set sequences", (data) {
       print("^^^^ check set sequences Data ^^^^ $data");
@@ -816,7 +790,6 @@ class SocketProvider extends ChangeNotifier {
 
   void sortDataEvent(List<dynamic> sortData) async {
     Sockets.socket.emit("sort", {sortData});
-    //newSetData();
     print("*** SortData ***  £££££££  emit");
   }
 
@@ -834,17 +807,12 @@ class SocketProvider extends ChangeNotifier {
    }else{
      _isAcceptCardList[index] = value;
    }
-
-   print(
-       'Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
     notifyListeners();
   }
 
 
 
   setOneAcceptHandCardList(int value, int index) {
-    print(
-        'Accet     dataa    :-   $value ....  $index ....  $_isAcceptCardList .... ${_isAcceptCardList.length}');
     _isAcceptSortCardList[index] = value;
     notifyListeners();
   }
@@ -856,13 +824,6 @@ class SocketProvider extends ChangeNotifier {
   }
 
   setCardUpTrue(int index, BuildContext context) {
-    /* for(int i =0;i<_cardUp.length;i++){
-      if(i != index){
-        if(_cardUp[i] == true){
-          _cardUp[i] = !_cardUp[i];
-        }
-      }
-    }*/
     _cardUp[index] = !_cardUp[index];
     if (_cardUp[index] == true) {
       _sortList.add(index);
@@ -876,44 +837,10 @@ class SocketProvider extends ChangeNotifier {
       }
     }
 
-    print('isMy True Data :- ${_newSortListGroupData.length} .... ${_newSortListGroupData} .... $_cardUp ..... $index');
 
     _setCardUpIndex = index;
 
     notifyListeners();
-    /*if(_isMyTurn){
-      if(_newIndexData.length == 11){
-
-      }
-      else{
-        showToast("Pick Up a Card".toUpperCase(),
-          context: context,
-          animation: StyledToastAnimation.slideFromTop,
-          reverseAnimation: StyledToastAnimation.fade,
-          position: StyledToastPosition.top,
-          animDuration: Duration(seconds: 1),
-          duration: Duration(seconds: 4),
-          curve: Curves.elasticOut,
-          textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
-          backgroundColor: Colors.red.withOpacity(0.8),
-          reverseCurve: Curves.linear,
-        );
-      }
-    }
-    else{
-      showToast("It's not your turn,please wait for your Turn".toUpperCase(),
-        context: context,
-        animation: StyledToastAnimation.slideFromTop,
-        reverseAnimation: StyledToastAnimation.fade,
-        position: StyledToastPosition.top,
-        animDuration: Duration(seconds: 1),
-        duration: Duration(seconds: 4),
-        curve: Curves.elasticOut,
-        textStyle: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
-        backgroundColor: Colors.red.withOpacity(0.8),
-        reverseCurve: Curves.linear,
-      );
-    }*/
   }
 
 
@@ -949,7 +876,7 @@ class SocketProvider extends ChangeNotifier {
     _isSortData = [];
     _newIndexData = [];
     _isFilpCard = true;
-    _isMyTurn = false;
+    _isNewMyTurn = false;
     _isSortTrueFalse = false;
     _newHandData = [];
     _setSequencesResponse = [];
@@ -978,46 +905,15 @@ class SocketProvider extends ChangeNotifier {
     } else {
       _newSortListGroupData.insert(newIndex, itemCard);
     }
-    print('data a a a a New List  L:- ${_newSortListGroupData}');
 
-    /*for(int i = 0;i< _newSortListGroupData.length;i++){
-
-      if(_newSortListGroupData[i] == 100){
-        if(_newSortListGroupData[i +1] == 100){
-          print('gataagagg  :-  ${_newSortListGroupData[i]} ---- $i');
-          _newSortListGroupData.removeAt(i +1);
-          notifyListeners();
-        }
-      }
-    }*/
-
-    print('data a a a a New List  L:- 2${_newSortListGroupData}');
 
     notifyListeners();
     checkSortData();
     arrangeSortData();
 
-    // _reArrangeData.clear();
-    // _listOfMap.clear();
-    //
-    // for (int i = 0; i < _newIndexData.length; i++) {
-    //   for (int j = 0; j < _cardList.length; j++) {
-    //     if (_newIndexData[i] == j) {
-    //       Map<String, dynamic> singleData = _cardList[j - 1];
-    //       _reArrangeData.add(_cardList[j - 1]);
-    //       _listOfMap.add(singleData);
-    //     }
-    //   }
-    // }
-    //
-    // //checkSetSequenceData(_reArrangeData);
-    // rearrangeData(_listOfMap);
-    // // sortDataEvent(_listOfMap);
-    // notifyListeners();
   }
 
   setNewGroupData() {
-    print(' dadadadadadadadd  kkkkkk  :-  ${_noSortGroupFalse}');
    if(_noSortGroupFalse == true){
 
 
@@ -1040,7 +936,6 @@ class SocketProvider extends ChangeNotifier {
 
 
 
-     print('datadatad  final  :-  ${finalListData} ..... $_noSortListGroupData');
 
      int loopValue = 0;
      for (int i = 0; i < _cardUp.length; i++) {
@@ -1118,8 +1013,6 @@ class SocketProvider extends ChangeNotifier {
        }
      }
 
-     print('datadatad  final  :-  ${_newListGroupData}');
-
      for(int i = 0;i<_newListGroupData.length;i++){
 
        _newListGroupData[i].remove(100);
@@ -1158,7 +1051,6 @@ class SocketProvider extends ChangeNotifier {
        finalkk.add(element);
      });
 
-     print('datadatad  final kk :-  ${finalkk}');
 
      rearrangeData(finalkk);
      checkSetSequenceData(finalkk);
@@ -1175,7 +1067,6 @@ class SocketProvider extends ChangeNotifier {
      List<int> dataValue = [];
      List<int> dataIndex = [];
      int loopValue = 0;
-     print('New Group Data :-   List  ${_newSortListGroupData} }');
      for (int i = 0; i < _cardUp.length; i++) {
        if (_cardUp[i] == true) {
          dataIndex.add(i);
@@ -1183,8 +1074,6 @@ class SocketProvider extends ChangeNotifier {
      }
 
      for (int i = 0; i < dataIndex.length; i++) {
-       print(
-           'itttttttt   ${_newSortListGroupData[dataIndex[i]]}.... ${dataIndex[i]}');
        dataValue.add(_newSortListGroupData[dataIndex[i]]);
        notifyListeners();
      }
@@ -1197,8 +1086,6 @@ class SocketProvider extends ChangeNotifier {
      }
 
 
-     print(
-         'New Group Data :-   ${dataValue}   ....  ${dataIndex}   ..... ${_newSortListGroupData}');
      for (int i = 0; i < dataValue.length; i++) {
        _newSortListGroupData.remove(dataValue[i]);
      }
@@ -1212,7 +1099,6 @@ class SocketProvider extends ChangeNotifier {
      for (int i = 0; i < _newSortListGroupData.length; i++) {
        if (_newSortListGroupData[i] == 100) {
          if (_newSortListGroupData[i + 1] == 100) {
-           print('gataagagg  :-  ${_newSortListGroupData[i]} ---- $i');
            _newSortListGroupData.removeAt(i + 1);
            notifyListeners();
          }
@@ -1280,8 +1166,6 @@ class SocketProvider extends ChangeNotifier {
      finalddd.forEach((element) {
        finalkk.add(element);
      });
-
-     print('Check Data a a kkkk:-  ${finalkk}');
 
 
      rearrangeData(finalkk);
@@ -1364,7 +1248,6 @@ class SocketProvider extends ChangeNotifier {
       finalkk.add(element);
     });
 
-    print('dadadadadadaaddadadadad  :- $finalkk');
 
     checkSetSequenceData(finalkk);
     _newSortListData= finalkk;
@@ -1417,7 +1300,6 @@ class SocketProvider extends ChangeNotifier {
     for(int i = 0;i< dataListGroup.length;i++){
       List<Map<String,dynamic>> dddd = [];
       for(int j = 0;j < dataListGroup[i].length;j++){
-        // print('nvbvgvb  :-  ${dataListGroup[i][j]}');
 
         for (int k = 0; k <= _cardList.length; k++) {
           if (dataListGroup[i][j] == k) {
@@ -1440,6 +1322,5 @@ class SocketProvider extends ChangeNotifier {
     rearrangeData(finalkk);
     _newSortListData= finalkk;
 
-    print('lllllllllllllł1lllļlll  :-  ${finalkk}');
   }
 }

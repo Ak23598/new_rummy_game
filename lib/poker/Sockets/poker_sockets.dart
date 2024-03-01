@@ -14,7 +14,7 @@ class PokerSockets{
       OptionBuilder()
           .setTransports(['websocket']).build());
 
-  static void connectAndListen(BuildContext context,String playerId,String gameId,String chip,String data,String contestId,String smallBind,String bigBind){
+  static void connectAndListen(BuildContext context,String playerId,String gameId,String chip,String data,String contestId,String smallBind,String bigBind,String playerName){
     var pokerProvider = Provider.of<PokerProvider>(context,listen: false);
     print("poker Socket connect and listen ");
     if(socket.connected){
@@ -29,17 +29,20 @@ class PokerSockets{
       Future.delayed(const Duration(milliseconds: 300), () {
 
         pokerProvider.cardsEvent(context);
-        pokerProvider.blindNameEvent(context);
+        pokerProvider.blindNameEvent(context,playerId);
         pokerProvider.displayPlayerOptionsEvent(context);
         pokerProvider.flopCardsEvent(context);
         pokerProvider.turnCardsEvent(context);
         pokerProvider.riverCardsEvent(context);
         pokerProvider.winnerEvent(context);
         pokerProvider.winnerAmountEvent(context);
+        pokerProvider.countDownEvent(context);
         pokerProvider.bigBlindTrnWithOutActionEvent(context);
         pokerProvider.roomMessageActionEvent(context);
+        pokerProvider.gameMessageActionEvent(context);
+        pokerProvider.potAmountEvent(context);
         pokerProvider.playerActionCard(context,'call','0.0');
-        pokerProvider.gameJoinCard(context, playerId, gameId, chip,contestId,smallBind,bigBind);
+        pokerProvider.gameJoinCard(context, playerId, gameId, chip,contestId,smallBind,bigBind,playerName);
 
       });
     });

@@ -10,25 +10,14 @@ import 'package:rummy_game/utils/Sockets.dart';
 import 'package:rummy_game/widgets/main_player/new_main_set_widget.dart';
 
 class TwoPlayerTableWidget extends StatefulWidget {
-  final List<bool> servedPages;
-
-  final List<bool> flipedPages;
-  final List<int> cardPage;
-
-  const TwoPlayerTableWidget({
-    super.key,
-
-    required this.servedPages,
-    required this.flipedPages,
-    required this.cardPage,
-  });
+  String gameId;
+   TwoPlayerTableWidget({super.key,required this.gameId});
 
   @override
   State<TwoPlayerTableWidget> createState() => _TwoPlayerTableWidgetState();
 }
 
 class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -39,7 +28,52 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
   @override
   Widget build(BuildContext context) {
     return Consumer<SocketProvider>(builder: (context,socketProvider,_){
-      return Stack(
+      return socketProvider.playerCount == 1
+          ?Positioned(
+      left: 0.0,
+      right: 0.0,
+      top: MediaQuery.of(context).size.height * 0.12,
+      child: Column(
+      children: [
+      Container(
+      width: MediaQuery.of(context).size.width -50,
+      height: MediaQuery.of(context).size.height - 100,
+      decoration: const BoxDecoration(
+      image: DecorationImage(
+      image: AssetImage(ImageConst.ic3PattiTable),
+      fit: BoxFit.fill,
+      ),
+      ),
+      child: socketProvider.stopCountDown == 1
+      ? Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+      Container(
+      height: 40,
+      width: double.infinity,
+      decoration: const BoxDecoration(gradient: LinearGradient(colors: [Colors.transparent,Colors.grey,Colors.transparent])),
+      child: Center(child: Text('Start Game in ${socketProvider.countDown} Seconds...',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 17),),),
+      ),
+      ],
+      )
+          : Stack(
+      clipBehavior: Clip.none,
+      alignment: Alignment.center,
+      children: [
+      Container(
+      height: 40,
+      width: double.infinity,
+      decoration: const BoxDecoration(gradient: LinearGradient(colors: [Colors.transparent,Colors.grey,Colors.transparent])),
+      child: const Center(child: Text('Not Joining Another Player...',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 17),),),
+      ),
+      ],
+      ),
+      )
+      ],
+      ),
+      )
+          :Stack(
         alignment: Alignment.center,
         children: [
           Positioned(
@@ -99,7 +133,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                       Positioned(
                         top: MediaQuery.of(context).size.height / 5,
                         left: MediaQuery.of(context).size.width * 0.242,
-                        child: Container(
+                        child: SizedBox(
                           height: 65,
                           width: 65,
                           child: Image.asset('assets/cards/red_back.png'),
@@ -108,7 +142,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                       Positioned(
                         top: MediaQuery.of(context).size.height / 5,
                         left: MediaQuery.of(context).size.width * 0.246,
-                        child: Container(
+                        child: SizedBox(
                           height: 65,
                           width: 65,
                           child: Image.asset('assets/cards/red_back.png'),
@@ -119,13 +153,9 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                         left: MediaQuery.of(context).size.width * 0.25,
                         child: InkWell(
                           onTap: (){
-                            if(socketProvider.isMyTurn){
-
+                            if(socketProvider.isNewDataMyTurn){
                                 Sockets.socket.emit("draw","down");
-
-                            if (kDebugMode) {
-                              print('draw emit down done');
-                            }}else{
+                            }else{
                               showToast("It's not your turn,please wait for your Turn".toUpperCase(),
                                 context: context,
                                 animation: StyledToastAnimation.slideFromTop,
@@ -158,9 +188,8 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                               children: [
                                 ...socketProvider.cardListIndex.map((e) => InkWell(
                                   onTap: (){
-                                    if(socketProvider.isMyTurn){
+                                    if(socketProvider.isNewDataMyTurn){
                                         Sockets.socket.emit("draw","up");
-                                        print('draw emit up done');
 
                                     }else{showToast("It's not your turn,please wait for your Turn".toUpperCase(),
                                       context: context,
@@ -195,9 +224,8 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                             );
                           },
                           onAccept: (data){
-                            print('dta     :-    ${data}');
 
-                            if(socketProvider.isMyTurn){
+                            if(socketProvider.isNewDataMyTurn){
 
 
 
@@ -288,7 +316,6 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                   }else{
                                     if(socketProvider.isNewSortTrueFalseNew == false){
                                       int finishData = socketProvider.newSortListGroupData[int.parse(data.toString())];
-                                      print('finifh   L_----:-  $finishData');
                                       socketProvider.setNoDropCard(false);
                                       socketProvider.setCardListIndex(finishData);
                                       socketProvider.setOldCardSortRemove(int.parse(data.toString()));
@@ -369,9 +396,8 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                             );
                           },
                           onAccept: (data){
-                            print('dta     :-    ${data}');
 
-                            if(socketProvider.isMyTurn) {
+                            if(socketProvider.isNewDataMyTurn) {
                              if(socketProvider.newIndexData.length == 11){
                                if(socketProvider.isNewSortTrueFalseNew == true) {
                                  List<int> dataValue =[];
@@ -391,7 +417,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                  socketProvider.setFinishCardIndex(finishData - 1);
                                 /* socketProvider.setOldCardRemove(int.parse(data.toString()));*/
                                  socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
-                                 socketProvider.finishCard(int.parse(finaIntValue.toString()));
+                                 socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
                                }
                                else if(socketProvider.noSortGroupFalse == true){
                                  List<int> dataValue =[];
@@ -411,7 +437,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                  socketProvider.setFinishCardIndex(finishData - 1);
                                  socketProvider.setOldCardRemove(int.parse(data.toString()));
                                  socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
-                                 socketProvider.finishCard(int.parse(finaIntValue.toString()));
+                                 socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
                                }
                                else{
 
@@ -419,7 +445,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                  socketProvider.setFinishCardIndex(finishData - 1);
                                  socketProvider.setOldCardRemove(int.parse(data.toString()));
                                  socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
-                                 socketProvider.finishCard(int.parse(data.toString()));
+                                 socketProvider.finishCard(int.parse(data.toString()),context,widget.gameId);
                                }
                              }else{
                                showToast("Pick Up a Card".toUpperCase(),
@@ -491,7 +517,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                     }
 
 
-                                    if(socketProvider.isMyTurn){
+                                    if(socketProvider.isNewDataMyTurn){
                                       if(dataValue.length == 11){
 
                                         socketProvider.dropCard(finaIntValue ??0);
@@ -553,7 +579,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                     }
 
 
-                                    if(socketProvider.isMyTurn){
+                                    if(socketProvider.isNewDataMyTurn){
                                       if(dataValue.length == 11){
 
                                         socketProvider.dropCard(finaIntValue ??0);
@@ -602,12 +628,9 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                       }
                                     }
 
-                                    print('No Group Data :-     ${intValue}');
-
                                     dataValue = socketProvider.GroupData;
 
                                     for(int i = 0; i< dataValue.length;i++){
-                                      // dataValue.remove(100);
                                     }
 
                                     for(int i = 0;i<socketProvider.newIndexData.length;i++){
@@ -616,7 +639,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                       }
                                     }
 
-                                    if(socketProvider.isMyTurn){
+                                    if(socketProvider.isNewDataMyTurn){
                                       if(socketProvider.newIndexData.length == 11){
                                         if(socketProvider.noSortGroupFalse == true){
                                           socketProvider.setOldSortCardRemove(socketProvider.setCardUpIndex);
@@ -678,7 +701,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                               InkWell(
                                 onTap: (){
 
-                                if(socketProvider.isMyTurn){
+                                if(socketProvider.isNewDataMyTurn){
                                  if(socketProvider.newIndexData.length == 11){
                                    if(socketProvider.isNewSortTrueFalseNew == true){
                                      List<int> dataValue =[];
@@ -712,7 +735,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                          socketProvider.setFinishCardIndex(finishData - 1);
                                          socketProvider.setCardUpTrue(intValue,context);
                                          socketProvider.setOneAcceptCardList(2, int.parse(intValue.toString()));
-                                         socketProvider.finishCard(int.parse(finaIntValue.toString()));
+                                         socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
                                          Navigator.pop(context);
                                        },
                                        onTapRightButton: () {
@@ -752,7 +775,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                          socketProvider.setFinishCardIndex(finishData - 1);
                                          socketProvider.setCardUpTrue(intValue,context);
                                          socketProvider.setOneAcceptCardList(2, int.parse(intValue.toString()));
-                                         socketProvider.finishCard(int.parse(finaIntValue.toString()));
+                                         socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
                                          Navigator.pop(context);
                                        },
                                        onTapRightButton: () {
@@ -792,7 +815,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                          socketProvider.setFinishCardIndex(finishData - 1);
                                          socketProvider.setCardUpTrue(intValue,context);
                                          socketProvider.setOneAcceptCardList(2, int.parse(intValue.toString()));
-                                         socketProvider.finishCard(int.parse(finaIntValue.toString()));
+                                         socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
                                          Navigator.pop(context);
                                        },
                                        onTapRightButton: () {
@@ -868,6 +891,9 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                               : socketProvider.noSortGroupFalse ? Container():InkWell(
                             onTap: (){
                               if(socketProvider.isNewSortTrueFalseNew == false){
+
+                                socketProvider.sortDataEvent(socketProvider.mapSortData);
+
                                 socketProvider.setNoSortGroupFalse(false);
 
                                 socketProvider.setNewSortTrueFalse(true);
@@ -886,11 +912,9 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                           )
                       ),
 
-                      NewPlayer3SeatWidget(
+
+                      const NewPlayer3SeatWidget(
                         userProfileImage: ImageConst.icProfilePic3,
-                        Served: widget.servedPages,
-                        Fliped: widget.flipedPages,
-                        CardNo: widget.cardPage,
                       ),
                     ],
                   ),
@@ -898,24 +922,292 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
               ],
             ),
           ),
-          socketProvider.stopCountDown == 1
-              ?Container():Positioned(
-            top: MediaQuery.of(context).size.height * 0.04,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
+
+
+              if( socketProvider.playerCount == 2)
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.04,
+                  left: MediaQuery.of(context).size.width * 0.50,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 2.0),
+                        child: Image.asset(
+                          ImageConst.icProfilePic1,
+                          height: MediaQuery.of(context).size.height * 0.13,
+                          width:  MediaQuery.of(context).size.width * 0.06,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+               if( socketProvider.playerCount == 3)
+                 Stack(
               children: [
-                Container(
-                  padding: const EdgeInsets.only(bottom: 2.0),
-                  child: Image.asset(
-                    ImageConst.icProfilePic1,
-                    height: MediaQuery.of(context).size.height * 0.13,
-                    width:  MediaQuery.of(context).size.width * 0.06,
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.18,
+                  right: MediaQuery.of(context).size.width * 0.08,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 2.0),
+                        child: Image.asset(
+                          ImageConst.icProfilePic2,
+                          height: MediaQuery.of(context).size.height * 0.13,
+                          width:  MediaQuery.of(context).size.width * 0.06,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: MediaQuery.of(context).size.height * 0.18,
+                  left: MediaQuery.of(context).size.width * 0.08,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: EdgeInsets.only(bottom: 2.0),
+                        child: Image.asset(
+                          ImageConst.icProfilePic1,
+                          height: MediaQuery.of(context).size.height * 0.13,
+                          width:  MediaQuery.of(context).size.width * 0.06,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
+
+               if( socketProvider.playerCount == 4)
+                 Stack(
+                   children: [
+                     Positioned(
+                       top: MediaQuery.of(context).size.height * 0.04,
+                       left: MediaQuery.of(context).size.width * 0.50,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.center,
+                         mainAxisAlignment: MainAxisAlignment.center,
+                         children: [
+                           Container(
+                             padding: const EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic1,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       top: MediaQuery.of(context).size.height * 0.18,
+                       right: MediaQuery.of(context).size.width * 0.08,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: const EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic2,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       top: MediaQuery.of(context).size.height * 0.18,
+                       left: MediaQuery.of(context).size.width * 0.08,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic1,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                   ],
+                 ),
+
+               if( socketProvider.playerCount == 5)
+                 Stack(
+                   children: [
+                     Positioned(
+                       top: MediaQuery.of(context).size.height * 0.18,
+                       right: MediaQuery.of(context).size.width * 0.08,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: const EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic2,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       top: MediaQuery.of(context).size.height * 0.18,
+                       left: MediaQuery.of(context).size.width * 0.08,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic1,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       bottom: MediaQuery.of(context).size.height * 0.19,
+                       right: MediaQuery.of(context).size.width * 0.08,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic5,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       bottom: MediaQuery.of(context).size.height * 0.19,
+                       left: MediaQuery.of(context).size.width * 0.08,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic2,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                   ],
+                 ),
+
+               if( socketProvider.playerCount == 5)
+                 Stack(
+                   children: [
+                     Positioned(
+                       top: MediaQuery.of(context).size.height * 0.04,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.center,
+                         mainAxisAlignment: MainAxisAlignment.center,
+                         children: [
+                           Container(
+                             padding: const EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic1,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       top: 20.0,
+                       right: MediaQuery.of(context).size.width * 0.05,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic2,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       top: 20.0,
+                       left: MediaQuery.of(context).size.width * 0.05,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: const EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic1,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       bottom: 70.0,
+                       right: MediaQuery.of(context).size.width * 0.05,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: const EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic5,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                     Positioned(
+                       bottom: 70.0,
+                       left: MediaQuery.of(context).size.width * 0.05,
+                       child: Row(
+                         crossAxisAlignment: CrossAxisAlignment.end,
+                         children: [
+                           Container(
+                             padding: const EdgeInsets.only(bottom: 2.0),
+                             child: Image.asset(
+                               ImageConst.icProfilePic2,
+                               height: MediaQuery.of(context).size.height * 0.13,
+                               width:  MediaQuery.of(context).size.width * 0.06,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+
+                   ],
+                 ),
+
         ],
       );
     });

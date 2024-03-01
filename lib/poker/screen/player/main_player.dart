@@ -76,13 +76,12 @@ class _MainPlayerState extends State<MainPlayer> {
           Padding(
             padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.54),
             child: SizedBox(
-              height: 75,
+              height: 50,
               child: isPlaying
                   ? pokerProvider.newHandCard.isNotEmpty?Stack(
                 children: [
                   Container(
                     padding: const EdgeInsets.only(bottom: 0.29, left: 2.0),
-                    height: 60 + 0.29,
                     child: RotationTransition(
                       turns: const AlwaysStoppedAnimation(350 / 370),
                       child: OpacityAnimatedWidget.tween(
@@ -116,20 +115,6 @@ class _MainPlayerState extends State<MainPlayer> {
                       ),
                     ),
                   ),
-                  /*Container(
-                        margin: EdgeInsets.only(
-                            left: MediaQuery.of(context).size.width * 0.0),
-                        width: 60,
-                        height: 60,
-                        child: Image.asset('assets/cards/bl8.png'),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(
-                            left: MediaQuery.of(context).size.width * 0.03),
-                        width: 60,
-                        height: 60,
-                        child: Image.asset('assets/cards/bl9.png'),
-                      ),*/
                 ],
               ):Container()
                   : Stack(

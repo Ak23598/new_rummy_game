@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
+import 'package:rummy_game/constant/custom_dialog/winner_dialog.dart';
+import 'package:rummy_game/model/player_name_model.dart';
 import 'package:rummy_game/poker/Sockets/poker_sockets.dart';
 
 class PokerProvider extends ChangeNotifier{
-
+  ConfettiController confettiController = ConfettiController();
+  List<PlayerNameModel> _playerNameModel = [];
   final List<Map<String,dynamic>> _oldCardList = [
     {"value":"A","suit":"Spades"},
     {"value":"2","suit":"Spades"},
@@ -117,37 +121,45 @@ class PokerProvider extends ChangeNotifier{
     'assets/cards/rsk.png',
     'assets/cards/jake-02.png'
   ];
-  int _secondsRemaining = 30;
+  int _countdown = 0;
   String _callBet ="";
-  Timer? _timer;
   final List<String> _buttonImage = [
    'assets/images/pokerCallButton.png',
    'assets/images/pokerCheckButton.png',
     'assets/images/pokerFoldCheckButton.png',
     'assets/images/pokerFoldSwitchButton.png',
   ];
+  int _playerCount = 0;
   bool _chipSliderTrueFalse= false;
   List<int> _newHandCard =[];
   List<int> _flopCard =[];
+  List<int> _winnerCard =[];
   String _callChips = "";
   String _totalBetChips = '';
-  bool _isMyTurn = false;
+  bool _isNewMyTurn = false;
   String _bindName ="";
   List<String> _callButtonList = [];
+  String _gameMessage = '';
+  double _potAmount = 0;
 
   List<String> get pokerCardList => _pokerCardList;
+  int get countdown => _countdown;
   List<String> get buttonImage => _buttonImage;
   bool get chipSliderTrueFalse => _chipSliderTrueFalse;
   List<Map<String,dynamic>> get oldCardList => _oldCardList;
   List<int> get newHandCard => _newHandCard;
   List<int> get flopCard => _flopCard;
+  List<int> get winnerCard => _winnerCard;
   List<String> get callButtonList => _callButtonList;
   String get callChips => _callChips;
-  int get secondsRemaining => _secondsRemaining;
   String get totalBetChips => _totalBetChips;
   String get bindName => _bindName;
-  bool get isMyTurn => _isMyTurn;
+  bool get isNewMyTurn => _isNewMyTurn;
+  List<PlayerNameModel> get playerNameModel => _playerNameModel;
   String get callBet => _callBet;
+  String get gameMessage => _gameMessage;
+  int get playerCount => _playerCount;
+  double get potAmount => _potAmount;
 
 
   void cardsEvent(BuildContext context) async {
@@ -185,7 +197,6 @@ class PokerProvider extends ChangeNotifier{
       }
       _newHandCard = newData;
       notifyListeners();
-      print('New Data a a a  a a a ;-  $_newHandCard :_    $newCardData');
     });
 
 
@@ -196,14 +207,21 @@ class PokerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  void blindNameEvent(BuildContext context) async {
+  void blindNameEvent(BuildContext context,String playerId) async {
+    _playerNameModel.clear();
     PokerSockets.socket.on("blindName", (data) {
       if (kDebugMode) {
         print('Poker Socket In Blind Name Event Completed $data');
+        PlayerNameModel playerNameModel = PlayerNameModel.fromJson(data);
+        _playerNameModel.add(playerNameModel);
+        notifyListeners();
       }
 
-      if(data.toString().isNotEmpty){
-        _bindName = data['blindName'].toString().trim().toUpperCase();
+
+      for(int i = 0; i< _playerNameModel.length;i++){
+        if(_playerNameModel[i].player == playerId){
+          _bindName = _playerNameModel[i].blindName.toString().trim().toUpperCase();
+        }
       }
       notifyListeners();
     });
@@ -218,8 +236,6 @@ class PokerProvider extends ChangeNotifier{
       _callButtonList =[];
 
       if(data != null){
-        closeTimer();
-        initTimer();
         setMyTurn(true);
 
         for(int i = 0;i< data['detail']['action'].length;i++){
@@ -238,10 +254,7 @@ class PokerProvider extends ChangeNotifier{
 
 
         Future.delayed(Duration(seconds: 2),(){
-          startTimer(context);
         });
-
-        print('Game Data a a a a a :-  ${_callChips}    .....  ${_callButtonList} ... $_totalBetChips');
 
         notifyListeners();
       }
@@ -282,7 +295,6 @@ class PokerProvider extends ChangeNotifier{
       }
       _flopCard = newData;
       notifyListeners();
-      print('New Data a a a  a a a ;- Flop  $_flopCard :_    $newCardData');
     });
   }
 
@@ -314,6 +326,15 @@ class PokerProvider extends ChangeNotifier{
         _flopCard.add(newCardData[i]);
       }
 
+      List<int> dataList = [];
+
+      for(int i = 0;i< _flopCard.length;i++){
+        dataList .add(_flopCard[i]);
+      }
+
+      _flopCard.clear();
+
+      _flopCard = dataList.toSet().toList();
       notifyListeners();
     });
   }
@@ -346,15 +367,76 @@ class PokerProvider extends ChangeNotifier{
         _flopCard.add(newCardData[i]);
       }
 
+      List<int> dataList = [];
+
+      for(int i = 0;i< _flopCard.length;i++){
+        dataList .add(_flopCard[i]);
+      }
+
+      _flopCard.clear();
+
+      _flopCard = dataList.toSet().toList();
+
       notifyListeners();
     });
   }
 
-  void winnerEvent(BuildContext context) async {
+  void winnerEvent(BuildContext context) async  {
     PokerSockets.socket.on("winner", (data) {
       if (kDebugMode) {
         print('Poker Socket In winner Completed $data');
       }
+      _winnerCard.clear();
+      List<Map<String, dynamic>> data2 = [];
+      List<int> newCardData = [];
+      for (int i = 0; i < data['winnerHand'].length; i++) {
+        Map<String, dynamic> data3 = data['winnerHand'][i];
+        data2.add(data3);
+      }
+      for (int i = 0; i < data2.length; i++) {
+        Map<String, dynamic> singleCard = data2[i];
+        String singleCardValue = singleCard["value"];
+        String singleCardSuit = singleCard["suit"];
+        for (int j = 0; j < _oldCardList.length; j++) {
+          Map<String, dynamic> sCard = _oldCardList[j];
+          String sCardValue = sCard["value"];
+          String sCardSuit = sCard["suit"];
+          if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
+            newCardData.add(j + 1);
+          }
+        }
+      }
+      for(int i = 0; i<newCardData.length;i++){
+        _winnerCard.add(newCardData[i]);
+      }
+
+      List<int> dataList = [];
+
+      for(int i = 0;i< _winnerCard.length;i++){
+        dataList .add(_flopCard[i]);
+      }
+
+      _winnerCard.clear();
+
+      _winnerCard = dataList.toSet().toList();
+
+      WinnerDialog(title: 'dataatat', message: 'datatatat', rightButton: 'adatatta', onTapRightButton: () {  }, leftButton: '', onTapLeftButton: () {  }, controller: confettiController, gameId: '').show(context);
+
+      notifyListeners();
+    });
+  }
+
+  void potAmountEvent(BuildContext context) async {
+    PokerSockets.socket.on("pot-amount", (data) {
+      if (kDebugMode) {
+        print('Poker Socket In Pot Amount Completed $data');
+      }
+
+      if(data != null){
+        _potAmount = double.parse(double.parse(data['potAmount'].toString()).toStringAsFixed(2).toString());
+      }
+
+      notifyListeners();
     });
   }
 
@@ -363,6 +445,21 @@ class PokerProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('Poker Socket In Winner Amount Completed $data');
       }
+    });
+  }
+
+  void countDownEvent(BuildContext context) async {
+    PokerSockets.socket.on("countdown", (data) {
+      if (kDebugMode) {
+        print('Poker Socket In Count Down Completed $data');
+      }
+      if(data['remainingTime'] == 1){
+        setMyTurn(false);
+      }
+
+      _countdown = data['remainingTime'];
+
+      notifyListeners();
     });
   }
 
@@ -379,6 +476,27 @@ class PokerProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('Poker Socket In Room Message Completed $data');
       }
+
+      if(data != null){
+        _playerCount = data['playerCount'];
+        if(data['playerCount'] == 2){
+          _gameMessage = 'Enter The game';
+        }
+
+        notifyListeners();
+      }
+    });
+  }
+
+  void gameMessageActionEvent(BuildContext context) async {
+    PokerSockets.socket.on("game-message", (data) {
+      if (kDebugMode) {
+        print('Poker Socket In Game Message Completed $data');
+      }
+
+      if(data != null){
+        _gameMessage = data;
+      }
     });
   }
 
@@ -390,9 +508,9 @@ class PokerProvider extends ChangeNotifier{
     });
   }
 
-  void gameJoinCard(BuildContext context,String playerId,String gameId,String chips,String contestId,String smallBind,String bigBind) async {
+  void gameJoinCard(BuildContext context,String playerId,String gameId,String chips,String contestId,String smallBind,String bigBind,String playerName) async {
 
-    PokerSockets.socket.emit("gameJoin",[playerId,gameId,chips,contestId,smallBind,bigBind]);
+    PokerSockets.socket.emit("gameJoin",[playerId,gameId,chips,contestId,smallBind,bigBind,playerName]);
     PokerSockets.socket.on("gameJoin", (data) {
       if (kDebugMode) {
         print('Poker Socket In Game Join Completed ***** draw *****  $data');
@@ -408,8 +526,8 @@ class PokerProvider extends ChangeNotifier{
       "chips" : double.parse(chip)
     };
     PokerSockets.socket.emit("playerAction",map);
+
     setMyTurn(false);
-    closeTimer();
   }
 
   void disconnectSocket(BuildContext context){
@@ -422,40 +540,27 @@ class PokerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
-  closeTimer() {
-    _timer?.cancel();
-    notifyListeners();
-  }
-
-  void initTimer() {
-    _secondsRemaining = 30;
-    notifyListeners();
-  }
-
-  startTimer(BuildContext context, {int secondsRemaining = 30}) {
-    _secondsRemaining = secondsRemaining;
-    notifyListeners();
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
-      if (_secondsRemaining != 0) {
-        _secondsRemaining--;
-        notifyListeners();
-      } else {
-        initTimer();
-        closeTimer();
-        setMyTurn(false);
-        notifyListeners();
-      }
-    });
-  }
-
   setMyTurn(bool value) {
-    _isMyTurn = value;
+    _isNewMyTurn = value;
     notifyListeners();
   }
 
   setCallBet(String value) {
     _callBet = value;
     notifyListeners();
+  }
+
+  resetVariableMethod(){
+     _countdown = 0;
+     _callBet ="";
+     _newHandCard =[];
+     _flopCard =[];
+     _winnerCard =[];
+     _callChips = "";
+     _totalBetChips = '';
+     _callButtonList = [];
+     _potAmount = 0;
+     notifyListeners();
   }
 
 }

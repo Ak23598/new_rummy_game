@@ -1,21 +1,13 @@
 import 'dart:async';
-import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:rummy_game/constant/custom_dialog/exit_dialog.dart';
 import 'package:rummy_game/constant/image_constants.dart';
-
 import 'package:rummy_game/provider/socket_provider.dart';
-import 'package:rummy_game/screens/rummy_palyer_table/five_player_table.dart';
-import 'package:rummy_game/screens/rummy_palyer_table/four_player_table.dart';
-import 'package:rummy_game/screens/rummy_palyer_table/six_player_table.dart';
-import 'package:rummy_game/screens/rummy_palyer_table/three_player_table.dart';
 import 'package:rummy_game/screens/rummy_palyer_table/two_player_table.dart';
 import 'package:rummy_game/utils/Sockets.dart';
-
-import 'rummy_palyer_table/one_player_table.dart';
 
 class RummyGameScreen extends StatefulWidget {
   String gameId;
@@ -125,125 +117,12 @@ class _RummyGameScreenState extends State<RummyGameScreen> {
                     fit: BoxFit.fill,
                   ),
                 ),
-                child: socketProvider.playerCount == 1
-                    ? Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    socketProvider.newIndexData.isNotEmpty
-                        ? OnePlayerTableWidget(
-                      servedPages: _servedPages,
-                      flipedPages: _flipedPages,
-                      cardPage: socketProvider.newIndexData,
-                    )
-                        : const OnePlayerTableWidget(
-                      servedPages: [],
-                      flipedPages: [],
-                      cardPage: [],
-                    ),
-                  ],
-                )
-                    : socketProvider.playerCount == 2
-                    ? Stack(
+                child: Stack(
                   alignment: Alignment.topCenter,
                   children: [
-                    socketProvider.newIndexData.isNotEmpty
-                        ? TwoPlayerTableWidget(
-                      servedPages: _servedPages,
-                      flipedPages: _flipedPages,
-                      cardPage: socketProvider.newIndexData,
-                    )
-                        : const TwoPlayerTableWidget(
-                      servedPages: [],
-                      flipedPages: [],
-                      cardPage: [],
+                     TwoPlayerTableWidget(
+                       gameId: widget.gameId,
                     ),
-                  ],
-                )
-                    : socketProvider.playerCount == 3
-                    ? Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    socketProvider.newIndexData.isNotEmpty
-                        ? ThreePlayerTableWidget(
-                      servedPages: _servedPages,
-                      flipedPages: _flipedPages,
-                      cardPage: socketProvider.newIndexData,
-                    )
-                        : const ThreePlayerTableWidget(
-                      servedPages: [],
-                      flipedPages: [],
-                      cardPage: [],
-                    ),
-
-                  ],
-                )
-                    : socketProvider.playerCount == 4
-                    ? Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    socketProvider.newIndexData.isNotEmpty
-                        ? FourPlayerTableWidget(
-                      servedPages: _servedPages,
-                      flipedPages: _flipedPages,
-                      cardPage: socketProvider.newIndexData,
-                    )
-                        : const FourPlayerTableWidget(
-                      servedPages: [],
-                      flipedPages: [],
-                      cardPage: [],
-                    ),
-
-                  ],
-                )
-                    : socketProvider.playerCount == 5
-                    ? Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    socketProvider.newIndexData.isNotEmpty
-                        ? FivePlayerTableWidget(
-                      servedPages: _servedPages,
-                      flipedPages: _flipedPages,
-                      cardPage: socketProvider.newIndexData,
-                    )
-                        : const FivePlayerTableWidget(
-                      servedPages: [],
-                      flipedPages: [],
-                      cardPage: [],
-                    ),
-                  ],
-                )
-                    : socketProvider.playerCount == 6
-                    ? Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    socketProvider.newIndexData.isNotEmpty
-                        ? SixPlayerTableWidget(
-                      servedPages: _servedPages,
-                      flipedPages: _flipedPages,
-                      cardPage: socketProvider.newIndexData,
-                    )
-                        : const SixPlayerTableWidget(
-                      servedPages: [],
-                      flipedPages: [],
-                      cardPage: [],
-                    ),
-                  ],
-                )
-                    : Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    socketProvider.newIndexData.isNotEmpty
-                        ? OnePlayerTableWidget(
-                      servedPages: _servedPages,
-                      flipedPages: _flipedPages,
-                      cardPage: socketProvider.newIndexData,
-                    )
-                        : const OnePlayerTableWidget(
-                      servedPages: [],
-                      flipedPages: [],
-                      cardPage: [],
-                    ),
-
                   ],
                 ),
               );

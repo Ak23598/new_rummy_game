@@ -4,9 +4,11 @@ import 'package:another_xlider/models/slider_step.dart';
 import 'package:another_xlider/models/tooltip/tooltip.dart';
 import 'package:another_xlider/models/tooltip/tooltip_box.dart';
 import 'package:another_xlider/models/trackbar.dart';
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rummy_game/constant/custom_dialog/exit_dialog.dart';
+import 'package:rummy_game/constant/custom_dialog/winner_dialog.dart';
 import 'package:rummy_game/poker/poker_provider/poker_provider.dart';
 import '../poker_game/poker_game.dart';
 
@@ -21,6 +23,8 @@ class _PokerScreenState extends State<PokerScreen> {
 
   double _currentSliderValue = 0;
   double _TotalSliderValue = 100;
+
+
 
 
   @override
@@ -126,7 +130,9 @@ class _PokerScreenState extends State<PokerScreen> {
               //   ),
               // ),
 
-              pokerProvider.isMyTurn
+              pokerProvider.gameMessage.toLowerCase() == "wait for a new player to join the game"
+                  ?Container()
+                  :pokerProvider.isNewMyTurn
                   ?Padding(
                 padding: const EdgeInsets.only(left: 20,right: 20),
                 child: SizedBox(
@@ -134,7 +140,7 @@ class _PokerScreenState extends State<PokerScreen> {
                   width: double.infinity,
                   child: ListView.separated(
                     separatorBuilder: (context,index){
-                      return SizedBox(width: MediaQuery.of(context).size.width * 0.25,);
+                      return SizedBox(width: MediaQuery.of(context).size.width * 0.22,);
                     },
                     shrinkWrap: true,
                     scrollDirection: Axis.horizontal,
@@ -146,7 +152,6 @@ class _PokerScreenState extends State<PokerScreen> {
                                     pokerProvider.setCallBet(pokerProvider.callChips.toString());
                                     pokerProvider.playerActionCard(context, pokerProvider.callButtonList[index],pokerProvider.callChips.toString());
                                   }else if(pokerProvider.callButtonList[index].toUpperCase() == "BET"){
-                                    print('dataataat  :-   ${pokerProvider.callChips}');
                                     setState(() {
                                       _currentSliderValue = pokerProvider.callChips == 'null'?0.0:double.parse(double.parse(pokerProvider.callChips).toStringAsFixed(2));
                                       _TotalSliderValue = double.parse(double.parse(pokerProvider.totalBetChips).toStringAsFixed(2));
@@ -159,8 +164,9 @@ class _PokerScreenState extends State<PokerScreen> {
                                   }else if(pokerProvider.callButtonList[index].toUpperCase() == "ALLIN"){
                                     pokerProvider.playerActionCard(context, pokerProvider.callButtonList[index],double.parse(pokerProvider.totalBetChips.toString()).toStringAsFixed(2));
                                     pokerProvider.setCallBet(double.parse(pokerProvider.totalBetChips.toString()).toStringAsFixed(2));
-                                  }else if(pokerProvider.callButtonList[index].toUpperCase() == "CALL"){
-                                    pokerProvider.setCallBet('0.0');
+                                  }else if(pokerProvider.callButtonList[index].toUpperCase() == "FOLD"){
+                                    pokerProvider.playerActionCard(context, pokerProvider.callButtonList[index],'0.0');
+                                  }else if(pokerProvider.callButtonList[index].toUpperCase() == "CHECK"){
                                     pokerProvider.playerActionCard(context, pokerProvider.callButtonList[index],'0.0');
                                   }
                                 },
@@ -174,7 +180,8 @@ class _PokerScreenState extends State<PokerScreen> {
                               );
                   }),
                 ),
-              ):Container(),
+              )
+                  :Container(),
 
               if (pokerProvider.chipSliderTrueFalse)
                 Row(
@@ -186,7 +193,7 @@ class _PokerScreenState extends State<PokerScreen> {
                           child: Container())),
                       Column(
                         children: [
-                          SizedBox(height: MediaQuery.of(context).size.height * 0.18,),
+                          SizedBox(height: MediaQuery.of(context).size.height * 0.15,),
                           Container(
                             height: 90,width: 45,decoration: BoxDecoration(color: Colors.black.withOpacity(0.7),
                               borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.black)),
@@ -222,7 +229,7 @@ class _PokerScreenState extends State<PokerScreen> {
                             ],
                           ),
                           ),
-                          const SizedBox(height: 10,),
+                          const SizedBox(height: 5,),
                           Container(
                             width: 45,decoration: BoxDecoration(color: Colors.black.withOpacity(0.7),
                               borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.black)),
@@ -293,7 +300,7 @@ class _PokerScreenState extends State<PokerScreen> {
                               ],
                             ),
                           ),
-                          const SizedBox(height: 10,),
+                          const SizedBox(height: 5,),
                           Container(
                             height: 40,width: 45,decoration: BoxDecoration(color: Colors.black.withOpacity(0.7),
                               borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.black)),

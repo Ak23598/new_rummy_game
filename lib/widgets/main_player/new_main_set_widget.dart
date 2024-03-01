@@ -1,108 +1,16 @@
 import 'dart:async';
-
 import 'package:animated_widgets/animated_widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:provider/provider.dart';
-
 import 'package:rummy_game/provider/socket_provider.dart';
 
 class NewPlayer3SeatWidget extends StatefulWidget {
   const NewPlayer3SeatWidget({
+    super.key,
      required this.userProfileImage,
-    // required this.oneCardServed,
-    // required this.twoCardServed,
-    // required this.threeCardServed,
-    // required this.fourCardServed,
-    // required this.fiveCardServed,
-    // required this.sixCardServed,
-    // required this.sevenCardServed,
-    // required this.eightCardServed,
-    // required this.nineCardServed,
-    // required this.tenCardServed,
-    // required this.elevenCardServed,
-    // required this.twelveCardServed,
-    // required this.thirteenCardServed,
-    // required this.oneCardFliped,
-    // required this.twoCardFliped,
-    // required this.threeCardFliped,
-    // required this.fourCardFliped,
-    // required this.fiveCardFliped,
-    // required this.sixCardFliped,
-    // required this.sevenCardFliped,
-    // required this.eightCardFliped,
-    // required this.nineCardFliped,
-    // required this.tenCardFliped,
-    // required this.elevenCardFliped,
-    // required this.twelveCardFliped,
-    // required this.thirteenCardFliped,
-    // required this.oneCardNo,
-    // required this.twoCardNo,
-    // required this.threeCardNo,
-    // required this.fourCardNo,
-    // required this.fiveCardNo,
-    // required this.sixCardNo,
-    // required this.sevenCardNo,
-    // required this.eightCardNo,
-    // required this.nineCardNo,
-    // required this.tenCardNo,
-    // required this.elevenCardNo,
-    // required this.twelveCardNo,
-    // required this.thirteenCardNo,
-    // required this.jokerCardFliped,
-    // required this.jokerCardNo,
-    // required this.jokerCardServed,
-    required this.Served,
-    required this.Fliped,
-    required this.CardNo
   });
 
    final String userProfileImage;
-  // final bool oneCardServed;
-  // final bool twoCardServed;
-  // final bool threeCardServed;
-  // final bool fourCardServed;
-  // final bool fiveCardServed;
-  // final bool sixCardServed;
-  // final bool sevenCardServed;
-  // final bool eightCardServed;
-  // final bool nineCardServed;
-  // final bool tenCardServed;
-  // final bool elevenCardServed;
-  // final bool twelveCardServed;
-  // final bool thirteenCardServed;
-  // final bool jokerCardServed;
-  // final bool oneCardFliped;
-  // final bool twoCardFliped;
-  // final bool threeCardFliped;
-  // final bool fourCardFliped;
-  // final bool fiveCardFliped;
-  // final bool sixCardFliped;
-  // final bool sevenCardFliped;
-  // final bool eightCardFliped;
-  // final bool nineCardFliped;
-  // final bool tenCardFliped;
-  // final bool elevenCardFliped;
-  // final bool twelveCardFliped;
-  // final bool thirteenCardFliped;
-  // final bool jokerCardFliped;
-  // final int  oneCardNo;
-  // final int  twoCardNo;
-  // final int  threeCardNo;
-  // final int  fourCardNo;
-  // final int  fiveCardNo;
-  // final int  sixCardNo;
-  // final int  sevenCardNo;
-  // final int  eightCardNo;
-  // final int  nineCardNo;
-  // final int  tenCardNo;
-  // final int  elevenCardNo;
-  // final int  twelveCardNo;
-  // final int  thirteenCardNo;
-  // final int  jokerCardNo;
-  final List<bool> Served;
-  final List<bool> Fliped;
-  final List<int> CardNo;
 
   @override
   State<NewPlayer3SeatWidget> createState() => _NewPlayer3SeatWidgetState();
@@ -120,9 +28,10 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
 
   @override
   void initState() {
+    super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     );
 
     sizeChangeAnimation();
@@ -170,8 +79,6 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
         isPlaying = true;
       });
       Provider.of<SocketProvider>(context,listen: false).newSetData();
-      // Provider.of<SocketProvider>(context,listen: false).setNewSortTrueFalse(false);
-      // Provider.of<SocketProvider>(context,listen: false).setNewSortListData();
     });
   }
 
@@ -193,7 +100,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
                    height: 100,
                     child: Column(
                       children: [
-                        SizedBox(
+                        Container(
                           height: 20,
                           child: ListView.builder(
                               scrollDirection: Axis.horizontal,
@@ -202,23 +109,32 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
                               itemBuilder: (context,index){
                                 return  SizedBox(
                                   width: 45 * socketProvider.newSortListData[index].length.toDouble(),
-                                  child: socketProvider.newSortListData[index].length >= 2?Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                  child: socketProvider.newSortListData[index].length >= 2
+                                      ? socketProvider.newSortListData[index].length >=3
+                                      ? Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       socketProvider.setSequencesResponse[index] == 'd'?Container():socketProvider.setSequencesResponse[index] == 'invalid'?const Icon(Icons.close,color: Colors.red,size: 16,):const Icon(Icons.check,color: Colors.green,size: 16,),
-                                      const SizedBox(width: 05,),
+                                      const SizedBox(width: 02,),
                                       socketProvider.setSequencesResponse[index] == 'd'?Container():socketProvider.setSequencesResponse[index] == 'invalid'?Center(child: Text(socketProvider.setSequencesResponse[index].toString().toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red),)):Center(child: Text('valid'.toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.green),)),
                                     ],
-                                  ):Container(),
+                                  )
+                                      : Row(
+                                    children: [
+                                      socketProvider.setSequencesResponse[index] == 'd'?Container():socketProvider.setSequencesResponse[index] == 'invalid'?const Icon(Icons.close,color: Colors.red,size: 16,):const Icon(Icons.check,color: Colors.green,size: 16,),
+                                      const SizedBox(width: 02,),
+                                      socketProvider.setSequencesResponse[index] == 'd'?Container():socketProvider.setSequencesResponse[index] == 'invalid'?Center(child: Text(socketProvider.setSequencesResponse[index].toString().toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.red),)):Center(child: Text('valid'.toUpperCase(),style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.green),)),
+                                    ],
+                                  )
+                                      : Container(),
                                 );
 
                               }),
                         ),
                         Container(
-                                        height: 70,
-                                        margin: const EdgeInsets.only(bottom: 9.0),
-                                        child: ReorderableListView.builder(
+                          height: 70,
+                          margin: const EdgeInsets.only(bottom: 9.0),
+                          child: ReorderableListView.builder(
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           itemBuilder: (context,index){
@@ -283,7 +199,6 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
                             );
                           },
                           itemCount: socketProvider.newSortListGroupData.length,  onReorder: (oldIndex,newIndex){
-                        print('OldIndex :-  $oldIndex **** NewIndex :- $newIndex');
                         socketProvider.setRemoveAndIndexNewSortData(newIndex, oldIndex);
                                         }),
                                       ),
@@ -385,7 +300,6 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
                             );
                           },
                           itemCount: socketProvider.noSortListGroupData.length,  onReorder: (oldIndex,newIndex){
-                        print('OldIndex :-  $oldIndex **** NewIndex :- $newIndex');
                         socketProvider.setRemoveAndIndexNewSortData(newIndex, oldIndex);
                       }),
                     ),
@@ -460,11 +374,10 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
                         )
                     ],
                     onReorder: (oldIndex,newIndex){
-                      print('OldIndex :-  $oldIndex **** NewIndex :- $newIndex');
                       socketProvider.setRomoveAndIndexData(newIndex, oldIndex);
                     }),
               ),
-              socketProvider.isMyTurn == false
+              socketProvider.isNewDataMyTurn == false
                   ?SizedBox(
                 height: MediaQuery.of(context).size.height * 0.13,
                 width:  MediaQuery.of(context).size.width * 0.06,
@@ -477,12 +390,12 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
                 children: [
 
 
-                  Container(
+                  SizedBox(
                     height: MediaQuery.of(context).size.height * 0.135,
                     width:  MediaQuery.of(context).size.width * 0.062,
                     child: CircularProgressIndicator(
                       value: socketProvider.secondsRemaining/30,
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
+                      valueColor: const AlwaysStoppedAnimation(Colors.white),
                       strokeWidth: 3,
                       backgroundColor: socketProvider.secondsRemaining <= 10 ?Colors.red:Colors.green,
                     ),
@@ -497,7 +410,7 @@ class _NewPlayer3SeatWidgetState extends State<NewPlayer3SeatWidget> with Single
                           widget.userProfileImage,
                         ),
                         Container(
-                            decoration: BoxDecoration(color: Colors.white,shape: BoxShape.circle),
+                            decoration: const BoxDecoration(color: Colors.white,shape: BoxShape.circle),
                             child: Padding(
                               padding: const EdgeInsets.all(4),
                               child: Text(socketProvider.secondsRemaining.toString(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
