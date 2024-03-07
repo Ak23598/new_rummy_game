@@ -49,6 +49,7 @@ class _MyAppState extends State<MyApp> {
           title: 'Rummy & Poker',
           debugShowCheckedModeBanner: false,
           home: SplashScreen(),
+
         ),);
       });
     });

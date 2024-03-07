@@ -34,13 +34,19 @@ class PokerSockets{
         pokerProvider.flopCardsEvent(context);
         pokerProvider.turnCardsEvent(context);
         pokerProvider.riverCardsEvent(context);
-        pokerProvider.winnerEvent(context);
+        pokerProvider.winnerEvent(context,playerName);
         pokerProvider.winnerAmountEvent(context);
+        pokerProvider.player_actionEvent(context,playerName);
+        pokerProvider.playerChipsEvent(context,playerName);
         pokerProvider.countDownEvent(context);
+        pokerProvider.communityCardEvent(context,playerName);
         pokerProvider.bigBlindTrnWithOutActionEvent(context);
         pokerProvider.roomMessageActionEvent(context);
         pokerProvider.gameMessageActionEvent(context);
+        pokerProvider.turnPlayerEvent(context);
         pokerProvider.potAmountEvent(context);
+        pokerProvider.disconnectEvent(context);
+        pokerProvider.playerNamesEvent(context);
         pokerProvider.playerActionCard(context,'call','0.0');
         pokerProvider.gameJoinCard(context, playerId, gameId, chip,contestId,smallBind,bigBind,playerName);
 

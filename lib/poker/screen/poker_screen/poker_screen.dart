@@ -154,7 +154,7 @@ class _PokerScreenState extends State<PokerScreen> {
                                   }else if(pokerProvider.callButtonList[index].toUpperCase() == "BET"){
                                     setState(() {
                                       _currentSliderValue = pokerProvider.callChips == 'null'?0.0:double.parse(double.parse(pokerProvider.callChips).toStringAsFixed(2));
-                                      _TotalSliderValue = double.parse(double.parse(pokerProvider.totalBetChips).toStringAsFixed(2));
+                                      _TotalSliderValue = double.parse(pokerProvider.totalBetChips.toString());
                                     });
                                     if(pokerProvider.chipSliderTrueFalse == false){
                                       pokerProvider.setChipSliderTrueFalse(true);
@@ -162,8 +162,8 @@ class _PokerScreenState extends State<PokerScreen> {
                                       pokerProvider.setChipSliderTrueFalse(false);
                                     }
                                   }else if(pokerProvider.callButtonList[index].toUpperCase() == "ALLIN"){
-                                    pokerProvider.playerActionCard(context, pokerProvider.callButtonList[index],double.parse(pokerProvider.totalBetChips.toString()).toStringAsFixed(2));
-                                    pokerProvider.setCallBet(double.parse(pokerProvider.totalBetChips.toString()).toStringAsFixed(2));
+                                    pokerProvider.playerActionCard(context, pokerProvider.callButtonList[index],pokerProvider.totalBetChips.toString());
+                                    pokerProvider.setCallBet(pokerProvider.totalBetChips.toString());
                                   }else if(pokerProvider.callButtonList[index].toUpperCase() == "FOLD"){
                                     pokerProvider.playerActionCard(context, pokerProvider.callButtonList[index],'0.0');
                                   }else if(pokerProvider.callButtonList[index].toUpperCase() == "CHECK"){
@@ -174,7 +174,7 @@ class _PokerScreenState extends State<PokerScreen> {
                                   alignment: Alignment.center,
                                   children: [
                                     Image.asset(pokerProvider.buttonImage[index]),
-                                    Text(pokerProvider.callButtonList[index].toUpperCase(),style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.black),),
+                                    Text('${pokerProvider.callButtonList[index].toUpperCase()} ${pokerProvider.callButtonList[index].toUpperCase() == 'CALL' ?pokerProvider.callChips.toString():pokerProvider.callButtonList[index].toUpperCase() == 'ALLIN' ? pokerProvider.totalBetChips.toString():'' }',style: const TextStyle(fontSize: 12,fontWeight: FontWeight.bold,color: Colors.black),),
                                   ],
                                 ),
                               );
@@ -306,9 +306,17 @@ class _PokerScreenState extends State<PokerScreen> {
                               borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.black)),
                             child:  InkWell(
                               onTap: (){
-                                pokerProvider.setChipSliderTrueFalse(false);
-                                pokerProvider.setCallBet(_currentSliderValue.toString());
-                                pokerProvider.playerActionCard(context, 'bet', _currentSliderValue.toString());
+
+                                if(_TotalSliderValue == _currentSliderValue){
+                                  pokerProvider.setChipSliderTrueFalse(false);
+                                  pokerProvider.setCallBet(_currentSliderValue.toString());
+                                  pokerProvider.playerActionCard(context, 'allin', _currentSliderValue.toString());
+                                }else{
+                                  pokerProvider.setChipSliderTrueFalse(false);
+                                  pokerProvider.setCallBet(_currentSliderValue.toString());
+                                  pokerProvider.playerActionCard(context, 'bet', _currentSliderValue.toString());
+                                }
+
                               },
                               child: const SizedBox(
                                   height: 45,

@@ -16,6 +16,7 @@ class WinnerDialog {
   final VoidCallback onTapLeftButton;
   final ConfettiController controller;
   final String gameId;
+  final bool isShow;
 
   WinnerDialog({
     required this.title,
@@ -26,6 +27,7 @@ class WinnerDialog {
     required this.onTapLeftButton,
     required this.controller,
     required this.gameId,
+    required this.isShow,
   });
 
   show(BuildContext context) {
@@ -43,6 +45,7 @@ class WinnerDialog {
             onTapRightButton: onTapRightButton,
           controller: controller,
           gameId: gameId,
+          isShow: isShow,
         );
       },
     );
@@ -58,6 +61,7 @@ class _PopupCall extends StatefulWidget {
   final VoidCallback onTapLeftButton;
   final ConfettiController controller;
   final String gameId;
+  final bool isShow;
 
   const _PopupCall(
       {Key? key,
@@ -69,6 +73,7 @@ class _PopupCall extends StatefulWidget {
         required this.controller,
         required this.onTapLeftButton,
         required this.gameId,
+        required this.isShow,
 
       })
       : super(key: key);
@@ -86,10 +91,12 @@ class _PopupCallState extends State<_PopupCall> {
     super.initState();
     Timer.periodic(const Duration(seconds: 1), (timer) {
       if(value !=0){
+        widget.controller.play();
         setState(() {
           value -= 1;
         });
       }else{
+
         Provider.of<PokerProvider>(context,listen: false).resetVariableMethod();
         // widget.controller.dispose();
         Navigator.pop(context);
@@ -98,7 +105,6 @@ class _PopupCallState extends State<_PopupCall> {
   }
   @override
   Widget build(BuildContext context) {
-    widget.controller.play();
 
     return AlertDialog(
       shape: const RoundedRectangleBorder(
@@ -116,6 +122,7 @@ class _PopupCallState extends State<_PopupCall> {
               child:Stack(
                 alignment: Alignment.center,
                 children: [
+                  if(widget.isShow == true)
                   ConfettiWidget(confettiController: widget.controller,shouldLoop: true,),
                 ],
               )
@@ -124,14 +131,25 @@ class _PopupCallState extends State<_PopupCall> {
           const SizedBox(height: 10,),
           Image.asset('assets/images/ic_profile_pic_1.png',height: MediaQuery.of(context).size.height * 0.15,),
           const SizedBox(height: 10,),
-          const Center(
-            child: Text('Player Name',
-                style: TextStyle(
+           Center(
+            child: Text(widget.title,
+                style: const TextStyle(
                   fontFamily: 'TTNorms',
                   fontWeight: FontWeight.bold,
                   wordSpacing: 0,
                   letterSpacing: 0,
                   fontSize: 16,
+                  color: Colors.yellow,
+                )),
+          ),
+           Center(
+            child: Text(widget.message,
+                style: const TextStyle(
+                  fontFamily: 'TTNorms',
+                  fontWeight: FontWeight.bold,
+                  wordSpacing: 0,
+                  letterSpacing: 0,
+                  fontSize: 14,
                   color: Colors.yellow,
                 )),
           ),

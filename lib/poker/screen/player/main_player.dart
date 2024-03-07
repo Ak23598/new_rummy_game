@@ -74,12 +74,13 @@ class _MainPlayerState extends State<MainPlayer> {
       return Column(
         children: [
           Padding(
-            padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.54),
-            child: SizedBox(
-              height: 50,
-              child: isPlaying
-                  ? pokerProvider.newHandCard.isNotEmpty?Stack(
-                children: [
+            padding:  EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.57),
+            child: isPlaying
+                ? pokerProvider.newHandCard.isNotEmpty
+                ? SizedBox(
+                 height: 50,
+                  child: Stack(
+                                children: [
                   Container(
                     padding: const EdgeInsets.only(bottom: 0.29, left: 2.0),
                     child: RotationTransition(
@@ -92,7 +93,7 @@ class _MainPlayerState extends State<MainPlayer> {
                           enabled: true,
                           rotationDisabled: Rotation.deg(y: 180),
                           rotationEnabled: Rotation.deg(y: 0),
-                          child: Image.asset(pokerProvider.pokerCardList[pokerProvider.newHandCard[0]]),
+                          child: Image.asset(pokerProvider.pokerCardList[pokerProvider.newHandCard[0] - 1]),
                         ),
                       ),
                     ),
@@ -110,51 +111,52 @@ class _MainPlayerState extends State<MainPlayer> {
                           enabled: true,
                           rotationDisabled: Rotation.deg(y: 180),
                           rotationEnabled: Rotation.deg(y: 0),
-                          child: Image.asset(pokerProvider.pokerCardList[pokerProvider.newHandCard[1]]),
+                          child: Image.asset(pokerProvider.pokerCardList[pokerProvider.newHandCard[1] - 1]),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ):Container()
-                  : Stack(
-                children: [
-                  // One Card
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                      margin: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width * 0.45,bottom: 15),
-                      child: SizeAnimatedWidget.tween(
+                                ],
+                              ),
+                )
+                : Container()
+                : Stack(
+              children: [
+                // One Card
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    margin: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.45,bottom: 15),
+                    child: SizeAnimatedWidget.tween(
+                      enabled: _servedPages[0],
+                      duration: const Duration(milliseconds: 200),
+                      sizeEnabled: const Size(50, 50),
+                      sizeDisabled: const Size(0, 0),
+                      curve: Curves.ease,
+                      child: TranslationAnimatedWidget.tween(
                         enabled: _servedPages[0],
-                        duration: const Duration(milliseconds: 200),
-                        sizeEnabled: const Size(60, 60),
-                        sizeDisabled: const Size(0, 0),
+                        delay: const Duration(milliseconds: 500),
+                        translationEnabled: const Offset(0, 0),
+                        translationDisabled: Offset(
+                            MediaQuery.of(context).size.width * 0.0,
+                            -MediaQuery.of(context).size.height * 0.45),
                         curve: Curves.ease,
-                        child: TranslationAnimatedWidget.tween(
-                          enabled: _servedPages[0],
-                          delay: const Duration(milliseconds: 500),
-                          translationEnabled: const Offset(0, 0),
-                          translationDisabled: Offset(
-                              MediaQuery.of(context).size.width * 0.0,
-                              -MediaQuery.of(context).size.height * 0.45),
-                          curve: Curves.ease,
-                          duration: const Duration(milliseconds: 500),
-                          child:Container(
-                            padding: const EdgeInsets.only(bottom: 0.29, left: 2.0),
-                            height: 60 + 0.29,
-                            child: RotationTransition(
-                              turns: const AlwaysStoppedAnimation(350 / 370),
-                              child: OpacityAnimatedWidget.tween(
-                                opacityEnabled: 1,
-                                opacityDisabled: 0,
+                        duration: const Duration(milliseconds: 500),
+                        child:Container(
+                          padding: const EdgeInsets.only(bottom: 0.29, left: 2.0),
+                          height: 60 + 0.29,
+                          child: RotationTransition(
+                            turns: const AlwaysStoppedAnimation(350 / 370),
+                            child: OpacityAnimatedWidget.tween(
+                              opacityEnabled: 1,
+                              opacityDisabled: 0,
+                              enabled: true,
+                              child: RotationAnimatedWidget.tween(
                                 enabled: true,
-                                child: RotationAnimatedWidget.tween(
-                                  enabled: true,
-                                  rotationDisabled: Rotation.deg(y: 180),
-                                  rotationEnabled: Rotation.deg(y: 0),
-                                  child: Image.asset('assets/cards/red_back.png'),
-                                ),
+                                rotationDisabled: Rotation.deg(y: 180),
+                                rotationEnabled: Rotation.deg(y: 0),
+                                child: Image.asset('assets/cards/red_back.png'),
                               ),
                             ),
                           ),
@@ -162,43 +164,43 @@ class _MainPlayerState extends State<MainPlayer> {
                       ),
                     ),
                   ),
+                ),
 
-                  // Two Card
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Container(
-                      margin: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width * 0.48,bottom: 15),
-                      child: SizeAnimatedWidget.tween(
+                // Two Card
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    margin: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.48,bottom: 15),
+                    child: SizeAnimatedWidget.tween(
+                      enabled: _servedPages[1],
+                      duration: const Duration(milliseconds: 200),
+                      sizeEnabled: const Size(50, 50),
+                      sizeDisabled: const Size(0, 0),
+                      curve: Curves.ease,
+                      child: TranslationAnimatedWidget.tween(
                         enabled: _servedPages[1],
-                        duration: const Duration(milliseconds: 200),
-                        sizeEnabled: const Size(60, 60),
-                        sizeDisabled: const Size(0, 0),
+                        delay: const Duration(milliseconds: 500),
+                        translationEnabled: const Offset(0, 0),
+                        translationDisabled: Offset(
+                            MediaQuery.of(context).size.width * 0.0,
+                            -MediaQuery.of(context).size.height * 0.45),
                         curve: Curves.ease,
-                        child: TranslationAnimatedWidget.tween(
-                          enabled: _servedPages[1],
-                          delay: const Duration(milliseconds: 500),
-                          translationEnabled: const Offset(0, 0),
-                          translationDisabled: Offset(
-                              MediaQuery.of(context).size.width * 0.0,
-                              -MediaQuery.of(context).size.height * 0.45),
-                          curve: Curves.ease,
-                          duration: const Duration(milliseconds: 500),
-                          child: Container(
-                            padding: const EdgeInsets.only(bottom: 0.2, left: 05),
-                            height: 60 + 0.1,
-                            child: RotationTransition(
-                              turns: const AlwaysStoppedAnimation(350 / 355),
-                              child: OpacityAnimatedWidget.tween(
-                                opacityEnabled: 1,
-                                opacityDisabled: 0,
+                        duration: const Duration(milliseconds: 500),
+                        child: Container(
+                          padding: const EdgeInsets.only(bottom: 0.2, left: 05),
+                          height: 60 + 0.1,
+                          child: RotationTransition(
+                            turns: const AlwaysStoppedAnimation(350 / 355),
+                            child: OpacityAnimatedWidget.tween(
+                              opacityEnabled: 1,
+                              opacityDisabled: 0,
+                              enabled: true,
+                              child: RotationAnimatedWidget.tween(
                                 enabled: true,
-                                child: RotationAnimatedWidget.tween(
-                                  enabled: true,
-                                  rotationDisabled: Rotation.deg(y: 180),
-                                  rotationEnabled: Rotation.deg(y: 0),
-                                  child: Image.asset('assets/cards/red_back.png'),
-                                ),
+                                rotationDisabled: Rotation.deg(y: 180),
+                                rotationEnabled: Rotation.deg(y: 0),
+                                child: Image.asset('assets/cards/red_back.png'),
                               ),
                             ),
                           ),
@@ -206,8 +208,8 @@ class _MainPlayerState extends State<MainPlayer> {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
