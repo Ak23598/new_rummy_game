@@ -225,6 +225,8 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                           },
                           onAccept: (data){
 
+                            print('  Local data :-  ${data}');
+
                             if(socketProvider.isNewDataMyTurn){
 
 
@@ -245,6 +247,8 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                         dropCardIndex = i;
                                       }
                                     }
+
+                                    print('datadatadat  1 :-  ${finishData}');
                                     socketProvider.setNoDropCard(false);
                                     socketProvider.setCardListIndex(finishData);
                                     socketProvider.setOldCardSortRemove(int.parse(data.toString()));
@@ -282,6 +286,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                       dropCardIndex = i;
                                     }
                                   }
+                                  print('datadatadat  2:-  ${finishData}');
                                   socketProvider.setNoDropCard(false);
                                   socketProvider.setCardListIndex(finishData);
                                   socketProvider.setOldCardSortRemove(int.parse(data.toString()));
@@ -308,14 +313,17 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                 if(socketProvider.newIndexData.length ==11){
                                   if(socketProvider.isSortTrueFalse == true){
                                     int finishData = socketProvider.newSort[int.parse(data.toString())];
+                                    print('datadatadat  3:-  ${finishData}');
                                     socketProvider.setNoDropCard(false);
                                     socketProvider.setCardListIndex(finishData);
                                     socketProvider.setOldCardHandRemove(int.parse(data.toString()));
                                     socketProvider.dropCard(int.parse(data.toString()));
                                     socketProvider.setOneAcceptHandCardList(2,int.parse(data.toString()));
                                   }else{
-                                    if(socketProvider.isNewSortTrueFalseNew == false){
+                                    if(socketProvider.isNewSortTrueFalseNew == true){
                                       int finishData = socketProvider.newSortListGroupData[int.parse(data.toString())];
+
+                                      print('datadatadat  4:-  ${finishData}');
                                       socketProvider.setNoDropCard(false);
                                       socketProvider.setCardListIndex(finishData);
                                       socketProvider.setOldCardSortRemove(int.parse(data.toString()));
@@ -323,6 +331,8 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                       socketProvider.setOneAcceptCardList(2,int.parse(data.toString()));
                                     }else{
                                       int finishData = socketProvider.newIndexData[int.parse(data.toString())];
+
+                                      print('datadatadat  5:-  ${finishData}');
                                       socketProvider.setNoDropCard(false);
                                       socketProvider.setCardListIndex(finishData);
                                       socketProvider.setOldCardRemove(int.parse(data.toString()));
@@ -404,7 +414,7 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                  int? intNewValue;
                                  int? finaIntValue;
 
-                                 intNewValue = socketProvider.newSortListGroupData[int.parse(data.toString())];
+                                 intNewValue = socketProvider.noNewSortListGroupData[int.parse(data.toString())];
 
                                  for(int i = 0;i< socketProvider.newIndexData.length;i++){
                                    dataValue.add(socketProvider.newIndexData[i]);
@@ -413,11 +423,26 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                    }
                                  }
 
-                                 int finishData = socketProvider.newIndexData[int.parse(finaIntValue.toString())];
-                                 socketProvider.setFinishCardIndex(finishData - 1);
-                                /* socketProvider.setOldCardRemove(int.parse(data.toString()));*/
-                                 socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
-                                 socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
+
+                                 FinishDialog(
+                                   title: 'Finish Game',
+                                   message: "Are you sure you want to finish this game ?",
+                                   leftButton: 'Cancel',
+                                   rightButton: 'Exit',
+                                   onTapLeftButton: () {
+                                     int finishData = socketProvider.newIndexData[int.parse(finaIntValue.toString())];
+                                     socketProvider.setFinishCardIndex(finishData - 1);
+                                     socketProvider.setCardUpTrue(int.parse(data.toString()),context);
+                                     socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
+                                     socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
+                                     Navigator.pop(context);
+                                   },
+                                   onTapRightButton: () {
+
+                                   },
+                                 ).show(context);
+
+
                                }
                                else if(socketProvider.noSortGroupFalse == true){
                                  List<int> dataValue =[];
@@ -433,19 +458,60 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                    }
                                  }
 
-                                 int finishData = socketProvider.newIndexData[int.parse(finaIntValue.toString())];
-                                 socketProvider.setFinishCardIndex(finishData - 1);
-                                 socketProvider.setOldCardRemove(int.parse(data.toString()));
-                                 socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
-                                 socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
+
+                                 FinishDialog(
+                                   title: 'Finish Game',
+                                   message: "Are you sure you want to finish this game ?",
+                                   leftButton: 'Cancel',
+                                   rightButton: 'Exit',
+                                   onTapLeftButton: () {
+                                     int finishData = socketProvider.newIndexData[int.parse(finaIntValue.toString())];
+                                     socketProvider.setFinishCardIndex(finishData - 1);
+                                     socketProvider.setCardUpTrue(int.parse(data.toString()),context);
+                                     socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
+                                     socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
+                                     Navigator.pop(context);
+                                   },
+                                   onTapRightButton: () {
+
+                                   },
+                                 ).show(context);
                                }
                                else{
 
-                                 int finishData = socketProvider.newIndexData[int.parse(data.toString())];
-                                 socketProvider.setFinishCardIndex(finishData - 1);
-                                 socketProvider.setOldCardRemove(int.parse(data.toString()));
-                                 socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
-                                 socketProvider.finishCard(int.parse(data.toString()),context,widget.gameId);
+                                 List<int> dataValue =[];
+                                 int? intNewValue;
+                                 int? finaIntValue;
+
+                                 intNewValue = socketProvider.noNewSortListGroupData[int.parse(data.toString())];
+
+                                 for(int i = 0;i< socketProvider.newIndexData.length;i++){
+                                   dataValue.add(socketProvider.newIndexData[i]);
+                                   if(socketProvider.newIndexData[i] == intNewValue){
+                                     finaIntValue = i;
+                                   }
+                                 }
+
+
+                                 FinishDialog(
+                                   title: 'Finish Game',
+                                   message: "Are you sure you want to finish this game ?",
+                                   leftButton: 'Cancel',
+                                   rightButton: 'Exit',
+                                   onTapLeftButton: () {
+                                     int finishData = socketProvider.newIndexData[int.parse(finaIntValue.toString())];
+                                     socketProvider.setFinishCardIndex(finishData - 1);
+                                     socketProvider.setCardUpTrue(int.parse(data.toString()),context);
+                                     socketProvider.setOneAcceptCardList(2, int.parse(data.toString()));
+                                     socketProvider.finishCard(int.parse(finaIntValue.toString()),context,widget.gameId);
+                                     Navigator.pop(context);
+                                   },
+                                   onTapRightButton: () {
+
+                                   },
+                                 ).show(context);
+
+
                                }
                              }else{
                                showToast("Pick Up a Card".toUpperCase(),
