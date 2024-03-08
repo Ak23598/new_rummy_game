@@ -170,11 +170,11 @@ class _PopupCallState extends State<_PopupCall> {
                                       scrollDirection: Axis.horizontal,
                                       itemBuilder: (context,index){
                                         return SizedBox(
-                                          height: 60,
-                                          width: 40,
-                                          child: Image.asset(socketProvider.rummyCardList[socketProvider.playerWinnerCardList[finalIndex][index] - 1]),
+                                          height: 35,
+                                          width: 35,
+                                          child: socketProvider.playerWinnerCardList[finalIndex][index] == 100 ?const SizedBox():Image.asset(socketProvider.rummyCardList[socketProvider.playerWinnerCardList[finalIndex][index] - 1]),
                                         );
-                                      },itemCount: socketProvider.newIndexData.length,),
+                                      },itemCount: socketProvider.playerWinnerCardList[finalIndex].length,),
                                     socketProvider.dataResponse['game']['game']['players'][finalIndex]['isWinner'] == true?const Text('Winner',style: TextStyle(fontSize: 16,color: Colors.white,fontWeight: FontWeight.bold,decoration: TextDecoration.none),):Text('Lose',style: TextStyle(fontSize: 16,color: Colors.white,fontWeight: FontWeight.bold,decoration: TextDecoration.none),),
                                   ],
                                 )),

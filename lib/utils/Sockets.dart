@@ -9,7 +9,7 @@ import 'package:socket_io_client/socket_io_client.dart';
 
 class Sockets{
 
-  static IO.Socket socket = IO.io('${SocketConstant.socketUrl}${SocketConstant.user2}',
+  static IO.Socket socket = IO.io('${SocketConstant.socketUrl}${SocketConstant.user1}',
       OptionBuilder()
           .setTransports(['websocket']).build());
 

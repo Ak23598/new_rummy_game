@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'package:http/http.dart' as http;
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
@@ -334,9 +335,9 @@ class SocketProvider extends ChangeNotifier {
       for (int i = 0; i < _cardList.length; i++) {
         if (_cardList[i]['value'] == value) {
           if (_cardList[i]['suit'] == suit) {
-            Future.delayed(const Duration(seconds: 6), () {
+
               setCardListIndex(i + 1);
-            });
+
           }
         }
 
@@ -699,33 +700,39 @@ class SocketProvider extends ChangeNotifier {
 
   Future setPlayerWinnerCard(String id) async {
     Uri url = Uri.parse('http://3.111.148.154:3000/rakesh/games/$id');
+
+    print('winner API Call :-  $url');
     _playerWinnerCardList.clear();
     var response = await http.get(url);
     final dataFinalResponse = jsonDecode(response.body);
+
+    log('Response data :-  $dataFinalResponse');
     _dataResponse = dataFinalResponse;
     notifyListeners();
     // _playerWinnerModel = PlayerWinnerModel.fromJson(dataResponse);
 
     for (int i = 0; i < _dataResponse['game']['game']['players'].length; i++) {
       List<int> newCardData = [];
-      for (int j = 0;
-          j < _dataResponse['game']['game']['players'][i]['hand'].length;
-          j++) {
-        Map<String, dynamic> singleCard =
-            _dataResponse['game']['game']['players'][i]['hand'][j];
-
-        String singleCardValue = singleCard["value"];
-        String singleCardSuit = singleCard["suit"];
-        for (int k = 0; k < _cardList.length; k++) {
-          Map<String, dynamic> sCard = cardList[k];
-          String sCardValue = sCard["value"];
-          String sCardSuit = sCard["suit"];
-          if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
-            newCardData.add(k + 1);
+      for (int j = 0; j < _dataResponse['game']['game']['players'][i]['handView'].length; j++) {
+        for(int k = 0;k< _dataResponse['game']['game']['players'][i]['handView'][j].length;k++){
+          Map<String, dynamic> singleCard = _dataResponse['game']['game']['players'][i]['handView'][j][k];
+          String singleCardValue = singleCard["value"];
+          String singleCardSuit = singleCard["suit"];
+          for (int a = 0; a < _cardList.length; a++) {
+            Map<String, dynamic> sCard = cardList[a];
+            String sCardValue = sCard["value"];
+            String sCardSuit = sCard["suit"];
+            if (singleCardValue == sCardValue && singleCardSuit == sCardSuit) {
+              newCardData.add(a + 1);
+            }
           }
         }
+        newCardData.add(100);
+
       }
       _playerWinnerCardList.add(newCardData);
+
+      print('Datatatat  :-   ${_playerWinnerCardList}');
     }
   }
 
