@@ -9,8 +9,11 @@ import 'package:rummy_game/model/player_name_model.dart';
 import 'package:rummy_game/poker/Sockets/poker_sockets.dart';
 
 class PokerProvider extends ChangeNotifier{
+  String _player = '';
   List<String> _playerPosition =[];
+  List<String> _playerBet =[];
   List<String> _playerNames =[];
+  List<String> _playerBilndname =[];
   List<String> _playerChips =[];
   ConfettiController confettiController = ConfettiController();
   List<PlayerNameModel> _playerNameModel = [];
@@ -165,7 +168,10 @@ class PokerProvider extends ChangeNotifier{
   double get potAmount => _potAmount;
   List<String> get  playerPosition =>_playerPosition;
   List<String> get playerNames => _playerNames;
+  List<String> get playerBet => _playerBet;
+  List<String> get playerBilndname => _playerBilndname;
   List<String> get playerChips => _playerChips;
+  String get player =>  _player;
 
 
   void cardsEvent(BuildContext context) async {
@@ -220,6 +226,16 @@ class PokerProvider extends ChangeNotifier{
         print('Poker Socket In Blind Name Event Completed $data');
         PlayerNameModel playerNameModel = PlayerNameModel.fromJson(data);
         _playerNameModel.add(playerNameModel);
+
+        for(int i = 0;i< _playerNames.length;i++){
+          if(data["player"].toString().toLowerCase() == _playerNames[i].toString().toLowerCase()){
+
+            _playerBilndname[i] = data['blindName'];
+          }
+        }
+
+        print('datadatad  Bilnd Name :-  ${_playerBilndname}');
+
         notifyListeners();
       }
 
@@ -251,6 +267,8 @@ class PokerProvider extends ChangeNotifier{
           _callChips = data['detail']['callChips'].toString();
         } else if(data['detail']['callChips'].toString().toLowerCase() != "null") {
           _callChips = data['detail']['callChips'].toString();
+        }else if(data['detail']['betChipsRange'].toString().toLowerCase() != "null" || data['detail']['betChipsRange'].toString().toLowerCase().isNotEmpty){
+          _totalBetChips = data['detail']['betChipsRange'].toString();
         }else{
           _callChips = '0.0';
         }
@@ -413,11 +431,11 @@ class PokerProvider extends ChangeNotifier{
         _winnerCard.add(newCardData[i]);
       }
 
-      // if(data['winnerName'].toString().toLowerCase() == playerName.toLowerCase()){
-      //   WinnerDialog(title: playerName.toUpperCase(), message: 'You are Winner', rightButton: 'adatatta', onTapRightButton: () {  }, leftButton: '', onTapLeftButton: () {  }, controller: confettiController, gameId: '',isShow:true).show(context);
-      // }else{
-      //   WinnerDialog(title: playerName.toUpperCase(), message: 'You are Lose', rightButton: 'adatatta', onTapRightButton: () {  }, leftButton: '', onTapLeftButton: () {  }, controller: confettiController, gameId: '',isShow:false).show(context);
-      // }
+      if(data['winnerName'].toString().toLowerCase() == playerName.toLowerCase()){
+        WinnerDialog(title: playerName.toUpperCase(), message: 'You are Winner', rightButton: 'adatatta', onTapRightButton: () {  }, leftButton: '', onTapLeftButton: () {  }, controller: confettiController, gameId: '',isShow:true).show(context);
+      }else{
+        WinnerDialog(title: playerName.toUpperCase(), message: 'You are Lose', rightButton: 'adatatta', onTapRightButton: () {  }, leftButton: '', onTapLeftButton: () {  }, controller: confettiController, gameId: '',isShow:false).show(context);
+      }
 
 
 
@@ -435,6 +453,13 @@ class PokerProvider extends ChangeNotifier{
         if(data['player'].toString().toLowerCase() == playerName.toLowerCase()){
           _totalBetChips = data['chips'].toString();
         }
+
+        for(int i = 0;i< _playerNames.length;i++){
+          if(data['player'].toString().toLowerCase() == _playerNames[i].toLowerCase().toString()){
+            _playerBet[i] = data['action']['chips'].toString();
+            _playerChips[i] = data['chips'].toString();
+          }
+        }
       }
 
 
@@ -443,9 +468,20 @@ class PokerProvider extends ChangeNotifier{
   }
 
   void playerChipsEvent(BuildContext context,String playerName) async  {
-    PokerSockets.socket.on("playerchips", (data) {
+    PokerSockets.socket.on("playerChips", (data) {
       if (kDebugMode) {
         print('Poker Socket In Player Chips Completed $data');
+      }
+
+      for(int i = 0;i<_playerNames.length;i++){
+        if(_playerNames[i].toLowerCase().toString() == data['playerName'].toString().toLowerCase()){
+
+          _playerChips[i] = data['currentPlayerChips'].toString();
+        }
+      }
+
+      if(data['playerName'].toString().toLowerCase() == playerName.toLowerCase().toString()){
+        _totalBetChips = data['currentPlayerChips'].toString();
       }
 
 
@@ -454,15 +490,79 @@ class PokerProvider extends ChangeNotifier{
   }
 
   void communityCardEvent(BuildContext context,String playerName) async  {
-    PokerSockets.socket.on("communityCard", (data) {
+    PokerSockets.socket.on("gameInfo", (data) {
       if (kDebugMode) {
-        print('Poker Socket In Community Card Completed $data');
+        print('Poker Socket In Game Info Completed ${data}');
       }
+
+      String player = "";
+      String chips = "";
+
+
+
+      for(int i = 0;i< data['playersInGame'].length;i++){
+        _playerBilndname.add('');
+        _playerBet.add('');
+        _playerNames.add(data['playersInGame'][i]['playerName'].toString());
+        _playerChips.add(data['playersInGame'][i]['playerChips'].toString());
+      }
+
+      for(int i = 0;i< data['playersInGame'].length;i++){
+        if(data['playersInGame'][i]['playerName'].toString() == playerName){
+          player = data['playersInGame'][i]['playerName'];
+          chips = data['playersInGame'][i]['playerChips'].toString();
+          _playerNames.removeAt(i);
+          _playerChips.removeAt(i);
+        }
+      }
+
+      _playerNames.insert(0, player);
+      _playerChips.insert(0, chips);
+
+      // if(_playerNames.length == 2){
+        //   _playerPosition.add('bottomCenter');
+        //   _playerPosition.add('topCenter');
+        // }
+        // else if(data['playerCount'] == 3){
+        //   _playerPosition.add('bottomCenter');
+        //   _playerPosition.add('topLeft');
+        //   _playerPosition.add('topRight');
+        //
+        // }
+        // else if(data['playerCount'] == 4){
+        //   _playerPosition.add('bottomCenter');
+        //   _playerPosition.add('topLeft');
+        //   _playerPosition.add('topCenter');
+        //   _playerPosition.add('topRight');
+        // }
+        // else if(data['playerCount'] == 5){
+        //   _playerPosition.add('bottomCenter');
+        //   _playerPosition.add('topLeft');
+        //   _playerPosition.add('topRight');
+        //   _playerPosition.add('bottomLeft');
+        //   _playerPosition.add('bottomRight');
+        // }
+        // else if(data['playerCount'] == 6){
+        //   _playerPosition.add('bottomCenter');
+        //   _playerPosition.add('topLeft');
+        //   _playerPosition.add('topRight');
+        //   _playerPosition.add('topCenter');
+        //   _playerPosition.add('bottomLeft');
+        //   _playerPosition.add('bottomRight');
+        // }
+        // else{
+        //   _playerPosition.add('bottomCenter');
+        // }
+
+        print('FFFFFFFFFFF  :-  ......  $_playerNames ...... $_playerChips');
+
+
+      print('datadatadta  :-  ${_playerNames}');
 
       List<Map<String, dynamic>> data2 = [];
       List<int> newCardData = [];
-      for (int i = 0; i < data.length; i++) {
-        Map<String, dynamic> data3 = data[i];
+      for (int i = 0; i < data['communityCard'].length; i++) {
+        Map<String, dynamic> data3 = data['communityCard'][i];
         data2.add(data3);
       }
       for (int i = 0; i < data2.length; i++) {
@@ -528,6 +628,7 @@ class PokerProvider extends ChangeNotifier{
       // }
       if(data['remainingTime'] == 1){
         setMyTurn(false);
+        _player ='';
       }
 
       _countdown = data['remainingTime'];
@@ -551,57 +652,16 @@ class PokerProvider extends ChangeNotifier{
         print('Poker Socket In Room Message Completed $data');
       }
 
+
+
       if(data != null){
-        _playerCount = data['playerCount'];
+        _playerCount = int.parse(data['playerCount'].toString());
         if(data['playerCount'] >= 2){
           _gameMessage = 'Enter The game';
         }
         if(data['chips'] != null){
           _totalBetChips = data['chips'].toString();
         }
-
-        if(data['playerCount'] == 2){
-          _playerPosition.add('bottomCenter');
-          _playerPosition.add('topCenter');
-          _playerChips.add(data['chips'].toString());
-          _playerNames.add(data['playerName'].toString());
-        }else if(data['playerCount'] == 3){
-          _playerPosition.add('bottomCenter');
-          _playerPosition.add('topLeft');
-          _playerPosition.add('topRight');
-          _playerChips.add(data['chips'].toString());
-          _playerNames.add(data['playerName'].toString());
-        }else if(data['playerCount'] == 4){
-          _playerPosition.add('bottomCenter');
-          _playerPosition.add('topLeft');
-          _playerPosition.add('topCenter');
-          _playerPosition.add('topRight');
-          _playerChips.add(data['chips'].toString());
-          _playerNames.add(data['playerName'].toString());
-        }else if(data['playerCount'] == 5){
-          _playerPosition.add('bottomCenter');
-          _playerPosition.add('topLeft');
-          _playerPosition.add('topRight');
-          _playerPosition.add('bottomLeft');
-          _playerPosition.add('bottomRight');
-          _playerChips.add(data['chips'].toString());
-          _playerNames.add(data['playerName'].toString());
-        }else if(data['playerCount'] == 6){
-          _playerPosition.add('bottomCenter');
-          _playerPosition.add('topLeft');
-          _playerPosition.add('topRight');
-          _playerPosition.add('topCenter');
-          _playerPosition.add('bottomLeft');
-          _playerPosition.add('bottomRight');
-          _playerChips.add(data['chips'].toString());
-          _playerNames.add(data['playerName'].toString());
-        }else{
-          _playerPosition.add('bottomCenter');
-          _playerChips.add(data['chips'].toString());
-          _playerNames.add(data['playerName'].toString());
-        }
-
-        print('FFFFFFFFFFF  :-  ${_playerPosition} ......  $_playerNames ...... $_playerChips');
 
         notifyListeners();
       }
@@ -625,6 +685,9 @@ class PokerProvider extends ChangeNotifier{
       if (kDebugMode) {
         print('Poker Socket In Turn Player Completed $data');
       }
+      _player = data['PlayerName'];
+
+      //Poker Socket In Turn Player Completed {playerId: Ridham, PlayerName: Ridham}
 
     });
   }
@@ -696,6 +759,12 @@ class PokerProvider extends ChangeNotifier{
      _callChips = "";
      _totalBetChips = '';
      _callButtonList = [];
+     _player = '';
+      _playerPosition =[];
+      _playerBet =[];
+      _playerNames =[];
+      _playerBilndname =[];
+     _playerChips =[];
      _potAmount = 0;
      notifyListeners();
   }

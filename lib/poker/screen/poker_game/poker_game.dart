@@ -182,15 +182,6 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
                         ),
                       )),
                 ),
-                pokerProvider.callBet.toString().isNotEmpty?Padding(
-                  padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.62,left: MediaQuery.of(context).size.width * 0.55),
-                  child:  Row(
-                    children: [
-                      const Text('₹ ',style: TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),),
-                      Text(pokerProvider.callBet.toString(),style: const TextStyle(color: Color(0xff22EB72),fontSize: 16,fontWeight: FontWeight.bold),),
-                    ],
-                  ),
-                ):Container(),
                 Container(
                   margin: EdgeInsets.only(
                       top: MediaQuery.of(context).size.height * 0.40,
@@ -220,7 +211,7 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
               top: MediaQuery.of(context).size.height * 0.07,
               child: const MainPlayer()),
 
-          if(pokerProvider.playerCount == 2)
+          if(pokerProvider.playerNames.length == 2)
           Stack(
             children: [
               // Main Player
@@ -229,82 +220,95 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
                 bottom: MediaQuery.of(context).size.height * 0.14,
                 left: MediaQuery.of(context).size.width * 0.40,
                 child: Stack(
-                  alignment: Alignment.topRight,
                   children: [
-
-                    Row(
+                    Stack(
+                      alignment: Alignment.topRight,
                       children: [
 
-                        Container(
-                          height: 44,
-                          width: 150,
-                          decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
-                          child: Row(
-                            children: [
-                              Stack(
-                                children: [
+                        Row(
+                          children: [
 
-                                  pokerProvider.isNewMyTurn ?SizedBox(
-                                    height: MediaQuery.of(context).size.height * 0.14,
-                                    width:  MediaQuery.of(context).size.width * 0.051,
-                                    child: CircularProgressIndicator(
-                                      value: pokerProvider.countdown/50,
-                                      valueColor: const AlwaysStoppedAnimation(Colors.white),
-                                      strokeWidth: 3,
-                                      backgroundColor: pokerProvider.countdown <= 10 ?Colors.red:Colors.green,
-                                    ),
-                                  ):Container(),
-                                  Align(
-                                    alignment: Alignment.bottomLeft,
-                                    child: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Container(
-                                          margin: const EdgeInsets.all(1),
-                                          child: Image.asset(
-                                            ImageConst.icProfilePic1,
-                                            height: MediaQuery.of(context).size.height * 0.109,
-                                            width:  MediaQuery.of(context).size.width * 0.048,
-                                          ),
+                            Container(
+                              height: 44,
+                              width: 150,
+                              decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
+                              child: Row(
+                                children: [
+                                  Stack(
+                                    children: [
+
+                                      pokerProvider.playerNames[0].toString().contains(pokerProvider.player)
+                                          ?SizedBox(
+                                        height: MediaQuery.of(context).size.height * 0.14,
+                                        width:  MediaQuery.of(context).size.width * 0.051,
+                                        child: CircularProgressIndicator(
+                                          value: pokerProvider.countdown/50,
+                                          valueColor: const AlwaysStoppedAnimation(Colors.white),
+                                          strokeWidth: 3,
+                                          backgroundColor: pokerProvider.countdown <= 10 ?Colors.red:Colors.green,
                                         ),
-                                        pokerProvider.isNewMyTurn
-                                            ?Container(
-                                            decoration: const BoxDecoration(shape: BoxShape.circle,color: Colors.white),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(2),
-                                              child: Text(pokerProvider.countdown.toString(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15),),
-                                            )):const Text('',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
-                                      ],
-                                    ),
+                                      )
+                                          :Container(),
+                                      Align(
+                                        alignment: Alignment.bottomLeft,
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.all(1),
+                                              child: Image.asset(
+                                                ImageConst.icProfilePic1,
+                                                height: MediaQuery.of(context).size.height * 0.109,
+                                                width:  MediaQuery.of(context).size.width * 0.048,
+                                              ),
+                                            ),
+                                            pokerProvider.playerNames[0].toString().contains(pokerProvider.player)
+                                                ?Container(
+                                                decoration: const BoxDecoration(shape: BoxShape.circle,color: Colors.white),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(2),
+                                                  child: Text(pokerProvider.countdown.toString(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15),),
+                                                )):const Text('',style: TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 16),),
+                                          ],
+                                        ),
+                                      ),
+
+                                    ],
+                                  ),
+                                  SizedBox(width: MediaQuery.of(context).size.width * 0.015,),
+                                  Column(
+                                    children: [
+                                      Text(pokerProvider.playerNames[0].toString(),style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
+                                      pokerProvider.totalBetChips.toString().isNotEmpty
+                                          ? Text('₹ ${double.parse(pokerProvider.totalBetChips.toString()).toStringAsFixed(2)}',style: TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),)
+                                          : Container()
+
+                                    ],
                                   ),
 
                                 ],
                               ),
-                              SizedBox(width: MediaQuery.of(context).size.width * 0.015,),
-                              Column(
-                                children: [
-                                  Text(pokerProvider.playerNames[0],style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
-                                  Text('₹ ${pokerProvider.playerChips[0]}',style: const TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),)
+                            ),
 
-                                ],
-                              ),
-
-                            ],
-                          ),
+                          ],
                         ),
-
+                        pokerProvider.playerBilndname[0].isNotEmpty?Container(
+                          height: 25,
+                          width: 25,
+                          decoration: const BoxDecoration(shape: BoxShape.circle,color: Colors.red),
+                          child: Center(
+                            child: Text(
+                              pokerProvider.playerBilndname[0],style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ):Container(),
                       ],
                     ),
-                    // pokerProvider.bindName.isNotEmpty?Container(
-                    //   height: 25,
-                    //   width: 25,
-                    //   decoration: const BoxDecoration(shape: BoxShape.circle,color: Colors.red),
-                    //   child: Center(
-                    //     child: Text(
-                    //       pokerProvider.bindName,style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-                    //     ),
-                    //   ),
-                    // ):Container()
+                    pokerProvider.playerBet[0].isNotEmpty && pokerProvider.playerBet[0].toString() !='0'?Padding(
+                      padding: EdgeInsets.only(left: MediaQuery.of(context).size.height * 0.40),
+                      child: Container(height: 35,width: 100,decoration: BoxDecoration(color: Colors.black.withOpacity(0.5),borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.yellow)),child: Center(child: Text('Bet : ${pokerProvider.playerBet[0]}',style: const TextStyle(color: Colors.yellow
+                      ,fontWeight: FontWeight.bold,fontSize: 16),)),),
+                    ):Container()
                   ],
                 ),
               ),
@@ -312,37 +316,94 @@ class _PokerGameScreenState extends State<PokerGameScreen> {
               // Top Player
               Positioned(
                 top: MediaQuery.of(context).size.height * 0.08,
-                right: MediaQuery.of(context).size.width * 0.42,
-                child: Row(
+                right: pokerProvider.playerBet[1].isNotEmpty && pokerProvider.playerBet[1].toString() !='0'?MediaQuery.of(context).size.width * 0.30:MediaQuery.of(context).size.width * 0.42,
+                child: Stack(
                   children: [
+                    Stack(
+                      alignment: Alignment.topRight,
+                      children: [
+                        Row(
+                          children: [
 
-                    Container(
-                      height: 44,
-                      width: 150,
-                      decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
-                      child: Stack(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.05),
-                            child: const Column(
-                              children: [
-                                Text('Surdhi',style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
-                                Text('₹ 2.0',style: TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),),
-                              ],
+                            Container(
+                              height: 44,
+                              width: 150,
+                              decoration: BoxDecoration(color: Colors.black.withOpacity(0.56),borderRadius: BorderRadius.circular(30),border: Border.all(color: const Color(0xffF5CE33))),
+                              child: Row(
+                                children: [
+
+                                  Stack(
+                                    children: [
+
+                                      pokerProvider.playerNames[1].toString().contains(pokerProvider.player)
+                                          ?SizedBox(
+                                        height: MediaQuery.of(context).size.height * 0.14,
+                                        width:  MediaQuery.of(context).size.width * 0.051,
+                                        child: CircularProgressIndicator(
+                                          value: pokerProvider.countdown/50,
+                                          valueColor: const AlwaysStoppedAnimation(Colors.white),
+                                          strokeWidth: 3,
+                                          backgroundColor: pokerProvider.countdown <= 10 ?Colors.red:Colors.green,
+                                        ),
+                                      )
+                                          :Container(),
+                                      Align(
+                                        alignment: Alignment.bottomLeft,
+                                        child: Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            Container(
+                                              margin: const EdgeInsets.all(1),
+                                              child: Image.asset(
+                                                ImageConst.icProfilePic1,
+                                                height: MediaQuery.of(context).size.height * 0.109,
+                                                width:  MediaQuery.of(context).size.width * 0.048,
+                                              ),
+                                            ),
+                                            pokerProvider.playerNames[1].toString().contains(pokerProvider.player)
+                                                ?Container(
+                                                decoration: const BoxDecoration(shape: BoxShape.circle,color: Colors.white),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(2),
+                                                  child: Text(pokerProvider.countdown.toString(),style: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold,fontSize: 15),),
+                                                )):Container(),
+                                          ],
+                                        ),
+                                      ),
+
+                                    ],
+                                  ),
+                                  SizedBox(width: MediaQuery.of(context).size.width * 0.015,),
+                                  Column(
+                                    children: [
+                                      Text(pokerProvider.playerNames[1].toString(),style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold,fontSize: 14),),
+                                      Text('₹ ${double.parse(pokerProvider.playerChips[1].toString()).toStringAsFixed(2)}',style: const TextStyle(color: Color(0xff22EB72),fontWeight: FontWeight.bold,fontSize: 12),),
+                                    ],
+                                  ),
+
+                                ],
+                              ),
+                            ),
+
+                          ],
+                        ),
+                        pokerProvider.playerBilndname[1].isNotEmpty?Container(
+                          height: 25,
+                          width: 25,
+                          decoration: const BoxDecoration(shape: BoxShape.circle,color: Colors.red),
+                          child: Center(
+                            child: Text(
+                              pokerProvider.playerBilndname[1],style: const TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Image.asset(
-                              ImageConst.icProfilePic2,
-                              height: MediaQuery.of(context).size.height * 0.12,
-                              width:  MediaQuery.of(context).size.width * 0.05,
-                            ),
-                          ),
-                        ],
-                      ),
+                        ):Container()
+                      ],
                     ),
-
+                    pokerProvider.playerBet[1].isNotEmpty && pokerProvider.playerBet[1].toString() !='0'?Padding(
+                      padding: EdgeInsets.only(left: MediaQuery.of(context).size.height * 0.40),
+                      child: Container(height: 35,width: 100,decoration: BoxDecoration(color: Colors.black.withOpacity(0.5),borderRadius: BorderRadius.circular(10),border: Border.all(color: Colors.yellow)),child: Center(child: Text('Bet : ${pokerProvider.playerBet[1]}',style: const TextStyle(color: Colors.yellow
+                          ,fontWeight: FontWeight.bold,fontSize: 16),)),),
+                    ):Container()
                   ],
                 ),
               ),

@@ -199,8 +199,8 @@ class _PopupCallState extends State<_PopupCall> {
               child: Center(
                 child: GestureDetector(
                   onTap: () {
-                    Provider.of<SocketProvider>(context,listen: false).disconnectSocket(context);
-                    Provider.of<SocketProvider>(context,listen: false).gameOver(context,widget.gameId);
+                    Provider.of<PokerProvider>(context,listen: false).disconnectSocket(context);
+                    Provider.of<PokerProvider>(context,listen: false).resetVariableMethod();
                     Navigator.pop(context);
                   },
                   child: Container(
@@ -236,7 +236,7 @@ class _PopupCallState extends State<_PopupCall> {
               child: Center(
                 child: GestureDetector(
                   onTap: () {
-                    Navigator.pop(context);
+                    // Navigator.pop(context);
                   },
                   child: Container(
                     height: 40,
