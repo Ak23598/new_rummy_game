@@ -13,6 +13,7 @@ class PokerProvider extends ChangeNotifier{
   List<String> _playerPosition =[];
   List<String> _playerBet =[];
   List<String> _playerNames =[];
+  List<String> _playerId =[];
   List<String> _playerBilndname =[];
   List<String> _playerChips =[];
   ConfettiController confettiController = ConfettiController();
@@ -219,6 +220,7 @@ class PokerProvider extends ChangeNotifier{
     notifyListeners();
   }
 
+//
   void blindNameEvent(BuildContext context,String playerId) async {
     _playerNameModel.clear();
     PokerSockets.socket.on("blindName", (data) {
@@ -227,9 +229,9 @@ class PokerProvider extends ChangeNotifier{
         PlayerNameModel playerNameModel = PlayerNameModel.fromJson(data);
         _playerNameModel.add(playerNameModel);
 
-        for(int i = 0;i< _playerNames.length;i++){
-          if(data["player"].toString().toLowerCase() == _playerNames[i].toString().toLowerCase()){
-
+        for(int i = 0;i< _playerId.length;i++){
+          if(data["playerId"].toString().toLowerCase() == _playerId[i].toString().toLowerCase()){
+            print('datadat');
             _playerBilndname[i] = data['blindName'];
           }
         }
@@ -446,9 +448,11 @@ class PokerProvider extends ChangeNotifier{
   void player_actionEvent(BuildContext context,String playerName) async  {
     PokerSockets.socket.on("player-action", (data) {
       if (kDebugMode) {
-        print('Poker Socket In player-action Completed $data');
+        print('Poker Socket In player-action Completed $data ..... ${DateTime.now().microsecondsSinceEpoch.toString()} ..... $playerName');
       }
-
+      bool isRun = true;
+    if(isRun == true){
+      isRun = false;
       if(data != null){
         if(data['player'].toString().toLowerCase() == playerName.toLowerCase()){
           _totalBetChips = data['chips'].toString();
@@ -461,16 +465,24 @@ class PokerProvider extends ChangeNotifier{
           }
         }
       }
-
-
       notifyListeners();
+      Future.delayed(const Duration(milliseconds: 500),(){
+        isRun = true;
+      });
+    }
+
+
+
+
+
+
     });
   }
 
   void playerChipsEvent(BuildContext context,String playerName) async  {
     PokerSockets.socket.on("playerChips", (data) {
       if (kDebugMode) {
-        print('Poker Socket In Player Chips Completed $data');
+        print('Poker Socket In Player Chips Completed $data  .......  ${DateTime.now().microsecondsSinceEpoch.toString()}');
       }
 
       for(int i = 0;i<_playerNames.length;i++){
@@ -497,6 +509,7 @@ class PokerProvider extends ChangeNotifier{
 
       String player = "";
       String chips = "";
+      String playerId = "";
 
 
 
@@ -504,20 +517,25 @@ class PokerProvider extends ChangeNotifier{
         _playerBilndname.add('');
         _playerBet.add('');
         _playerNames.add(data['playersInGame'][i]['playerName'].toString());
+        _playerId.add(data['playersInGame'][i]['playerId'].toString());
         _playerChips.add(data['playersInGame'][i]['playerChips'].toString());
       }
+
 
       for(int i = 0;i< data['playersInGame'].length;i++){
         if(data['playersInGame'][i]['playerName'].toString() == playerName){
           player = data['playersInGame'][i]['playerName'];
           chips = data['playersInGame'][i]['playerChips'].toString();
+          chips = data['playersInGame'][i]['playerId'].toString();
           _playerNames.removeAt(i);
           _playerChips.removeAt(i);
+          _playerId.removeAt(i);
         }
       }
 
       _playerNames.insert(0, player);
       _playerChips.insert(0, chips);
+      _playerId.insert(0, chips);
 
       // if(_playerNames.length == 2){
         //   _playerPosition.add('bottomCenter');
@@ -700,10 +718,26 @@ class PokerProvider extends ChangeNotifier{
     });
   }
 
+  void leaveEvent(BuildContext context) async {
+    PokerSockets.socket.on("leave", (data) {
+      if (kDebugMode) {
+        print('Poker Socket In Leave Completed $data');
+      }
+    });
+  }
+
   void playerNamesEvent(BuildContext context) async {
     PokerSockets.socket.on("playerNames", (data) {
       if (kDebugMode) {
         print('Poker Socket In playerNames Completed $data');
+      }
+    });
+  }
+
+  void exitEvent(BuildContext context) async {
+    PokerSockets.socket.on("exit", (data) {
+      if (kDebugMode) {
+        print('Poker Socket In Exit Completed $data');
       }
     });
   }
@@ -720,7 +754,7 @@ class PokerProvider extends ChangeNotifier{
 
   void playerActionCard(BuildContext context,String action,String chip) async {
 
-    print('Poker Socket In Player Action Completed ***** draw ***** ');
+    print('Poker Socket In Player Action Completed ');
     Map<String,dynamic> map = {
       "action":action,
       "chips" : double.parse(chip)
@@ -763,6 +797,7 @@ class PokerProvider extends ChangeNotifier{
       _playerPosition =[];
       _playerBet =[];
       _playerNames =[];
+     _playerId =[];
       _playerBilndname =[];
      _playerChips =[];
      _potAmount = 0;

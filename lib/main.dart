@@ -6,6 +6,7 @@ import 'package:rummy_game/poker/poker_provider/poker_provider.dart';
 import 'package:rummy_game/provider/create_game_provider.dart';
 import 'package:rummy_game/provider/socket_provider.dart';
 import 'package:rummy_game/screens/splash_screen.dart';
+import 'package:wakelock/wakelock.dart';
 
 
 class MyHttpOverrides extends HttpOverrides {
@@ -20,6 +21,7 @@ class MyHttpOverrides extends HttpOverrides {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  Wakelock.enable();
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeRight,
     DeviceOrientation.landscapeLeft,

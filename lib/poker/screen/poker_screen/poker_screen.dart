@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:another_xlider/another_xlider.dart';
 import 'package:another_xlider/models/handler.dart';
 import 'package:another_xlider/models/slider_step.dart';
@@ -9,7 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rummy_game/constant/custom_dialog/exit_dialog.dart';
 import 'package:rummy_game/constant/custom_dialog/winner_dialog.dart';
+import 'package:rummy_game/poker/Sockets/poker_sockets.dart';
 import 'package:rummy_game/poker/poker_provider/poker_provider.dart';
+import 'package:wakelock/wakelock.dart';
 import '../poker_game/poker_game.dart';
 
 class PokerScreen extends StatefulWidget {
@@ -31,19 +35,28 @@ class _PokerScreenState extends State<PokerScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    Wakelock.enable();
   }
 
 
   Future<bool> _willPopCallback() async {
     ExitDialog(
-        title: 'Quit Game',
-        message: "Quiting On Going Game In The Middle Results",
+        title: 'Exit Game',
+        message: "Are you sure you want to exit from game?",
         leftButton: 'Cancel',
         rightButton: 'Exit',
         onTapLeftButton: () {
-          Provider.of<PokerProvider>(context,listen: false).disconnectSocket(context);
-          Navigator.pop(context);
+
+          if(PokerSockets.socket.connected) {
+            Provider.of<PokerProvider>(context, listen: false).exitEvent(context);
+            Provider.of<PokerProvider>(context,listen: false).resetVariableMethod();
+            // Provider.of<PokerProvider>(context, listen: false).leaveEvent(context);
+            Provider.of<PokerProvider>(context, listen: false).disconnectSocket(context);
+          }else{
+            Navigator.pop(context);
+            Navigator.pop(context);
+          }
+
         },
         onTapRightButton: () {
 
@@ -404,5 +417,4 @@ class _PokerScreenState extends State<PokerScreen> {
       child: Image.asset('assets/images/poker/pocker_coin.png',height: 40,width: 40,),
     );
   }
-
 }

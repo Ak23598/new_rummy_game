@@ -1,6 +1,8 @@
 
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:provider/provider.dart';
 import 'package:rummy_game/constant/socket_constants.dart';
 import 'package:rummy_game/poker/poker_provider/poker_provider.dart';
@@ -46,6 +48,8 @@ class PokerSockets{
         pokerProvider.turnPlayerEvent(context);
         pokerProvider.potAmountEvent(context);
         pokerProvider.disconnectEvent(context);
+        // pokerProvider.leaveEvent(context);
+        pokerProvider.exitEvent(context);
         pokerProvider.playerNamesEvent(context);
         pokerProvider.playerActionCard(context,'call','0.0');
         pokerProvider.gameJoinCard(context, playerId, gameId, chip,contestId,smallBind,bigBind,playerName);
@@ -55,6 +59,21 @@ class PokerSockets{
 
     socket.onDisconnect((_) {
       print('disconnect  ${_}');
+      if(_.toString().toUpperCase()=="io client disconnect".toUpperCase()){
+        showToast("Poker Socket Disconnect".toUpperCase(),
+          context: context,
+          animation: StyledToastAnimation.slideFromTop,
+          reverseAnimation: StyledToastAnimation.fade,
+          position: StyledToastPosition.top,
+          animDuration: const Duration(seconds: 1),
+          duration: const Duration(seconds: 4),
+          curve: Curves.elasticOut,
+          textStyle: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),
+          backgroundColor: Colors.red.withOpacity(0.8),
+          reverseCurve: Curves.linear,
+        );
+        Navigator.pop(context);
+      }
     });
     socket.onError((data) {
       print('error  ${data.toString()}');

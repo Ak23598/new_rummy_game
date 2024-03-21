@@ -191,7 +191,8 @@ class _TwoPlayerTableWidgetState extends State<TwoPlayerTableWidget> {
                                     if(socketProvider.isNewDataMyTurn){
                                         Sockets.socket.emit("draw","up");
 
-                                    }else{showToast("It's not your turn,please wait for your Turn".toUpperCase(),
+                                    }else{
+                                      showToast("It's not your turn,please wait for your Turn".toUpperCase(),
                                       context: context,
                                       animation: StyledToastAnimation.slideFromTop,
                                       reverseAnimation: StyledToastAnimation.fade,

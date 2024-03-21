@@ -199,9 +199,10 @@ class _PopupCallState extends State<_PopupCall> {
               child: Center(
                 child: GestureDetector(
                   onTap: () {
+                    Provider.of<PokerProvider>(context,listen: false).exitEvent(context);
+                    // Provider.of<PokerProvider>(context,listen: false).leaveEvent(context);
                     Provider.of<PokerProvider>(context,listen: false).disconnectSocket(context);
                     Provider.of<PokerProvider>(context,listen: false).resetVariableMethod();
-                    Navigator.pop(context);
                   },
                   child: Container(
                     height: 40,
